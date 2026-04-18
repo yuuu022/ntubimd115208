@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>小孩紀錄 - The Ethereal Nursery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Be_Vietnam_Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#6c3f51",
+                        "secondary": "#2f6275",
+                        "surface-dim": "#d4d5d1",
+                        "on-surface": "#2e2f2d",
+                        "on-primary": "#f8efff",
+                        "background": "#f7f6f3",
+                        "surface-bright": "#f7f6f3",
+                        "on-secondary-fixed-variant": "#2b5e71",
+                        "tertiary-fixed-dim": "#e9aec3",
+                        "on-tertiary": "#ffeff2",
+                        "secondary-fixed-dim": "#a4d6ed",
+                        "secondary-fixed": "#b2e4fb",
+                        "surface-tint": "#65518a",
+                        "on-tertiary-fixed": "#4b2334",
+                        "tertiary-container": "#f8bbd0",
+                        "tertiary-fixed": "#f8bbd0",
+                        "inverse-surface": "#0d0f0d",
+                        "error-dim": "#a70138",
+                        "error-container": "#f74b6d",
+                        "on-primary-fixed": "#362459",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#ddddd9",
+                        "on-secondary-container": "#1f5467",
+                        "surface-container-high": "#e3e3df",
+                        "outline-variant": "#adadab",
+                        "primary-fixed-dim": "#c8b1f0",
+                        "primary-container": "#d6beff",
+                        "tertiary": "#7d4d5f",
+                        "surface-variant": "#ddddd9",
+                        "on-primary-container": "#4b386e",
+                        "outline": "#767775",
+                        "surface-container-low": "#f1f1ee",
+                        "inverse-primary": "#d6beff",
+                        "tertiary-dim": "#6f4253",
+                        "surface-container": "#e8e8e5",
+                        "inverse-on-surface": "#9d9d9a",
+                        "on-secondary-fixed": "#014154",
+                        "surface": "#f7f6f3",
+                        "on-tertiary-container": "#623648",
+                        "on-secondary": "#e4f5ff",
+                        "on-background": "#2e2f2d",
+                        "on-error-container": "#510017",
+                        "on-error": "#ffefef",
+                        "on-surface-variant": "#5b5c5a",
+                        "secondary-container": "#b2e4fb",
+                        "secondary-dim": "#215669",
+                        "primary-fixed": "#d6beff",
+                        "on-primary-fixed-variant": "#544178",
+                        "error": "#b41340",
+                        "primary": "#65518a",
+                        "primary-dim": "#59467d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f7f6f3;
+            color: #2e2f2d;
+            min-height: max(884px, 100dvh);
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .carousel-container::-webkit-scrollbar,
+        .no-scrollbar::-webkit-scrollbar,
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-container,
+        .no-scrollbar,
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="text-on-surface min-h-screen pb-32">
+    <!-- TopAppBar -->
+    <header
+        class="bg-[#f7f6f3]/70 backdrop-blur-md rounded-b-[3rem] sticky top-0 z-40 shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
+            <span class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">AuraLink</span>
+        </div>
+    </header>
+    <main class="mx-auto px-4 pt-8 space-y-8 max-w-md md:max-w-2xl lg:max-w-3xl mx-auto w-full transition-all duration-500 ease-in-out">
+        <!-- Header Text -->
+        <section class="space-y-1">
+            <h1 class="text-4xl font-extrabold text-primary tracking-tight">小孩紀錄</h1>
+            <p class="text-on-surface-variant font-medium">陪伴寶貝從出生到三歲的成長點滴</p>
+        </section>
+        <!-- Component 1: Compact Child Info Summary -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm relative overflow-hidden">
+            <div class="flex items-center gap-5 mb-6">
+                <div class="w-20 h-20 rounded-full ring-4 ring-primary-container/30 overflow-hidden shrink-0">
+                    <img alt="Child" class="w-full h-full object-cover"
+                        data-alt="Close-up of a sleeping newborn baby wrapped in a soft lavender organic cotton blanket with gentle sunlight"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXBf9ahdjGnpbuTBSuWH9N3lP6Vw70vCXRrRzUSIrxgYTc-6YbQ_N2L0Baa83RV_z6JrJw5EpTOtdBrU9MKOq6u8ZgWQatv8VxjYVKl6RfxigCVGcGRB8sPSQ1_p_gIbb9jgdZ3FW0bInR2F22gQFBsQ-W0qM9njaMensPJzWOBIGRdFxsaiQlLL9VFIMpW3_fHAGSTZLpsPtc744lzoClKa-4uJFosl_E3w9kZEIDUPZe9reejQiVlXoUXgyA_dsQwck4_dtpT8Eh7P" />
+                </div>
+                <div class="grid grid-cols-2 gap-x-6 gap-y-2 flex-1">
+                    <div>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">小名</p>
+                        <p class="text-lg font-bold text-primary">小橘子</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">出生週數</p>
+                        <p class="text-lg font-bold text-primary">39w 4d</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">胎次 / 方式</p>
+                        <p class="text-sm font-bold text-on-surface">第一胎 / 自然產</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">出生時間</p>
+                        <p class="text-sm font-bold text-on-surface">2023.10.15 08:45</p>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 py-4 border-t border-surface-container-low">
+                <div class="bg-secondary-container/30 p-2 rounded-lg text-center">
+                    <p class="text-[9px] font-bold text-secondary uppercase">身高</p>
+                    <p class="text-sm font-extrabold text-secondary">51.5<span class="text-[10px] ml-0.5">cm</span></p>
+                </div>
+                <div class="bg-secondary-container/30 p-2 rounded-lg text-center">
+                    <p class="text-[9px] font-bold text-secondary uppercase">體重</p>
+                    <p class="text-sm font-extrabold text-secondary">3,250<span class="text-[10px] ml-0.5">g</span></p>
+                </div>
+                <div class="bg-secondary-container/30 p-2 rounded-lg text-center">
+                    <p class="text-[9px] font-bold text-secondary uppercase">頭圍</p>
+                    <p class="text-sm font-extrabold text-secondary">34.0<span class="text-[10px] ml-0.5">cm</span></p>
+                </div>
+                <div class="bg-secondary-container/30 p-2 rounded-lg text-center">
+                    <p class="text-[9px] font-bold text-secondary uppercase">胸圍</p>
+                    <p class="text-sm font-extrabold text-secondary">32.5<span class="text-[10px] ml-0.5">cm</span></p>
+                </div>
+            </div>
+            <div class="mt-2 text-center">
+                <p class="text-[10px] text-on-surface-variant font-medium">生產院所：晨曦婦產科</p>
+            </div>
+        </section>
+        <!-- Component 2: Growth Calendar -->
+        <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+            <div class="p-6 bg-surface-container-low flex justify-between items-center">
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest text-primary hover:bg-primary-container transition-colors">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <h3 class="text-primary font-bold text-lg">2024年 5月</h3>
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest text-primary hover:bg-primary-container transition-colors">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-7 mb-2">
+                    <div class="text-center text-xs font-bold text-outline py-2">日</div>
+                    <div class="text-center text-xs font-bold text-outline py-2">一</div>
+                    <div class="text-center text-xs font-bold text-outline py-2">二</div>
+                    <div class="text-center text-xs font-bold text-outline py-2">三</div>
+                    <div class="text-center text-xs font-bold text-outline py-2">四</div>
+                    <div class="text-center text-xs font-bold text-outline py-2">五</div>
+                    <div class="text-center text-xs font-bold text-outline py-2">六</div>
+                </div>
+                <div class="grid grid-cols-7 gap-1">
+                    <!-- Row 1 -->
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant/40">
+                        28</div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant/40">
+                        29</div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant/40">
+                        30</div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">1</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">2</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">3</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm font-bold text-primary">4</span>
+                        <div class="mt-auto">
+                            <div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
+                        </div>
+                    </div>
+                    <!-- Row 2 -->
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">5</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">6</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">7</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">8</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">9</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg bg-primary-container text-on-primary-container relative">
+                        <span class="text-sm font-bold">10</span>
+                        <div class="flex gap-0.5 mt-auto">
+                            <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                        </div>
+                    </div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">11</span></div>
+                    <!-- Row 3 -->
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">12</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">13</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">14</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors relative">
+                        <span class="text-sm">15</span>
+                        <div class="flex gap-0.5 mt-auto">
+                            <div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                        </div>
+                    </div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">16</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">17</span></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">18</span></div>
+                </div>
+                <!-- Prominent Entry Button -->
+                <div class="mt-6">
+                    <button
+                        class="w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                        <span class="material-symbols-outlined">add_circle</span>
+                        新增成長紀錄
+                    </button>
+                </div>
+            </div>
+        </section>
+        <!-- Component 3: Album Highlight -->
+        <section
+            class="bg-primary-container rounded-xl p-6 flex flex-col justify-between text-on-primary-container overflow-hidden relative min-h-[160px]">
+            <div class="relative z-10">
+                <h3 class="text-xl font-bold mb-1">相簿亮點</h3>
+                <p class="text-xs opacity-80">紀錄每一個第一次</p>
+            </div>
+            <div class="mt-4 flex justify-between items-end relative z-10">
+                <div
+                    class="w-32 h-20 bg-white/20 backdrop-blur-md rounded-lg overflow-hidden border border-white/30 rotate-2 transform">
+                    <img alt="Moment" class="w-full h-full object-cover"
+                        data-alt="A macro shot of baby hands holding a wooden toy with warm afternoon light and soft dust motes"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsFmTxE1jrirW8qMVp2ndiK0oWNDMTQsnAUPiRxPPGnM7ZPEB15HyG94PTXSO66mK-eVt_ZEgpWCGGXcvKrw8__Zv9F5sQ_k1f3y_2YFmJIZt4XP7lFWXyHLuUeAWP3NiaTRDFEhiTS3p1BHbvzrzxxqirT-nJnKBOwvZ0Udy3yHJRDNWrEIEt-CEQh_LSa5odUOxxP8h7tmwrNvhv-tijRUgdZj84sdWZUscx3oEi31W1dUmyPg4hSxXscuuUawfsKm0AU5JOlWmH" />
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <span class="text-[10px] font-bold uppercase tracking-wider">更新: 2天前</span>
+                    <button class="bg-on-primary-container text-primary-container p-2 rounded-full shadow-lg">
+                        <span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                    </button>
+                </div>
+            </div>
+            <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl"></div>
+        </section>
+        <!-- Component 4: Growth Timeline -->
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary" data-icon="timeline">timeline</span>
+                    成長里程碑
+                </h3>
+                <button
+                    class="text-sm font-bold text-primary flex items-center gap-1 hover:bg-primary-container/20 px-3 py-1.5 rounded-full transition-colors font-headline">
+                    查看全部
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </button>
+            </div>
+            <div
+                class="relative pl-8 space-y-8 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-surface-container-low">
+                <!-- Milestone 1 -->
+                <div class="relative">
+                    <div
+                        class="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-white z-10">
+                        <span class="material-symbols-outlined text-xs" data-icon="check"
+                            style="font-variation-settings: 'FILL' 1;">check</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-on-surface">抬頭自如</h4>
+                            <span
+                                class="text-[10px] font-bold text-secondary bg-secondary-container px-2 py-0.5 rounded-full">3
+                                個月</span>
+                        </div>
+                        <p class="text-on-surface-variant text-xs">趴著時能穩定支撐頭部並觀察環境。</p>
+                        <div class="flex items-center gap-1 text-[10px] text-outline">
+                            <span class="material-symbols-outlined text-xs">verified</span>
+                            <span>2024.01.12 達成</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Milestone 2 -->
+                <div class="relative">
+                    <div
+                        class="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white z-10 ring-4 ring-primary-container">
+                        <span class="material-symbols-outlined text-xs" data-icon="stars"
+                            style="font-variation-settings: 'FILL' 1;">stars</span>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-on-surface">獨立坐穩</h4>
+                            <span
+                                class="text-[10px] font-bold text-primary bg-primary-container px-2 py-0.5 rounded-full">7
+                                個月</span>
+                        </div>
+                        <p class="text-on-surface-variant text-xs">不需支撐可坐立超過 5 分鐘，學習中。</p>
+                        <button
+                            class="bg-secondary text-on-secondary py-2 rounded-lg text-xs font-bold w-24">點擊紀錄</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 w-full md:w-[600px] flex justify-around items-center px-4 pb-6 pt-3 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(46,47,45,0.06)] md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:rounded-[2.5rem] md:pt-4 md:pb-4 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500">
+        <a href="home_mom.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity cursor-pointer">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">首頁</span>
+        </a>
+        <a href="pregnancyrecord.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity cursor-pointer">
+            <span class="material-symbols-outlined">edit_note</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">紀錄</span>
+        </a>
+        <a href="babyinformation.html"
+            class="flex flex-col items-center justify-center bg-[#d6beff] text-[#65518a] rounded-[1.5rem] px-5 py-2 scale-90 transition-transform duration-300 cursor-pointer">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_graph</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">成長</span>
+        </a>
+        <a href="qa_conversation.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity cursor-pointer">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">知識</span>
+        </a>
+        <a href="userprofile.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity cursor-pointer">
+            <span class="material-symbols-outlined">person_2</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">個人</span>
+        </a>
+    </nav>
+</body>
+
+</html>

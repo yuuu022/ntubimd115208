@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>產檢紀錄明細 - The Ethereal Nursery</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#9d9d9a",
+                        "tertiary-container": "#f8bbd0",
+                        "error-container": "#f74b6d",
+                        "surface-dim": "#d4d5d1",
+                        "on-error-container": "#510017",
+                        "on-secondary": "#e4f5ff",
+                        "on-primary-fixed": "#362459",
+                        "primary-fixed": "#d6beff",
+                        "on-secondary-fixed": "#014154",
+                        "secondary-fixed": "#b2e4fb",
+                        "on-primary-container": "#4b386e",
+                        "error": "#b41340",
+                        "surface": "#f7f6f3",
+                        "error-dim": "#a70138",
+                        "secondary-fixed-dim": "#a4d6ed",
+                        "surface-bright": "#f7f6f3",
+                        "on-tertiary-container": "#623648",
+                        "on-secondary-container": "#1f5467",
+                        "tertiary-fixed-dim": "#e9aec3",
+                        "surface-container-high": "#e3e3df",
+                        "primary": "#65518a",
+                        "on-primary": "#f8efff",
+                        "inverse-primary": "#d6beff",
+                        "tertiary-fixed": "#f8bbd0",
+                        "surface-container-highest": "#ddddd9",
+                        "on-surface-variant": "#5b5c5a",
+                        "primary-container": "#d6beff",
+                        "inverse-surface": "#0d0f0d",
+                        "on-tertiary": "#ffeff2",
+                        "surface-container-low": "#f1f1ee",
+                        "on-secondary-fixed-variant": "#2b5e71",
+                        "primary-dim": "#59467d",
+                        "secondary-dim": "#215669",
+                        "on-tertiary-fixed-variant": "#6c3f51",
+                        "on-background": "#2e2f2d",
+                        "outline-variant": "#adadab",
+                        "background": "#f7f6f3",
+                        "on-surface": "#2e2f2d",
+                        "secondary": "#2f6275",
+                        "outline": "#767775",
+                        "on-tertiary-fixed": "#4b2334",
+                        "on-error": "#ffefef",
+                        "tertiary-dim": "#6f4253",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#544178",
+                        "surface-container": "#e8e8e5",
+                        "surface-variant": "#ddddd9",
+                        "surface-tint": "#65518a",
+                        "primary-fixed-dim": "#c8b1f0",
+                        "tertiary": "#7d4d5f",
+                        "secondary-container": "#b2e4fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f7f6f3;
+            color: #2e2f2d;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .custom-shadow {
+            box-shadow: 0 20px 40px rgba(46, 47, 45, 0.04);
+        }
+    </style>
+    <style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface">
+    <!-- Header Section (TopAppBar Shared Component) -->
+    <header
+        class="fixed top-0 w-full z-50 bg-[#f7f6f3]/70 dark:bg-stone-900/70 backdrop-blur-md flex items-center px-6 h-16 w-full">
+        <div class="flex items-center w-full">
+            <button class="p-2 hover:bg-[#f1f1ee]/50 transition-colors active:scale-95 duration-200 rounded-full mr-2">
+                <span class="material-symbols-outlined text-[#65518a]">arrow_back</span>
+            </button>
+            <h1 class="font-['Plus_Jakarta_SANS'] font-semibold tracking-tight text-lg text-[#65518a]">產檢紀錄明細</h1>
+        </div>
+    </header>
+    <main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-8">
+        <!-- Official Check-up Toggle Section -->
+        <section class="flex items-center justify-between p-6 bg-secondary-container rounded-xl">
+            <div class="space-y-1">
+                <h3 class="font-headline font-bold text-on-secondary-container">正式產檢紀錄</h3>
+                <p class="text-xs text-on-secondary-container/80">將此紀錄標記為正式產檢流程</p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input checked="" class="sr-only peer" type="checkbox" value="" />
+                <div
+                    class="w-14 h-8 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary">
+                </div>
+            </label>
+        </section>
+        <!-- Vital Indicators Grid (Asymmetric Layout) -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Left Column: Weight & Height -->
+            <div class="md:col-span-5 space-y-6">
+                <div class="bg-surface-container-lowest p-6 rounded-xl custom-shadow space-y-4">
+                    <label class="block text-sm font-medium text-on-surface-variant px-1">基本指標</label>
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all"
+                                placeholder="體重 (kg)" type="number" value="62.5" />
+                            <span
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-sm">kg</span>
+                        </div>
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all"
+                                placeholder="身高 (cm)" type="number" value="160" />
+                            <span
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-sm">cm</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-surface-container-lowest p-6 rounded-xl custom-shadow space-y-4">
+                    <label class="block text-sm font-medium text-on-surface-variant px-1">胎心率</label>
+                    <div class="relative">
+                        <input
+                            class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all"
+                            placeholder="FHR" type="number" value="140" />
+                        <span
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-sm font-medium">bpm</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column: Blood Pressure & Lab Results -->
+            <div class="md:col-span-7 space-y-6">
+                <div class="bg-surface-container-lowest p-6 rounded-xl custom-shadow space-y-4">
+                    <label class="block text-sm font-medium text-on-surface-variant px-1">血壓數據</label>
+                    <div class="flex gap-4">
+                        <div class="flex-1 space-y-2">
+                            <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1">收縮壓
+                                (Sys)</span>
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all"
+                                placeholder="120" type="number" value="110" />
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1">舒張壓
+                                (Dia)</span>
+                            <input
+                                class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all"
+                                placeholder="80" type="number" value="70" />
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-surface-container-lowest p-6 rounded-xl custom-shadow space-y-4">
+                    <label class="block text-sm font-medium text-on-surface-variant px-1">尿液與水腫檢查</label>
+                    <div class="space-y-3">
+                        <select
+                            class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-on-surface-variant focus:ring-2 focus:ring-primary-container appearance-none">
+                            <option value="">蛋白尿 (Proteinuria)</option>
+                            <option value="-" selected>- (陰性)</option>
+                            <option value="+">+ (陽性)</option>
+                            <option value="++">++ (強陽性)</option>
+                        </select>
+                        <select
+                            class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-on-surface-variant focus:ring-2 focus:ring-primary-container appearance-none">
+                            <option value="">尿糖 (Glycosuria)</option>
+                            <option value="-" selected>- (陰性)</option>
+                            <option value="+">+ (陽性)</option>
+                        </select>
+                        <select
+                            class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-on-surface-variant focus:ring-2 focus:ring-primary-container appearance-none">
+                            <option value="">水腫狀況 (Edema)</option>
+                            <option value="無" selected>無水腫</option>
+                            <option value="輕微">輕微 (+)</option>
+                            <option value="明顯">明顯 (++)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Daily Vibe Section -->
+        <section class="space-y-4">
+            <h2 class="text-xl font-headline font-bold text-primary">今日心情與狀態</h2>
+            <div class="bg-white rounded-xl p-6 space-y-8 shadow-sm">
+                <div class="space-y-4">
+                    <p class="text-xs font-label font-bold text-on-surface-variant uppercase tracking-wider">今日心情 (請選擇)
+                    </p>
+                    <div class="grid grid-cols-4 sm:grid-cols-6 gap-y-6 gap-x-2">
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-primary-container/30 w-14 h-14 flex items-center justify-center rounded-2xl border-2 border-primary transition-all shadow-sm">😊</span>
+                            <span class="text-[11px] font-bold text-primary">愉快</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">😌</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">平靜</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">😴</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">疲倦</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">🤰</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">有感</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">🤯</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">壓力</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">⚡</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">活力</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">😵‍💫</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">頭暈</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">🥺</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">感性</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">🥳</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">興奮</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">🤔</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">思考</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">🥰</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">幸福</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1.5 group">
+                            <span
+                                class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl group-hover:bg-primary-container/20 transition-all border-2 border-transparent">🤢</span>
+                            <span
+                                class="text-[11px] font-medium text-on-surface-variant group-hover:text-primary">噁心</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <p class="text-xs font-label font-bold text-on-surface-variant uppercase tracking-wider">身體狀況 (可複選)
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <button
+                            class="px-6 py-3 bg-primary text-white rounded-full text-sm font-semibold flex items-center gap-2 shadow-md">
+                            <span class="material-symbols-outlined text-sm">check</span>
+                            食慾良好
+                        </button>
+                        <button
+                            class="px-6 py-3 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium hover:bg-primary-container/30 transition-colors">腰痠</button>
+                        <button
+                            class="px-6 py-3 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium hover:bg-primary-container/30 transition-colors">睡眠不足</button>
+                        <button
+                            class="px-6 py-3 bg-primary text-white rounded-full text-sm font-semibold flex items-center gap-2 shadow-md">
+                            <span class="material-symbols-outlined text-sm">check</span>
+                            頻尿
+                        </button>
+                        <button
+                            class="px-6 py-3 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium hover:bg-primary-container/30 transition-colors">水腫</button>
+                        <button
+                            class="px-6 py-3 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium hover:bg-primary-container/30 transition-colors">抽筋</button>
+                        <button
+                            class="px-6 py-3 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium hover:bg-primary-container/30 transition-colors">脹氣</button>
+                        <button
+                            class="px-6 py-3 bg-tertiary-container/40 text-on-tertiary-container rounded-full text-sm font-bold border border-tertiary-container/60">+
+                            新增標籤</button>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-label font-bold text-on-surface-variant uppercase tracking-wider">生活筆記 /
+                        紀錄</label>
+                    <textarea
+                        class="w-full bg-surface-container-low border-none rounded-2xl p-4 h-32 focus:ring-2 focus:ring-primary-container text-on-surface resize-none"
+                        placeholder="記錄下這幾天的感受、飲食或寶寶的胎動...">今天感覺很棒！食慾不錯，但晚上頻尿稍微影響了睡眠。有感覺到寶寶在踢！</textarea>
+                </div>
+            </div>
+        </section>
+        <!-- Visual Record -->
+        <section class="space-y-4">
+            <h2 class="text-xl font-headline font-bold text-primary">超音波與日期</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Date Selector -->
+                <div class="bg-white rounded-xl p-6 flex items-center gap-4 shadow-sm border border-transparent">
+                    <div
+                        class="w-12 h-12 bg-tertiary-container rounded-lg flex flex-col items-center justify-center text-on-tertiary-container">
+                        <span class="text-[10px] font-bold">JUNE</span>
+                        <span class="text-xl font-headline font-black">12</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold mb-1">紀錄日期</p>
+                        <input
+                            class="text-xs text-on-surface-variant bg-transparent border-none p-0 focus:ring-0 w-full"
+                            type="date" value="2024-06-12" />
+                    </div>
+                </div>
+                <!-- Upload Area -->
+                <div class="relative w-full h-full min-h-[150px] bg-secondary-container/20 rounded-xl overflow-hidden border-2 border-secondary-container mx-auto flex items-center justify-center group cursor-pointer">
+                    <span class="material-symbols-outlined text-secondary text-5xl">ultrasound</span>
+                    <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                        <span class="material-symbols-outlined text-white text-3xl">edit</span>
+                        <p class="text-white text-xs font-bold mt-1">更換超音波照</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Save Button -->
+        <div class="pt-8 pb-12">
+            <button onclick="window.location.href='pregnancyrecord.html'"
+                class="w-full py-5 bg-[#65518a] text-white rounded-xl font-headline font-bold text-lg shadow-[0_20px_40px_rgba(101,81,138,0.15)] active:scale-95 transition-all flex items-center justify-center gap-3">
+                <span class="material-symbols-outlined">check_circle</span>
+                修改並更新紀錄
+            </button>
+
+        </div>
+    </main>
+    <!-- BottomNavBar -->
+    <nav
+        class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#f7f6f3]/80 backdrop-blur-xl shadow-[0_-10px_40px_rgba(46,47,45,0.04)] rounded-t-[3rem] z-50">
+        <a class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:bg-[#f1f1ee] rounded-full active:scale-90 transition-all duration-300"
+            href="#">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">首頁</span>
+        </a>
+        <a class="flex flex-col items-center justify-center bg-[#d6beff] text-[#65518a] rounded-[2rem] px-5 py-2 active:scale-90 transition-all duration-300"
+            href="#">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">紀錄</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:bg-[#f1f1ee] rounded-full active:scale-90 transition-all duration-300"
+            href="#">
+            <span class="material-symbols-outlined">trending_up</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">成長</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:bg-[#f1f1ee] rounded-full active:scale-90 transition-all duration-300"
+            href="#">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">知識</span>
+        </a>
+        <a class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:bg-[#f1f1ee] rounded-full active:scale-90 transition-all duration-300"
+            href="#">
+            <span class="material-symbols-outlined">person</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[11px] font-medium mt-1">個人</span>
+        </a>
+    </nav>
+</body>
+
+</html>

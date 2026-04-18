@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Ethereal Nursery - 首頁</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Be_Vietnam_Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#6c3f51",
+                        "secondary": "#2f6275",
+                        "surface-dim": "#d4d5d1",
+                        "on-surface": "#2e2f2d",
+                        "on-primary": "#f8efff",
+                        "background": "#f7f6f3",
+                        "surface-bright": "#f7f6f3",
+                        "on-secondary-fixed-variant": "#2b5e71",
+                        "tertiary-fixed-dim": "#e9aec3",
+                        "on-tertiary": "#ffeff2",
+                        "secondary-fixed-dim": "#a4d6ed",
+                        "secondary-fixed": "#b2e4fb",
+                        "surface-tint": "#65518a",
+                        "on-tertiary-fixed": "#4b2334",
+                        "tertiary-container": "#f8bbd0",
+                        "tertiary-fixed": "#f8bbd0",
+                        "inverse-surface": "#0d0f0d",
+                        "error-dim": "#a70138",
+                        "error-container": "#f74b6d",
+                        "on-primary-fixed": "#362459",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#ddddd9",
+                        "on-secondary-container": "#1f5467",
+                        "surface-container-high": "#e3e3df",
+                        "outline-variant": "#adadab",
+                        "primary-fixed-dim": "#c8b1f0",
+                        "primary-container": "#d6beff",
+                        "tertiary": "#7d4d5f",
+                        "surface-variant": "#ddddd9",
+                        "on-primary-container": "#4b386e",
+                        "outline": "#767775",
+                        "surface-container-low": "#f1f1ee",
+                        "inverse-primary": "#d6beff",
+                        "tertiary-dim": "#6f4253",
+                        "surface-container": "#e8e8e5",
+                        "inverse-on-surface": "#9d9d9a",
+                        "on-secondary-fixed": "#014154",
+                        "surface": "#f7f6f3",
+                        "on-tertiary-container": "#623648",
+                        "on-secondary": "#e4f5ff",
+                        "on-background": "#2e2f2d",
+                        "on-error-container": "#510017",
+                        "on-error": "#ffefef",
+                        "on-surface-variant": "#5b5c5a",
+                        "secondary-container": "#b2e4fb",
+                        "secondary-dim": "#215669",
+                        "primary-fixed": "#d6beff",
+                        "on-primary-fixed-variant": "#544178",
+                        "error": "#b41340",
+                        "primary": "#65518a",
+                        "primary-dim": "#59467d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f7f6f3;
+            color: #2e2f2d;
+            min-height: max(884px, 100dvh);
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .carousel-container::-webkit-scrollbar,
+        .no-scrollbar::-webkit-scrollbar,
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-container,
+        .no-scrollbar,
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-background min-h-screen pb-32">
+    <!-- TopAppBar Updated per Image 9 -->
+    <header class="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md sticky top-0 z-40 flex justify-between items-center px-6 py-4 w-full md:px-[calc(50vw-21rem)] lg:px-[calc(50vw-24rem)] transition-all duration-500">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
+            <span class="text-xl font-bold text-[#65518a] font-headline tracking-tight">AuraLink</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <!-- Baby Switcher Button -->
+            <button class="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors cursor-pointer">
+                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-primary text-[14px]">face</span>
+                </div>
+                <span class="text-sm font-bold text-primary">小寶</span>
+                <span class="material-symbols-outlined text-primary text-[18px]">swap_horiz</span>
+            </button>
+        </div>
+    </header>
+    <main class="mx-auto pb-12 max-w-md md:max-w-2xl lg:max-w-3xl mx-auto w-full transition-all duration-500 ease-in-out">
+        <!-- Welcome Section -->
+        <section class="px-6 py-6 flex justify-between items-end">
+            <div class="space-y-1">
+                <p class="text-on-surface-variant text-sm font-medium">早安，媽媽</p>
+                <h1 class="text-3xl font-extrabold text-primary tracking-tight">今天的旅程</h1>
+            </div>
+            <a class="flex items-center gap-1.5 text-on-surface-variant font-bold text-xs bg-surface-container-high px-4 py-2 rounded-full hover:bg-surface-container-highest transition-colors"
+                href="history.html">
+                <span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+                <span>歷史回顧</span>
+            </a>
+        </section>
+        <!-- Pregnancy Progress Card -->
+        <div class="px-6 mb-8">
+            <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm relative overflow-hidden">
+                <div class="flex items-center gap-6">
+                    <div
+                        class="relative w-24 h-24 flex items-center justify-center bg-secondary-container rounded-full overflow-hidden shrink-0">
+                        <img alt="Embryo illustration" class="w-full h-full object-cover"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrKZf3KG9X7eILhFiWKrV_XnVbNzlNNk53ehHHkkcKKCJERwNP49wVlRn3tR5ZhCszTKBPyEpLefs5YJCM8c-f0xNBc7BGb8IOS_Veq4i-9HM3rUIy8Cm2aUGwM7HseTdogavWToiVWXC8ZwHdyIntscQlw_sHGAJM0EbSIGP1_kRsI5Ly_wfRkCcE2lEEgYemQX1r7B6E_L651x2VN9W-dxJP0Ol8pw9Wo3YJPOmtdm8_bMLA2tWtiEsKOvIEBw2YMf4DrGcl8yKb" />
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="text-primary font-bold text-sm">目前進度</span>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-4xl font-extrabold text-primary tracking-tighter">24</span>
+                            <span class="text-lg font-bold text-on-surface-variant">w</span>
+                            <span class="text-4xl font-extrabold text-primary tracking-tighter">4</span>
+                            <span class="text-lg font-bold text-on-surface-variant">d</span>
+                        </div>
+                        <p class="text-on-surface-variant text-[11px] font-medium leading-tight">寶寶現在大約像一個哈密瓜</p>
+                    </div>
+                </div>
+                <div class="mt-8 h-2 w-full bg-secondary-container rounded-full overflow-hidden">
+                    <div class="h-full w-[60%] bg-primary rounded-full"></div>
+                </div>
+                <div class="flex justify-between mt-2">
+                    <span class="text-[10px] font-bold text-on-surface-variant/60">第 1 週</span>
+                    <span class="text-[10px] font-bold text-on-surface-variant/60">第 40 週</span>
+                </div>
+            </div>
+        </div>
+        <!-- Today's Checklist - Updated to match style in SCREEN_8 -->
+        <div class="px-6 mb-8">
+            <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm flex flex-col space-y-4">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="flex flex-col">
+                        <h3 class="font-bold text-primary text-lg">清單</h3>
+                    </div>
+                    <button
+                        class="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition-transform">
+                        <span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                    </button>
+                </div>
+
+                <!-- Horizontal Date List -->
+                <div class="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x touch-pan-x -mx-2 px-2">
+                    <!-- Date Example 1 -->
+                    <div data-date="28" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
+                        <span class="text-[10px] font-bold uppercase">一</span>
+                        <span class="text-sm font-bold mt-1">10/28</span>
+                    </div>
+                    <!-- Date Example 2 -->
+                    <div data-date="29" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
+                        <span class="text-[10px] font-bold uppercase">二</span>
+                        <span class="text-sm font-bold mt-1">10/29</span>
+                    </div>
+                    <!-- Date Example 3 -->
+                    <div data-date="30" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
+                        <span class="text-[10px] font-bold uppercase">三</span>
+                        <span class="text-sm font-bold mt-1">10/30</span>
+                    </div>
+                    <!-- Date Example 4 (Active) -->
+                    <div data-date="31" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 snap-center transition-colors transform scale-105">
+                        <span class="text-[10px] font-bold opacity-90 uppercase">四</span>
+                        <span class="text-sm font-bold mt-1 text-white">10/31</span>
+                    </div>
+                    <!-- Date Example 5 -->
+                    <div data-date="1" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
+                        <span class="text-[10px] font-bold uppercase">五</span>
+                        <span class="text-sm font-bold mt-1">11/1</span>
+                    </div>
+                    <!-- Date Example 6 -->
+                    <div data-date="2" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
+                        <span class="text-[10px] font-bold uppercase">六</span>
+                        <span class="text-sm font-bold mt-1">11/2</span>
+                    </div>
+                    <!-- Date Example 7 -->
+                    <div data-date="3" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
+                        <span class="text-[10px] font-bold uppercase">日</span>
+                        <span class="text-sm font-bold mt-1">11/3</span>
+                    </div>
+                </div>
+
+                <div class="mb-2 mt-2 flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-on-surface">進度</span>
+                        <span id="checklist-progress" class="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">2/6</span>
+                    </div>
+                    <div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+                        <div id="checklist-progress-bar" class="bg-primary h-full rounded-full transition-all duration-300" style="width: 33.3%;"></div>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <div
+                        class="flex overflow-x-auto gap-4 scrollbar-hide snap-x snap-mandatory pb-2 carousel-container">
+                        <!-- Card 1 (Current List) -->
+                        <div id="checklist-container" class="min-w-full snap-start space-y-4">
+                            <!-- Task Item 1 -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-6 h-6 rounded-md bg-[#d6beff] flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary text-sm font-bold">check</span>
+                                </div>
+                                <div class="flex-1 flex items-center gap-2">
+                                    <p class="text-xs font-semibold text-on-surface/50 line-through">補充葉酸</p>
+                                </div>
+                                <span class="material-symbols-outlined text-outline-variant text-[18px]">schedule</span>
+                            </div>
+                            <!-- Task Item 2 -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-6 h-6 rounded-md bg-[#d6beff] flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-primary text-sm font-bold">check</span>
+                                </div>
+                                <div class="flex-1 flex items-center gap-2">
+                                    <p class="text-xs font-semibold text-on-surface/50 line-through">產前運動 20m</p>
+                                </div>
+                                <span class="material-symbols-outlined text-outline-variant text-xl">self_care</span>
+                            </div>
+                            <!-- Task Item 3 -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
+                                <div class="flex-1 flex items-center gap-2">
+                                    <p class="text-xs font-semibold text-on-surface">產檢提醒</p>
+                                </div>
+                                <span class="material-symbols-outlined text-outline-variant text-[18px]">event</span>
+                            </div>
+                            <!-- Task Item 4 -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
+                                <div class="flex-1 flex items-center gap-2">
+                                    <p class="text-xs font-semibold text-on-surface">紀錄胎動</p>
+                                </div>
+                                <span class="material-symbols-outlined text-outline-variant text-[18px]">monitor_heart</span>
+                            </div>
+                            <!-- Task Item 5 -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
+                                <div class="flex-1 flex items-center gap-2">
+                                    <p class="text-xs font-semibold text-on-surface">喝水 2000cc</p>
+                                </div>
+                                <span class="material-symbols-outlined text-outline-variant text-[18px]">water_drop</span>
+                            </div>
+                            <!-- Task Item 6 -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
+                                <div class="flex-1 flex items-center gap-2">
+                                    <p class="text-xs font-semibold text-on-surface">吃鈣片</p>
+                                </div>
+                                <span class="material-symbols-outlined text-outline-variant text-[18px]">medication</span>
+                            </div>
+                        </div>
+                        <!-- Partial Next Card Edge -->
+                        <div class="min-w-[20%] snap-start opacity-40">
+                            <div class="h-full w-full border-l-2 border-primary-container/30"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full flex justify-center items-center gap-1 py-2 text-[10px] font-bold text-primary">
+                    <span>查看全部</span>
+                    <span class="material-symbols-outlined text-xs"
+                        data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
+                </button>
+            </div>
+        </div>
+        <!-- Refined Growth Chart -->
+        <!-- Third Card: Growth Chart -->
+        <div
+            class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(46,47,45,0.06)] space-y-6 mx-6 mb-8">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary" data-icon="monitoring">monitoring</span>
+                    生長趨勢
+                </h3>
+                <div class="flex bg-surface-container-low p-1 rounded-full text-[10px] font-bold">
+                    <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='home_mom.html'" class="px-4 py-1.5 rounded-full text-on-surface-variant">媽媽</button>
+                    <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='home_baby.html'" class="px-4 py-1.5 rounded-full bg-white text-primary shadow-sm">寶寶</button>
+                </div>
+            </div>
+                        <div class="flex gap-2">
+                <button id="height-btn" class="px-4 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant text-[10px] font-bold transition-colors">身高</button>
+                <button id="weight-btn" class="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold transition-colors">體重</button>
+            </div>
+            
+            <!-- Standard Full Line Chart Graphic -->
+            <div class="relative h-56 w-full mt-4 flex">
+                <!-- Y-Axis Labels -->
+                <div id="y-axis-labels" class="flex flex-col justify-between text-[9px] font-bold text-on-surface-variant/50 pr-2 pb-6">
+                    <span>800g</span>
+                    <span>600g</span>
+                    <span>400g</span>
+                    <span>200g</span>
+                    <span>0g</span>
+                </div>
+                
+                <!-- Chart Area -->
+                <div class="relative flex-1">
+                    <!-- Grid Lines -->
+                    <div class="absolute inset-0 flex flex-col justify-between pb-6">
+                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                    </div>
+                    
+                    <!-- SVG Chart -->
+                    <div class="absolute inset-0 pb-6">
+                        <svg id="chart-svg" class="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                            <defs>
+                                <linearGradient id="babyGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#65518a" stop-opacity="0.25"></stop>
+                                    <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Expected Range / Standard Curve -->
+                            <path d="M0,99 L20,98.5 L40,95 L60,82 L80,65 L100,30" fill="none" stroke="#d6beff" stroke-width="2" stroke-dasharray="4" vector-effect="non-scaling-stroke"></path>
+
+                            <!-- Area Gradient -->
+                            <path d="M0,100 L0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25 L100,100 Z" fill="url(#babyGrad)"></path>
+
+                            <!-- Actual Weight Line -->
+                            <path d="M0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+                            
+                            <!-- Data Points -->
+                            <g>
+                                <circle cx="0" cy="99" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="20" cy="98" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="40" cy="94" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="60" cy="81" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="80" cy="62.5" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <!-- Current Week Highlight -->
+                                <circle cx="100" cy="25" r="5" fill="#65518a" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0px 3px 4px rgba(101, 81, 138, 0.4));"></circle>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- X-Axis Labels -->
+                    <div class="absolute bottom-0 left-0 right-0 flex justify-between text-[9px] font-bold text-on-surface-variant/60 translate-y-2">
+                        <span class="-translate-x-2">4週</span>
+                        <span class="-translate-x-2">8週</span>
+                        <span class="-translate-x-2">12週</span>
+                        <span class="-translate-x-2">16週</span>
+                        <span class="-translate-x-1">20週</span>
+                        <span class="text-primary font-extrabold translate-x-3">24週</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Legend -->
+            <div class="flex justify-center items-center gap-6 mt-6 mb-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-1 rounded-full bg-[#65518a]"></div>
+                    <span id="chart-legend-text" class="text-[10px] font-bold text-on-surface-variant">預估體重</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-[2px] border-b-[2.5px] border-dotted border-[#d6beff]"></div>
+                    <span class="text-[10px] font-bold text-on-surface-variant">標準生長區間</span>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    
+    <!-- Floating Join Code Button -->
+    <div class="fixed bottom-32 right-6 z-40 flex items-center gap-1.5 bg-[#65518a] text-white px-4 py-2 rounded-full shadow-[0_8px_25px_rgba(101,81,138,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer md:right-[calc(50vw-24rem)] lg:right-[calc(50vw-28rem)] md:bottom-36 transition-all duration-500">
+        <span class="material-symbols-outlined text-base">vpn_key</span>
+        <span class="font-bold text-[10px] tracking-wide">加入碼: ABC-123</span>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 w-full md:w-[600px] flex justify-around items-center px-4 pb-6 pt-3 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(46,47,45,0.06)] md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:rounded-[2.5rem] md:pt-4 md:pb-4 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500">
+        <a href="home_mom.html"
+            class="flex flex-col items-center justify-center bg-[#d6beff] text-[#65518a] rounded-[1.5rem] px-5 py-2 scale-90 transition-transform duration-300">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">首頁</span>
+        </a>
+        <a href="pregnancyrecord.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">edit_note</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">紀錄</span>
+        </a>
+        <a href="babyinformation.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">auto_graph</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">成長</span>
+        </a>
+        <a href="qa_conversation.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">知識</span>
+        </a>
+        <a href="userprofile.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">person</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">個人</span>
+        </a>
+    </nav>
+
+    <!-- Dynamic Checklist Script -->
+    <script id="dynamic-checklist">
+        const checklists = {
+            '28': [
+                { text: '補充葉酸', done: true, icon: 'schedule' },
+                { text: '散步 15 分鐘', done: true, icon: 'self_care' },
+                { text: '記錄胎動', done: true, icon: 'event' },
+                { text: '閱讀孕期知識', done: false, icon: 'menu_book' }
+            ],
+            '29': [
+                { text: '補充葉酸', done: true, icon: 'schedule' },
+                { text: '孕婦瑜伽', done: false, icon: 'self_care' },
+                { text: '測量體重', done: false, icon: 'monitor_weight' }
+            ],
+            '30': [
+                { text: '補充葉酸', done: true, icon: 'schedule' },
+                { text: '定期產檢', done: true, icon: 'event' },
+                { text: '喝水 2000cc', done: false, icon: 'water_drop' }
+            ],
+            '31': [
+                { text: '補充葉酸', done: true, icon: 'schedule' },
+                { text: '產前運動 20m', done: true, icon: 'self_care' },
+                { text: '產檢提醒', done: false, icon: 'event' }
+            ],
+            '1': [
+                { text: '補充葉酸', done: false, icon: 'schedule' },
+                { text: '準備待產包', done: false, icon: 'shopping_bag' },
+                { text: '準備寶寶衣服', done: false, icon: 'checkroom' }
+            ],
+            '2': [
+                { text: '補充葉酸', done: false, icon: 'schedule' },
+                { text: '和寶寶說話', done: false, icon: 'record_voice_over' }
+            ],
+            '3': [
+                { text: '補充葉酸', done: false, icon: 'schedule' },
+                { text: '參加衛教課程', done: false, icon: 'menu_book' }
+            ]
+        };
+
+        const dateBtns = document.querySelectorAll('.date-btn');
+        const checklistContainer = document.getElementById('checklist-container');
+        const checklistProgress = document.getElementById('checklist-progress');
+        const checklistProgressBar = document.getElementById('checklist-progress-bar');
+
+        dateBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Determine active/inactive baseline classes
+                dateBtns.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30', 'transform', 'scale-105');
+                    b.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+                    const spans = b.querySelectorAll('span');
+                    spans[0].classList.remove('opacity-90');
+                    spans[1].classList.remove('text-white');
+                });
+
+                // Set clicked button to active
+                btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+                btn.classList.add('bg-primary', 'text-white', 'shadow-lg', 'shadow-primary/30', 'transform', 'scale-105');
+                const activeSpans = btn.querySelectorAll('span');
+                activeSpans[0].classList.add('opacity-90');
+                activeSpans[1].classList.add('text-white');
+
+                // Generate html
+                const date = btn.getAttribute('data-date');
+                const items = checklists[date] || [];
+                
+                let completed = 0;
+                let html = '';
+                items.forEach(item => {
+                    if (item.done) completed++;
+                    const checkIconHtml = item.done ? 
+                        `<div class="w-6 h-6 rounded-md bg-[#d6beff] flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-primary text-sm font-bold">check</span>
+                        </div>` : 
+                        `<div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>`;
+                    const textHtml = item.done ? 
+                        `<p class="text-xs font-semibold text-on-surface/50 line-through">${item.text}</p>` : 
+                        `<p class="text-xs font-semibold text-on-surface">${item.text}</p>`;
+
+                    html += `
+                        <div class="flex items-center gap-4">
+                            ${checkIconHtml}
+                            <div class="flex-1 flex items-center gap-2">
+                                ${textHtml}
+                            </div>
+                            <span class="material-symbols-outlined text-outline-variant text-[18px]">${item.icon}</span>
+                        </div>
+                    `;
+                });
+                
+                if (checklistContainer) {
+                    checklistContainer.innerHTML = html;
+                }
+                if (checklistProgress) {
+                    checklistProgress.innerText = `${completed}/${items.length}`;
+                }
+                if (checklistProgressBar) {
+                    const percentage = items.length ? (completed / items.length) * 100 : 0;
+                    checklistProgressBar.style.width = `${percentage}%`;
+                }
+            });
+        });
+    </script>
+
+
+    <!-- Scroll Restoration Script -->
+    <script>
+        window.addEventListener('load', () => {
+            const savedScrollPos = sessionStorage.getItem('scrollPos');
+            if (savedScrollPos !== null) {
+                window.scrollTo({
+                    top: parseInt(savedScrollPos, 10),
+                    behavior: 'instant'
+                });
+                sessionStorage.removeItem('scrollPos');
+            }
+        });
+    </script>
+
+
+    <!-- Chart Interactivity Script -->
+    <script id="chart-toggle-script">
+        document.addEventListener('DOMContentLoaded', () => {
+            const heightBtn = document.getElementById('height-btn');
+            const weightBtn = document.getElementById('weight-btn');
+            if(!heightBtn || !weightBtn) return;
+            
+            const yAxisLabels = document.getElementById('y-axis-labels');
+            const chartSvg = document.getElementById('chart-svg');
+            const chartLegendText = document.getElementById('chart-legend-text');
+
+            const weightLabels = `
+                <span>800g</span>
+                <span>600g</span>
+                <span>400g</span>
+                <span>200g</span>
+                <span>0g</span>
+            `;
+            const heightLabels = `
+                <span>60cm</span>
+                <span>45cm</span>
+                <span>30cm</span>
+                <span>15cm</span>
+                <span>0cm</span>
+            `;
+
+            const weightSvg = `
+                            <defs>
+                                <linearGradient id="babyGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#65518a" stop-opacity="0.25"></stop>
+                                    <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Expected Range / Standard Curve -->
+                            <path d="M0,99 L20,98.5 L40,95 L60,82 L80,65 L100,30" fill="none" stroke="#d6beff" stroke-width="2" stroke-dasharray="4" vector-effect="non-scaling-stroke"></path>
+
+                            <!-- Area Gradient -->
+                            <path d="M0,100 L0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25 L100,100 Z" fill="url(#babyGrad)"></path>
+
+                            <!-- Actual Weight Line -->
+                            <path d="M0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+                            
+                            <!-- Data Points -->
+                            <g>
+                                <circle cx="0" cy="99" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="20" cy="98" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="40" cy="94" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="60" cy="81" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <circle cx="80" cy="62.5" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                                <!-- Current Week Highlight -->
+                                <circle cx="100" cy="25" r="5" fill="#65518a" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0px 3px 4px rgba(101, 81, 138, 0.4));"></circle>
+                            </g>
+                        `;
+            
+            const heightSvg = `
+                <defs>
+                    <linearGradient id="heightGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#65518a" stop-opacity="0.25"></stop>
+                        <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
+                    </linearGradient>
+                </defs>
+                <path d="M0,99 L20,95 L40,90 L60,80 L80,58 L100,45" fill="none" stroke="#d6beff" stroke-width="2" stroke-dasharray="4" vector-effect="non-scaling-stroke"></path>
+                <path d="M0,100 L0,99.2 L20,95 L40,90 L60,80 L80,58 L100,45 L100,100 Z" fill="url(#heightGrad)"></path>
+                <path d="M0,99.2 L20,95 L40,90 L60,80 L80,58 L100,45" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+                <g>
+                    <circle cx="0" cy="99.2" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                    <circle cx="20" cy="95" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                    <circle cx="40" cy="90" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                    <circle cx="60" cy="80" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                    <circle cx="80" cy="58" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
+                    <circle cx="100" cy="45" r="5" fill="#65518a" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0px 3px 4px rgba(101, 81, 138, 0.4));"></circle>
+                </g>
+            `;
+
+            function updateBtnStyles(activeBtn, inactiveBtn) {
+                activeBtn.classList.add('bg-primary/10', 'text-primary');
+                activeBtn.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+                inactiveBtn.classList.remove('bg-primary/10', 'text-primary');
+                inactiveBtn.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+            }
+
+            heightBtn.addEventListener('click', () => {
+                updateBtnStyles(heightBtn, weightBtn);
+                yAxisLabels.innerHTML = heightLabels;
+                if(chartLegendText) chartLegendText.innerText = '寶寶身高';
+                chartSvg.innerHTML = heightSvg;
+            });
+
+            weightBtn.addEventListener('click', () => {
+                updateBtnStyles(weightBtn, heightBtn);
+                yAxisLabels.innerHTML = weightLabels;
+                if(chartLegendText) chartLegendText.innerText = '預估體重';
+                chartSvg.innerHTML = weightSvg;
+            });
+        });
+    </script>
+
+</body>
+
+</html>

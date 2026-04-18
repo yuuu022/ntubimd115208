@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#6c3f51",
+                        "secondary": "#2f6275",
+                        "surface-dim": "#d4d5d1",
+                        "on-surface": "#2e2f2d",
+                        "on-primary": "#f8efff",
+                        "background": "#f7f6f3",
+                        "surface-bright": "#f7f6f3",
+                        "on-secondary-fixed-variant": "#2b5e71",
+                        "tertiary-fixed-dim": "#e9aec3",
+                        "on-tertiary": "#ffeff2",
+                        "secondary-fixed-dim": "#a4d6ed",
+                        "secondary-fixed": "#b2e4fb",
+                        "surface-tint": "#65518a",
+                        "on-tertiary-fixed": "#4b2334",
+                        "tertiary-container": "#f8bbd0",
+                        "tertiary-fixed": "#f8bbd0",
+                        "inverse-surface": "#0d0f0d",
+                        "error-dim": "#a70138",
+                        "error-container": "#f74b6d",
+                        "on-primary-fixed": "#362459",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#ddddd9",
+                        "on-secondary-container": "#1f5467",
+                        "surface-container-high": "#e3e3df",
+                        "outline-variant": "#adadab",
+                        "primary-fixed-dim": "#c8b1f0",
+                        "primary-container": "#d6beff",
+                        "tertiary": "#7d4d5f",
+                        "surface-variant": "#ddddd9",
+                        "on-primary-container": "#4b386e",
+                        "outline": "#767775",
+                        "surface-container-low": "#f1f1ee",
+                        "inverse-primary": "#d6beff",
+                        "tertiary-dim": "#6f4253",
+                        "surface-container": "#e8e8e5",
+                        "inverse-on-surface": "#9d9d9a",
+                        "on-secondary-fixed": "#014154",
+                        "surface": "#f7f6f3",
+                        "on-tertiary-container": "#623648",
+                        "on-secondary": "#e4f5ff",
+                        "on-background": "#2e2f2d",
+                        "on-error-container": "#510017",
+                        "on-error": "#ffefef",
+                        "on-surface-variant": "#5b5c5a",
+                        "secondary-container": "#b2e4fb",
+                        "secondary-dim": "#215669",
+                        "primary-fixed": "#d6beff",
+                        "on-primary-fixed-variant": "#544178",
+                        "error": "#b41340",
+                        "primary": "#65518a",
+                        "primary-dim": "#59467d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f7f6f3;
+            color: #2e2f2d;
+            min-height: max(884px, 100dvh);
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .carousel-container::-webkit-scrollbar,
+        .no-scrollbar::-webkit-scrollbar,
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-container,
+        .no-scrollbar,
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface min-h-screen pb-32">
+    <!-- Top Navigation Bar -->
+    <header
+        class="bg-[#f7f6f3]/70 backdrop-blur-md rounded-b-xl sticky top-0 z-40 shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
+            <span class="font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-xl text-[#65518a]">AuraLink</span>
+        </div>
+    </header>
+    <main class="px-6 py-8 space-y-6 mx-auto max-w-md md:max-w-2xl lg:max-w-3xl mx-auto w-full transition-all duration-500 ease-in-out">
+        <!-- Unified Profile & Pregnancy Container -->
+        <section
+            class="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(46,47,45,0.06)] overflow-hidden">
+            <!-- Header: Profile & Bio Stats -->
+            <div class="p-8 pb-6">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="space-y-1">
+                        <p class="text-on-surface-variant text-xs font-semibold tracking-widest uppercase">親愛的媽媽</p>
+                        <h2 class="text-3xl font-bold text-primary tracking-tight">林曉美</h2>
+                    </div>
+                    <button
+                        class="bg-surface-container-low text-primary p-3 rounded-full hover:bg-primary-container transition-colors shadow-sm">
+                        <span class="material-symbols-outlined" data-icon="edit">edit</span>
+                    </button>
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1 bg-surface-container-low px-4 py-3 rounded-lg text-center">
+                        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider mb-1">身高</p>
+                        <p class="text-lg font-bold text-secondary">165<span
+                                class="text-xs font-medium ml-0.5 text-on-surface-variant">cm</span></p>
+                    </div>
+                    <div class="flex-1 bg-surface-container-low px-4 py-3 rounded-lg text-center">
+                        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider mb-1">體重</p>
+                        <p class="text-lg font-bold text-secondary">58.5<span
+                                class="text-xs font-medium ml-0.5 text-on-surface-variant">kg</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-8">
+                <div class="h-px bg-outline-variant/10"></div>
+            </div>
+            <!-- Pregnancy Status Grid -->
+            <div class="p-8 space-y-8">
+                <!-- Pregnancy Progress -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-end">
+                        <div class="space-y-1">
+                            <h3 class="font-bold text-on-surface text-lg">懷孕進度</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-bold text-primary">第 6 個月</span>
+                                <span
+                                    class="text-xs text-on-primary-fixed-variant bg-primary-container/30 px-3 py-1 rounded-full font-bold">第
+                                    1 胎</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">剩餘 98 天</p>
+                    </div>
+                    <div class="h-2.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+                        <div class="h-full bg-primary w-[65%] rounded-full"></div>
+                    </div>
+                </div>
+                <!-- Detailed Info Grid -->
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- Baby Nickname -->
+                    <!-- Dates -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-1.5 ml-1">
+                                <span class="material-symbols-outlined text-xs text-on-surface-variant"
+                                    data-icon="event">event</span>
+                                <label
+                                    class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">最後經期首日</label>
+                            </div>
+                            <div
+                                class="bg-surface-container-low rounded-lg p-3 text-sm font-bold text-on-surface text-center">
+                                2023 / 11 / 15</div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-1.5 ml-1">
+                                <span class="material-symbols-outlined text-xs text-primary"
+                                    data-icon="calendar_today">calendar_today</span>
+                                <label class="text-[10px] font-bold text-primary uppercase tracking-wider">預計產期</label>
+                            </div>
+                            <div
+                                class="bg-primary-container/20 border border-primary/10 rounded-lg p-3 text-sm font-bold text-primary text-center">
+                                2024 / 08 / 22</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Mood Journey Section -->
+        <!-- Action Area -->
+        <section class="flex flex-col items-center pt-2">
+            <button
+                class="bg-primary/10 text-primary px-10 py-3.5 rounded-full font-bold text-sm hover:bg-primary hover:text-white transition-all duration-300 shadow-sm border border-primary/20">
+                登出帳號
+            </button>
+        </section>
+    </main>
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 w-full md:w-[600px] flex justify-around items-center px-4 pb-6 pt-3 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(46,47,45,0.06)] md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:rounded-[2.5rem] md:pt-4 md:pb-4 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500">
+        <a href="home_mom.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">首頁</span>
+        </a>
+        <a href="pregnancyrecord.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">edit_note</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">紀錄</span>
+        </a>
+        <a href="babyinformation.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">auto_graph</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">成長</span>
+        </a>
+        <a href="qa_conversation.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">知識</span>
+        </a>
+        <a href="userprofile.html" class="flex flex-col items-center justify-center bg-[#d6beff] text-[#65518a] rounded-[1.5rem] px-5 py-2 scale-90 transition-transform duration-300">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person_2</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">個人</span>
+        </a>
+    </nav>
+</body>
+
+</html>

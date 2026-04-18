@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>孕期紀錄 - The Ethereal Sanctuary</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#6c3f51",
+                        "secondary": "#2f6275",
+                        "surface-dim": "#d4d5d1",
+                        "on-surface": "#2e2f2d",
+                        "on-primary": "#f8efff",
+                        "background": "#f7f6f3",
+                        "surface-bright": "#f7f6f3",
+                        "on-secondary-fixed-variant": "#2b5e71",
+                        "tertiary-fixed-dim": "#e9aec3",
+                        "on-tertiary": "#ffeff2",
+                        "secondary-fixed-dim": "#a4d6ed",
+                        "secondary-fixed": "#b2e4fb",
+                        "surface-tint": "#65518a",
+                        "on-tertiary-fixed": "#4b2334",
+                        "tertiary-container": "#f8bbd0",
+                        "tertiary-fixed": "#f8bbd0",
+                        "inverse-surface": "#0d0f0d",
+                        "error-dim": "#a70138",
+                        "error-container": "#f74b6d",
+                        "on-primary-fixed": "#362459",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#ddddd9",
+                        "on-secondary-container": "#1f5467",
+                        "surface-container-high": "#e3e3df",
+                        "outline-variant": "#adadab",
+                        "primary-fixed-dim": "#c8b1f0",
+                        "primary-container": "#d6beff",
+                        "tertiary": "#7d4d5f",
+                        "surface-variant": "#ddddd9",
+                        "on-primary-container": "#4b386e",
+                        "outline": "#767775",
+                        "surface-container-low": "#f1f1ee",
+                        "inverse-primary": "#d6beff",
+                        "tertiary-dim": "#6f4253",
+                        "surface-container": "#e8e8e5",
+                        "inverse-on-surface": "#9d9d9a",
+                        "on-secondary-fixed": "#014154",
+                        "surface": "#f7f6f3",
+                        "on-tertiary-container": "#623648",
+                        "on-secondary": "#e4f5ff",
+                        "on-background": "#2e2f2d",
+                        "on-error-container": "#510017",
+                        "on-error": "#ffefef",
+                        "on-surface-variant": "#5b5c5a",
+                        "secondary-container": "#b2e4fb",
+                        "secondary-dim": "#215669",
+                        "primary-fixed": "#d6beff",
+                        "on-primary-fixed-variant": "#544178",
+                        "error": "#b41340",
+                        "primary": "#65518a",
+                        "primary-dim": "#59467d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                },
+            },
+        };
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f7f6f3;
+            color: #2e2f2d;
+            min-height: max(884px, 100dvh);
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        .headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .carousel-container::-webkit-scrollbar,
+        .no-scrollbar::-webkit-scrollbar,
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .carousel-container,
+        .no-scrollbar,
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-background min-h-screen pb-32">
+    <!-- Top AppBar -->
+    <nav class="sticky top-0 z-40 bg-[#f7f6f3]/70 backdrop-blur-md rounded-b-[3rem] shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full md:px-[calc(50vw-21rem)] lg:px-[calc(50vw-24rem)] transition-all duration-500">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
+            <h1 class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">AuraLink</h1>
+        </div>
+    </nav>
+    <main class="pt-8 px-4 mx-auto max-w-md md:max-w-2xl lg:max-w-3xl mx-auto w-full transition-all duration-500 ease-in-out">
+        <!-- Combined Card Container -->
+        <section
+            class="bg-surface-container-lowest rounded-[2.5rem] overflow-hidden shadow-[0_24px_48px_rgba(46,47,45,0.08)]">
+            <!-- Interactive Calendar Section -->
+            <div class="p-6 bg-surface-container-low/50 flex justify-between items-center">
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-white text-primary shadow-sm hover:bg-primary-container transition-colors">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <h3 class="text-primary font-bold text-lg">2024年 10月</h3>
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-white text-primary shadow-sm hover:bg-primary-container transition-colors">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+            <div class="p-6 pb-8">
+                <div class="grid grid-cols-7 mb-2">
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase tracking-widest">日</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase tracking-widest">一</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase tracking-widest">二</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase tracking-widest">三</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase tracking-widest">四</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase tracking-widest">五</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase tracking-widest">六</div>
+                </div>
+                <div class="grid grid-cols-7 gap-1">
+                    <!-- Week 1 Empty -->
+                    <div class="aspect-square"></div>
+                    <div class="aspect-square"></div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">
+                        1</div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">
+                        2</div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">
+                        3</div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">
+                        4</div>
+                    <div
+                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">
+                        5</div>
+                    <!-- Calendar Days -->
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">6</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">7</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">8</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">9</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">10</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">11</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">12</span>
+                    </div>
+                    <!-- Week 3 -->
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">13</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">14</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">15</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">16</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">17</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">18</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">19</span>
+                    </div>
+                    <!-- Week 4 -->
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">20</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">21</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">22</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">23</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">24</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">25</span>
+                    </div>
+                    <div
+                        onclick="window.location.href='pregnancyrecord_new copy.html'" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors">
+                        <span class="text-sm">26</span>
+                    </div>
+                </div>
+                <!-- Entry Button -->
+                <!-- Data Summary List -->
+            </div>
+        </section>
+    </main>
+    <!-- Bottom Navigation Bar -->
+    <button onclick="window.location.href='The Ethereal Nursery.html'" class="fixed bottom-32 right-6 z-40 flex items-center gap-2 bg-[#65518a] text-white px-6 py-4 rounded-full shadow-[0_8px_25px_rgba(101,81,138,0.4)] hover:scale-105 active:scale-95 transition-all group md:right-[calc(50vw-24rem)] lg:right-[calc(50vw-28rem)] md:bottom-36 transition-all duration-500">
+        <span class="material-symbols-outlined font-bold">add</span>
+        <span class="font-bold">新增紀錄</span>
+    </button>
+    <nav class="fixed bottom-0 left-0 w-full md:w-[600px] flex justify-around items-center px-4 pb-6 pt-3 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(46,47,45,0.06)] md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:rounded-[2.5rem] md:pt-4 md:pb-4 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500">
+        <a href="home_mom.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">home</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">首頁</span>
+        </a>
+        <a href="pregnancyrecord.html"
+            class="flex flex-col items-center justify-center bg-[#d6beff] text-[#65518a] rounded-[1.5rem] px-5 py-2 scale-90 transition-transform duration-300">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">紀錄</span>
+        </a>
+        <a href="babyinformation.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">auto_graph</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">成長</span>
+        </a>
+        <a href="qa_conversation.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">知識</span>
+        </a>
+        <a href="userprofile.html"
+            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+            <span class="material-symbols-outlined">person</span>
+            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">個人</span>
+        </a>
+    </nav>
+</body>
+
+</html>
