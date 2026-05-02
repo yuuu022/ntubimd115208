@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>登入 - AuraLink</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#65518a",
+                        "primary-container": "#d6beff",
+                        "secondary": "#2f6275",
+                        "secondary-container": "#b2e4fb",
+                        "background": "#f7f6f3",
+                        "surface": "#f7f6f3",
+                        "on-surface": "#2e2f2d",
+                        "on-surface-variant": "#5b5c5a",
+                        "outline": "#767775",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f1f1ee",
+                        "surface-container-high": "#e3e3df",
+                        "surface-container-highest": "#ddddd9",
+                        "surface-container": "#e8e8e5",
+                        "error": "#b41340",
+                        "error-container": "#f74b6d",
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #f7f6f3; color: #2e2f2d; overflow-x: hidden; }
+        h1, h2, h3, .headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex items-center justify-center relative overflow-hidden">
+    <!-- Decorative background elements -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-container/40 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-secondary-container/40 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+
+    <main class="w-full max-w-md px-6 py-12 relative z-10 flex flex-col items-center">
+        <!-- Logo Section -->
+        <div class="flex flex-col items-center gap-3 mb-10">
+            <div class="w-16 h-16 bg-surface-container-lowest rounded-2xl shadow-sm flex items-center justify-center border border-primary/10">
+                <span class="material-symbols-outlined text-[#65518a] text-4xl" data-icon="child_care">child_care</span>
+            </div>
+            <h1 class="text-3xl font-bold text-primary font-headline tracking-tight">AuraLink</h1>
+            <p class="text-sm font-medium text-on-surface-variant">專為媽咪與寶寶打造的智能紀錄本</p>
+        </div>
+
+        <!-- Login Form Container -->
+        <div class="w-full bg-surface-container-lowest rounded-3xl p-8 shadow-[0_20px_40px_rgba(46,47,45,0.06)] border border-surface-container-low">
+            <!-- Tabs (Login/Register visual only for now) -->
+            <div class="flex relative mb-8 bg-surface-container-low p-1 rounded-full">
+                <div class="absolute inset-y-1 left-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm transition-all duration-300" id="tab-slider"></div>
+                <button id="login-tab" class="flex-1 py-2 text-sm font-bold text-primary z-10 relative cursor-pointer" onclick="switchTab('login')">登入</button>
+                <button id="register-tab" class="flex-1 py-2 text-sm font-bold text-on-surface-variant z-10 relative cursor-pointer" onclick="switchTab('register')">註冊</button>
+            </div>
+
+            <!-- Form -->
+            <form id="auth-form" onsubmit="event.preventDefault(); window.location.href='index.html';" class="space-y-5">
+                
+                <div id="name-field" class="hidden space-y-2">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">姓名</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">person</span>
+                        <input type="text" placeholder="請輸入姓名" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">電子郵件</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">mail</span>
+                        <input type="email" required placeholder="example@email.com" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">密碼</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">lock</span>
+                        <input type="password" required placeholder="••••••••" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                        <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-primary transition-colors cursor-pointer">
+                            <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="forgot-password-container" class="flex justify-end pt-1">
+                    <a href="#" class="text-xs font-bold text-primary hover:text-primary-dim transition-colors">忘記密碼？</a>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full py-4 bg-primary text-white rounded-xl font-headline font-bold text-base shadow-[0_10px_20px_rgba(101,81,138,0.2)] hover:scale-[1.02] active:scale-95 transition-all mt-4 cursor-pointer">
+                    登入
+                </button>
+            </form>
+
+            <div class="mt-8 relative flex items-center justify-center">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-surface-container-highest"></div>
+                </div>
+                <span class="relative bg-surface-container-lowest px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider">或使用其他方式</span>
+            </div>
+
+            <div class="mt-6 flex flex-col gap-3">
+                <button type="button" onclick="window.location.href='index.html'" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-surface-container-low rounded-xl text-on-surface font-bold text-sm hover:bg-surface-container-high transition-colors cursor-pointer">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google">
+                    使用 Google 帳號繼續
+                </button>
+                <button type="button" onclick="window.location.href='index.html'" class="w-full flex items-center justify-center gap-3 py-3 px-4 bg-surface-container-low rounded-xl text-on-surface font-bold text-sm hover:bg-surface-container-high transition-colors cursor-pointer">
+                    <img src="https://www.svgrepo.com/show/511330/apple-173.svg" class="w-5 h-5" alt="Apple">
+                    使用 Apple 帳號繼續
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tab) {
+            const slider = document.getElementById('tab-slider');
+            const loginBtn = document.getElementById('login-tab');
+            const registerBtn = document.getElementById('register-tab');
+            const submitBtn = document.getElementById('submit-btn');
+            const nameField = document.getElementById('name-field');
+            const forgotPwd = document.getElementById('forgot-password-container');
+
+            if (tab === 'login') {
+                slider.style.transform = 'translateX(0)';
+                loginBtn.classList.replace('text-on-surface-variant', 'text-primary');
+                registerBtn.classList.replace('text-primary', 'text-on-surface-variant');
+                submitBtn.textContent = '登入';
+                nameField.classList.add('hidden');
+                forgotPwd.classList.remove('hidden');
+            } else {
+                slider.style.transform = 'translateX(100%)';
+                registerBtn.classList.replace('text-on-surface-variant', 'text-primary');
+                loginBtn.classList.replace('text-primary', 'text-on-surface-variant');
+                submitBtn.textContent = '註冊並開始使用';
+                nameField.classList.remove('hidden');
+                forgotPwd.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
