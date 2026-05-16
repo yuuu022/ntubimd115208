@@ -18,3 +18,8 @@ def add_user(request):
         form = UserProfileForm()
     
     return render(request, 'core/add_user.html', {'form': form})
+
+
+#成長地圖畫面
+def history(request):
+    return render(request, 'core/history.html')
