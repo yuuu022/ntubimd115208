@@ -1,0 +1,6 @@
+HTML to TXT Conversion Report
+============================
+Source directory: processed_final3
+Total HTML files found: 923
+Successfully converted: 923
+Failed: 0
