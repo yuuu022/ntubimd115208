@@ -1,0 +1,74 @@
+各縣市社區心理諮商服務一覽表
+● 資料來源：心理健康司 ● 建檔日期：111-05-12 ● 更新時間：112-04-07
+全國社區心理衛生中心通訊錄(更新至114年4月7日)
+<table cellpadding="0" cellspacing="0" summary="本表格顯示各縣市的社區心理諮商服務機構網址及諮詢專線。" width="1108"><thead><tr class="firstRow" style="height: 4em"><th height="4" style="padding: 1em; border-color: rgb(170, 170, 170); background: rgb(230, 230, 230); border-width: 1px; border-style: solid;" valign="middle" width="171">縣市
+</th><th height="4" style="padding: 1em; border-color: rgb(170, 170, 170); background: rgb(230, 230, 230); border-width: 1px; border-style: solid;" width="548">網址
+</th><th height="4" style="padding: 1em; border-color: rgb(170, 170, 170); background: rgb(230, 230, 230); border-width: 1px; border-style: solid;" width="389">心理諮詢專線
+</th></tr></thead><tbody><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">新北市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">新北市政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">02-2218-2158(中和區及新店區)
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">臺北市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">臺北市政府衛生局心理衛生中心(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">02-33937885
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">桃園市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">桃園市社區心理衛生中心(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">03-3325880
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">臺中市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">臺中市政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">04-25330335#320
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">臺南市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">臺南市政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">06-3352982
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">高雄市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">高雄市政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">07-7161925
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">宜蘭縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">宜蘭縣政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">03-9367885
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">新竹縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">新竹縣政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">03-6567138
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">苗栗縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">苗栗縣政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">037-558757
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">彰化縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">彰化縣社區心理衛生中心(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">04-7127839
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">南投縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">南投縣政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">049-2202662
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">雲林縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">雲林縣衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">電話預約請洽各鄉鎮市衛生所，詳細聯絡資訊請點(新視窗開啟)
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">嘉義縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">嘉義縣社區心理衛生中心(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">05-3620600轉7852~7858
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">屏東縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">屏東縣政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">08-7370123 線上預約請點我(新視窗開啟)
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">臺東縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">臺東縣衛生局心理衛生中心(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">089-230598轉517
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">花蓮縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">花蓮縣衛生局心理健康網(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">03-8351885
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">澎湖縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">澎湖縣政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">06-9272162轉123
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">基隆市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">基隆市衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">02-24566185轉113
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">新竹市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">新竹市社區心理衛生中心(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">03-5355276
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">嘉義市
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">嘉義市政府衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">05-2255155轉41或51
+</td></tr><tr><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">金門縣
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">金門縣衛生局(新視窗開啟)
+</td><td style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">082-337885
+</td></tr><tr style="height: 0px"><td height="0" style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="middle" width="171">連江縣
+</td><td height="0" style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="548">連江縣衛生福利局(新視窗開啟)
+</td><td height="0" style="padding: 1em; border-color: rgb(170, 170, 170); border-width: 1px; border-style: solid;" valign="top" width="389">0836-22095轉8827
+</td></tr></tbody></table>
+資料來源：衛生福利部心理健康司(新視窗開啟)
