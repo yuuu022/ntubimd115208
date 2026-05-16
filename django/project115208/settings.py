@@ -77,9 +77,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
-        'USER': 'postgres.phxlwzxabxeqjuaianpn',
+        'USER': 'postgres.divfenhzxoomrziuetcu',
         'PASSWORD': 'Ntu8!mD11520B',
-        'HOST': 'aws-1-ap-southeast-2.pooler.supabase.com',
+        'HOST': 'aws-1-ap-northeast-2.pooler.supabase.com',
         'PORT': '5432',
     }
 }
@@ -109,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Taipei'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 

@@ -1,8 +1,0 @@
-TXT File Extraction Report
-==========================
-Source directory: processed_final3
-Destination directory: txt_output
-Total TXT files found: 925
-Successfully extracted: 925
-Duplicates handled: 0
-Failed: 0
