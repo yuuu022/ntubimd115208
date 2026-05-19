@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.utils import timezone
 from .forms import UserProfileForm
-from .models import QAQuestion, QAAnswer, QAConversation, QAMessage, UserProfile
+from .models import QAConversation, QAMessage, UserProfile
 import os
 try:
     import openai
@@ -59,7 +60,7 @@ def _get_answer_from_supabase(question_text: str) -> str:
                 emb_resp = openai.Embedding.create(model='text-embedding-3-small', input=question_text)
                 emb = emb_resp['data'][0]['embedding']
                 emb_str = '[' + ','.join(map(str, emb)) + ']'
-                sql = "SELECT content FROM docs_vectors ORDER BY embedding <-> %s::vector LIMIT 5;"
+                sql = "SELECT text FROM docs_vectors ORDER BY embedding <-> %s::vector LIMIT 5;"
                 cur.execute(sql, (emb_str,))
                 rows = cur.fetchall()
                 if rows:
@@ -70,7 +71,7 @@ def _get_answer_from_supabase(question_text: str) -> str:
 
         # Fallback: simple keyword match on content
         kw = '%' + question_text.replace('%', '') + '%'
-        cur.execute("SELECT content FROM docs_vectors WHERE content ILIKE %s LIMIT 5;", (kw,))
+        cur.execute("SELECT text FROM docs_vectors WHERE text ILIKE %s LIMIT 5;", (kw,))
         rows = cur.fetchall()
         if rows:
             return '\n\n---\n\n'.join(r[0] for r in rows if r[0])
