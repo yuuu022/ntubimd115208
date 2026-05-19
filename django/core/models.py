@@ -22,33 +22,6 @@ class UserProfile(models.Model):
         return self.line_name
 
 
-class QAQuestion(models.Model):
-    question_id = models.AutoField(primary_key=True)
-    question = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        db_table = 'qa_question'
-        managed = False
-
-    def __str__(self):
-        return self.question[:50]
-
-
-class QAAnswer(models.Model):
-    answer_id = models.AutoField(primary_key=True)
-    question = models.ForeignKey(QAQuestion, on_delete=models.CASCADE, related_name='answers')
-    answer = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        db_table = 'qa_answer'
-        managed = False
-
-    def __str__(self):
-        return self.answer[:50]
-
-
 class QAConversation(models.Model):
     qa_conversation_id = models.BigAutoField(primary_key=True)
     user_id = models.CharField(max_length=255)
