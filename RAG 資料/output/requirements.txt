@@ -1,0 +1,12 @@
+openai>=1.0.0
+psycopg2-binary
+beautifulsoup4
+pandas
+openpyxl
+tqdm
+openai
+psycopg2-binary
+beautifulsoup4
+pandas
+openpyxl
+tqdm
