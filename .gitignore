@@ -1,6 +1,20 @@
-venv/ 
+#虛擬環境
+venv/
+myenv/
 
+
+# === Python cache ===
 __pycache__/
-*.py[cod]
-django/core/__pycache__
 *.pyc
+*.pyo
+
+# === Django ===
+db.sqlite3
+media/
+
+# === IDE ===
+.vscode/
+.idea/
+
+# === OS ===
+Thumbs.db

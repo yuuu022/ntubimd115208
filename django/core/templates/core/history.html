@@ -176,41 +176,70 @@
 </div>
 </div>
 
-<div class="relative pl-8 border-l-2 border-primary-container/50 space-y-4">
-<div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary border-4 border-white shadow-sm"></div>
-<div class="flex flex-col md:flex-row gap-6 bg-surface-container-low/50 p-6 rounded-lg hover:bg-surface-container-low transition-colors duration-300">
-<div class="w-full md:w-48 h-48 rounded-lg overflow-hidden flex-shrink-0">
-<img alt="Baby Sleeping" class="w-full h-full object-cover" data-alt="peaceful newborn baby sleeping in a woven basket with soft cream-colored knit blankets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBuBAnsUkXd4WAM4V8f2lr8DWjfukcXF98PCSOiZRzpCqsRAN9qHGfj2716duHkYYY-FDXyRS2KfQnI8y7cQKABdM8a8weh7sC4tDpWz1XEfxb6wQ5_Ii-G4jv0iFITXPc23XT1JMYd-5cJlinCk9bBHOAB9cucUFKJKNDhCn8CfPduWYHHFVunTllGowu2RiKrQ25PX8xadARzFWJxopWdlQFk2UG-AksAFanKkhTA_SLLqoVK04f9OeH0On4WiZgGsq7RfwanKA"/>
-</div>
-<div class="flex-grow">
-<span class="text-xs font-bold text-primary tracking-widest uppercase mb-2 block">2024年 5月 20日</span>
-<h4 class="font-serif text-xl mb-3">滿月派對：送給你的第一份驚喜</h4>
-<p class="text-on-surface-variant leading-relaxed text-sm mb-4">今天邀請了所有親友，大家看著你熟睡的樣子，都說你有一雙愛笑的眼睛。希望你平安長大。</p>
-<div class="flex gap-2">
-<span class="px-3 py-1 bg-white/60 text-[10px] rounded-full border border-outline-variant/20">#滿月</span>
-<span class="px-3 py-1 bg-white/60 text-[10px] rounded-full border border-outline-variant/20">#全家福</span>
-</div>
-</div>
-</div>
-</div>
-
-<div class="relative pl-8 border-l-2 border-primary-container/50 space-y-4">
-<div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary-fixed-dim border-4 border-white shadow-sm"></div>
-<div class="flex flex-col md:flex-row gap-6 bg-surface-container-low/50 p-6 rounded-lg hover:bg-surface-container-low transition-colors duration-300">
-<div class="w-full md:w-48 h-48 rounded-lg overflow-hidden flex-shrink-0">
-<img alt="Mom and Baby" class="w-full h-full object-cover" data-alt="mother gently kissing baby's forehead in a sun-drenched nursery with soft focus and airy aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFwkSpmjZWWZRrADTF_nZu7_NBV0cld89ldn_W6CrNENPA4EM453FnjW4-myUGAab6HVDGRYMcKNRwdy0Kctsqe-kpsMl_OdJybGhEPii2FBDhi06_wXschmI2VOgpxFGLDkdgBu1UKD0bniP9E_E8QowVIfWYNC67Kmth5WFbmrxrbRSEH7D3lS8__wRSmLJCzJ3oinWDBiUS2WRbTnMLJSvf53BhdnPdynpHiuRZ_7Ua3rWB0p91lgS4NlTqx_SnqZbM7RJbUeo"/>
-</div>
-<div class="flex-grow">
-<span class="text-xs font-bold text-primary tracking-widest uppercase mb-2 block">2024年 4月 15日</span>
-<h4 class="font-serif text-xl mb-3">從醫院回家的第一天</h4>
-<p class="text-on-surface-variant leading-relaxed text-sm mb-4">雖然新手爸媽手忙腳亂，但看到你在嬰兒床裡安穩呼吸，一切辛苦都值得了。</p>
-<div class="flex gap-2">
-<span class="px-3 py-1 bg-white/60 text-[10px] rounded-full border border-outline-variant/20">#回憶</span>
-<span class="px-3 py-1 bg-white/60 text-[10px] rounded-full border border-outline-variant/20">#新手爸媽</span>
-</div>
-</div>
-</div>
-</div>
+{% if growth_timeline %}
+    {% for item in growth_timeline %}
+        <div class="relative pl-8 border-l-2 border-primary-container/50 space-y-4">
+            <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full {% if forloop.first %}bg-primary{% else %}bg-primary-fixed-dim{% endif %} border-4 border-white shadow-sm"></div>
+            
+            {% for status in item.baby_statuses %}
+                <div class="flex flex-col md:flex-row gap-6 bg-surface-container-low/50 p-6 rounded-lg hover:bg-surface-container-low transition-colors duration-300">
+                    {% if status.photo %}
+                        <div class="w-full md:w-48 h-48 rounded-lg overflow-hidden flex-shrink-0">
+                            <img alt="{{ status.baby_name }}" class="w-full h-full object-cover" src="{{ status.photo }}"/>
+                        </div>
+                    {% else %}
+                        <div class="w-full md:w-48 h-48 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container flex items-center justify-center">
+                            <span class="material-symbols-outlined text-4xl text-primary-container">image</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="flex-grow">
+                        <span class="text-xs font-bold text-primary tracking-widest uppercase mb-2 block">{{ item.growthrecord }}</span>
+                        <h4 class="font-serif text-xl mb-3">{{ status.baby_name }} - {{ status.record_date|date:"Y年 m月 d日" }}</h4>
+                        <p class="text-on-surface-variant leading-relaxed text-sm mb-4">{{ status.record }}</p>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 bg-white/40 p-4 rounded-lg">
+                            {% if status.weight %}
+                                <div class="text-center">
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">體重</p>
+                                    <p class="font-bold text-primary">{{ status.weight }} kg</p>
+                                </div>
+                            {% endif %}
+                            {% if status.height %}
+                                <div class="text-center">
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">身高</p>
+                                    <p class="font-bold text-primary">{{ status.height }} cm</p>
+                                </div>
+                            {% endif %}
+                            {% if status.headcircumference %}
+                                <div class="text-center">
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">頭圍</p>
+                                    <p class="font-bold text-primary">{{ status.headcircumference }} cm</p>
+                                </div>
+                            {% endif %}
+                            {% if status.chestcircumference %}
+                                <div class="text-center">
+                                    <p class="text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">胸圍</p>
+                                    <p class="font-bold text-primary">{{ status.chestcircumference }} cm</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="bg-surface-container-low/50 p-6 rounded-lg text-center text-on-surface-variant">
+                    <p class="text-sm">此成長地圖尚無記錄</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="bg-tertiary-container/30 p-12 rounded-lg flex flex-col items-center justify-center text-center">
+        <span class="material-symbols-outlined text-6xl text-primary-container mb-4" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+        <h3 class="font-serif text-2xl font-bold mb-2">暫無成長地圖</h3>
+        <p class="text-on-surface-variant">建立第一筆成長記錄，開始珍貴的回憶之旅</p>
+    </div>
+{% endif %}
 </section>
 </main>
 
