@@ -1,0 +1,18 @@
+## 5/18 中午12:00~13:30
+
+1. 名稱投票:
+    
+    chrono + 詞  三票
+    
+    coLog + 詞  四票 (發想延伸)
+    
+    Bloom + 詞 兩票
+    
+    CoLoglow 三票 (備案)
+    
+    CoLogPath 五票 (LOGO製作)
+    
+    CoLogTree 兩票
+    
+2. *手冊文件* 重要 先動工
+3. 程式修改到 core、templates、static  (css、js、html檔) 資料庫連結
