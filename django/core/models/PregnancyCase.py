@@ -1,0 +1,19 @@
+from django.db import models
+from .UserProfile import UserProfile
+from django.utils import timezone
+
+#懷孕胎數
+class PregnancyCase(models.Model):
+    pregnancycase_id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, db_column='user_id', related_name='pregnancy_cases')
+    menstruation = models.DateField(null=True, blank=True)
+    expecteddate = models.DateField(null=True, blank=True)
+    code = models.CharField(max_length=255, unique=True)
+    create_time = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        db_table = 'pregnancycase'
+        managed = False
+
+    def __str__(self):
+        return self.code

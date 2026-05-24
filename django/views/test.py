@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
-from .forms import UserProfileForm
-from .models import QAConversation, QAMessage, UserProfile, BabyGrowthMap, BabyStatus, BabyRecord, BabyInformation
+from core.forms import UserProfileForm
+from core.models import BabyGrowthMap, BabyInformation, BabyRecord, BabyStatus, QAConversation, QAMessage, UserProfile
 import os
 try:
     import openai
