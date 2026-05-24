@@ -4,6 +4,11 @@ from .BabyRecord import BabyRecord
 from .BabyStatus import BabyStatus
 from .PregnancyCase import PregnancyCase
 from .PregnancyRecord import PregnancyRecord
+from .Feeling import Feeling
+from .Physicalcondition import PhysicalCondition
+from .Prenatalrecord import Prenatalrecord
 from .QAConversation import QAConversation
 from .QAMessage import QAMessage
 from .UserProfile import UserProfile
+from .Userfeeling import Userfeeling
+from .Userphysicalcondition import Userphysicalcondition

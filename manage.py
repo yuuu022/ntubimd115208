@@ -6,6 +6,12 @@ import sys
 
 def main():
     """Run administrative tasks."""
+    # Ensure the 'django' subdirectory is on sys.path so project package imports work
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DJANGO_DIR = os.path.join(BASE_DIR, 'django')
+    if DJANGO_DIR not in sys.path:
+        sys.path.insert(0, DJANGO_DIR)
+
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project115208.settings')
     try:
         from django.core.management import execute_from_command_line
