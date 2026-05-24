@@ -4,7 +4,7 @@ from django.utils import timezone
 
 #懷孕胎數
 class PregnancyCase(models.Model):
-    pregnancycase_id = models.BigAutoField(primary_key=True)
+    pregnancycase_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, db_column='user_id', related_name='pregnancy_cases')
     menstruation = models.DateField(null=True, blank=True)
     expecteddate = models.DateField(null=True, blank=True)

@@ -4,7 +4,7 @@ from .BabyInformation import BabyInformation
 
 #嬰兒紀錄
 class BabyRecord(models.Model):
-    babyrecord_id = models.BigAutoField(primary_key=True)
+    babyrecord_id = models.AutoField(primary_key=True)
     baby = models.ForeignKey(BabyInformation, on_delete=models.CASCADE, db_column='baby_id', related_name='records')
     date = models.DateField()
     record = models.TextField()

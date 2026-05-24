@@ -3,7 +3,7 @@ from .QAConversation import QAConversation
 
 
 class QAMessage(models.Model):
-    serno = models.BigAutoField(primary_key=True)
+    serno = models.AutoField(primary_key=True)
     qa_conversation = models.ForeignKey(QAConversation, db_column='qa_conversation_id', on_delete=models.CASCADE, related_name='messages')
     role = models.CharField(max_length=255)
     message = models.TextField()

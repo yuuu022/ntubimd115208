@@ -1,7 +1,7 @@
 from django.db import models
 
 class QAConversation(models.Model):
-    qa_conversation_id = models.BigAutoField(primary_key=True)
+    qa_conversation_id = models.AutoField(primary_key=True)
     user_id = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     create_time = models.DateTimeField()
