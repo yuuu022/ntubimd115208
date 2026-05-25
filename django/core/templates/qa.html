@@ -1,0 +1,177 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}知識問答{% endblock %}
+{% block extra_css %}
+<body class="bg-background font-body text-on-surface min-h-screen flex flex-col">
+    <!-- TopAppBar -->
+    <nav class="sticky top-0 z-30 bg-[#f7f6f3]/70 backdrop-blur-md rounded-b-[3rem] shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full md:px-[calc(50vw-21rem)] lg:px-[calc(50vw-24rem)] transition-all duration-500">
+        <div class="flex items-center gap-3">
+            <button id="hamburger-menu-btn"
+                class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors mr-2 cursor-pointer">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
+            <h1 class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">AuraLink</h1>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay Backdrop -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/20 z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <!-- Sidebar / Chat History Drawer -->
+    <aside id="history-sidebar" class="fixed inset-y-0 left-0 w-[280px] bg-surface-container-lowest shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="px-6 py-5 border-b border-surface-container-highest/30 flex justify-between items-center">
+            <h2 class="font-bold text-primary text-lg">歷史問答紀錄</h2>
+            <button id="close-sidebar-btn" class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1 rounded-full hover:bg-surface-container-low">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+        <div class="flex-grow overflow-y-auto px-4 py-4 space-y-6 hide-scrollbar">
+            <!-- Today -->
+            <div class="space-y-2">
+                <h3 class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider px-2">今天</h3>
+                <button class="w-full text-left bg-primary/10 text-primary px-4 py-3 rounded-xl font-bold text-sm truncate flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+                    <span class="truncate">懷孕中期運動建議</span>
+                </button>
+            </div>
+
+            <!-- Last 7 Days -->
+            <div class="space-y-2">
+                <h3 class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider px-2">過去 7 天</h3>
+                <button class="w-full text-left hover:bg-surface-container-low text-on-surface px-4 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-3 group">
+                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary">history</span>
+                    <span class="truncate">初期孕吐如何緩解？</span>
+                </button>
+                <button class="w-full text-left hover:bg-surface-container-low text-on-surface px-4 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-3 group">
+                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary">history</span>
+                    <span class="truncate">葉酸和鈣片的正確吃法</span>
+                </button>
+                <button class="w-full text-left hover:bg-surface-container-low text-on-surface px-4 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-3 group">
+                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary">history</span>
+                    <span class="truncate">推薦的孕婦枕頭品牌</span>
+                </button>
+            </div>
+
+            <!-- Last 30 Days -->
+            <div class="space-y-2">
+                <h3 class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider px-2">過去 30 天</h3>
+                <button class="w-full text-left hover:bg-surface-container-low text-on-surface px-4 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-3 group">
+                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary">history</span>
+                    <span class="truncate">什麼時候可以感受到胎動？</span>
+                </button>
+                <button class="w-full text-left hover:bg-surface-container-low text-on-surface px-4 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-3 group">
+                    <span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary">history</span>
+                    <span class="truncate">產檢項目大解析</span>
+                </button>
+            </div>
+        </div>
+        <div class="p-4 border-t border-surface-container-highest/30">
+            <button class="w-full bg-surface-container-low text-on-surface-variant px-4 py-3 rounded-xl font-bold text-sm hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+                開啟新對話
+            </button>
+        </div>
+    </aside>
+    <!-- Main Canvas -->
+    <main class="flex-grow flex flex-col mx-auto px-4 pt-6 pb-32 md:pb-56 gap-6 max-w-md md:max-w-2xl lg:max-w-3xl w-full transition-all duration-500 ease-in-out">
+        <!-- AI Chat Layout -->
+        <div class="flex-grow flex flex-col gap-8">
+            <!-- Welcome Header (Asymmetric Layout) -->
+            <div class="flex flex-col md:flex-row gap-6 items-start md:items-end justify-between px-4">
+                <div class="max-w-md">
+                    <h2 class="font-headline text-3xl font-extrabold text-primary leading-tight">智慧助手</h2>
+                    <p class="text-on-surface-variant mt-2 text-lg">我是您的專屬懷孕顧問。您可以詢問關於營養、運動或孕期不適的問題。</p>
+                </div>
+            </div>
+            <!-- Chat Bubbles Area -->
+            <div class="flex flex-col gap-6 hide-scrollbar">
+                <!-- AI Message -->
+                <div class="flex items-start gap-3 max-w-[85%]">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-white text-sm"
+                            style="font-variation-settings: 'FILL' 1;">child_care</span>
+                    </div>
+                    <div
+                        class="bg-primary-container text-on-primary-container px-6 py-4 rounded-[2rem] rounded-tl-none shadow-sm">
+                        <p class="font-medium leading-relaxed">早安！很高興見到您。目前您已經進入孕期第 24 週了，這段期間胎兒的聽覺正迅速發展。今天有什麼我可以幫您的嗎？
+                        </p>
+                    </div>
+                </div>
+                <!-- User Message -->
+                <div class="flex items-start gap-3 max-w-[85%] self-end flex-row-reverse">
+                    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-secondary text-sm"
+                            style="font-variation-settings: 'FILL' 1;">person</span>
+                    </div>
+                    <div
+                        class="bg-secondary-container text-on-secondary-container px-6 py-4 rounded-[2rem] rounded-tr-none shadow-sm">
+                        <p class="font-medium leading-relaxed">我想了解懷孕中期可以做哪些緩和運動？還有要注意什麼？</p>
+                    </div>
+                </div>
+                <!-- AI Detailed Response with Card -->
+                <div class="flex items-start gap-3 max-w-[90%]">
+                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-white text-sm"
+                            style="font-variation-settings: 'FILL' 1;">child_care</span>
+                    </div>
+                    <div class="space-y-4 w-full">
+                        <div
+                            class="bg-primary-container text-on-primary-container px-6 py-4 rounded-[2rem] rounded-tl-none shadow-sm">
+                            <p class="font-medium leading-relaxed">懷孕中期（13-27週）是孕期最舒服的階段！這裡有幾個建議：</p>
+                        </div>
+                        <!-- Recommendation Cards (Bento Style) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div
+                                class="bg-surface-container-lowest p-6 rounded-lg shadow-[0_20px_40px_rgba(46,47,45,0.06)] border border-outline-variant/15">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="material-symbols-outlined text-secondary"
+                                        style="font-variation-settings: 'FILL' 1;">pool</span>
+                                    <h4 class="font-headline font-bold text-on-surface">水中運動</h4>
+                                </div>
+                                <p class="text-sm text-on-surface-variant leading-relaxed">游泳或水中漫步可以減輕脊椎負擔，並幫助散熱。</p>
+                            </div>
+                            <div
+                                class="bg-surface-container-lowest p-6 rounded-lg shadow-[0_20px_40px_rgba(46,47,45,0.06)] border border-outline-variant/15">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="material-symbols-outlined text-secondary"
+                                        style="font-variation-settings: 'FILL' 1;">self_improvement</span>
+                                    <h4 class="font-headline font-bold text-on-surface">孕婦瑜珈</h4>
+                                </div>
+                                <p class="text-sm text-on-surface-variant leading-relaxed">專注於骨盆底肌訓練與呼吸法，為分娩做準備。</p>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-primary-container text-on-primary-container px-6 py-4 rounded-[2rem] rounded-tl-none shadow-sm">
+                            <p class="font-medium leading-relaxed">💡 提示：運動時心跳不宜過快，應隨時補充水分，若有腹痛或出血請立即停止並就醫。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Suggested Topics (Chips) -->
+                <div class="flex flex-wrap gap-2 px-11">
+                    <button
+                        class="bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-sm font-semibold transition-colors border border-outline-variant/10">飲食禁忌</button>
+                    <button
+                        class="bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-sm font-semibold transition-colors border border-outline-variant/10">緩解背痛</button>
+                    <button
+                        class="bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-full text-sm font-semibold transition-colors border border-outline-variant/10">產檢項目</button>
+                </div>
+            </div>
+        </div>
+        <!-- Input Area (Floating Interaction) -->
+        <div class="fixed bottom-24 md:bottom-36 left-0 right-0 max-w-[600px] mx-auto px-4 z-40 pointer-events-none transition-all duration-500">
+            <div
+                class="pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-xl rounded-2xl p-3 shadow-[0_20px_40px_rgba(46,47,45,0.12)] flex items-center gap-3 border border-outline-variant/30">
+                <div class="flex-grow">
+                    <input
+                        class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/60 font-medium py-3 px-2"
+                        placeholder="詢問關於孕期的任何事情..." type="text" />
+                </div>
+                <button
+                    class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95 shadow-md">
+                    <span class="material-symbols-outlined">send</span>
+                </button>
+            </div>
+        </div>
+    </main>
+{% include 'base/footer.html' %}

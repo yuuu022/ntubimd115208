@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{% block title %}{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="{% static 'js/tailwind.config.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}" />
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-background text-on-surface min-h-screen overflow-x-hidden">
+    <nav class="sticky top-0 z-40 bg-[#f7f6f3]/70 backdrop-blur-md rounded-none shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full md:px-12 transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        <a href="/" class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
+            <span class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">AuraLink</span>
+        </a>
+        <div class="flex items-center gap-3 relative">
+            <button id="baby-switcher-btn" class="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors cursor-pointer group" type="button">
+                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                    <span class="material-symbols-outlined text-primary text-[14px]">face</span>
+                </div>
+                <span class="text-[13px] font-bold text-primary">小寶</span>
+                <span class="material-symbols-outlined text-primary text-[18px]">swap_horiz</span>
+            </button>
+            <div id="baby-switcher-menu" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-surface-container-high overflow-hidden opacity-0 pointer-events-none transition-all duration-200 z-50 transform origin-top-right scale-95">
+                <div class="max-h-[28rem] overflow-y-auto hide-scrollbar flex flex-col">
+                    <div class="px-4 py-2 bg-surface-container-low/50 border-b border-surface-container-highest">
+                        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">切換小孩 / 胎數</span>
+                    </div>
+                    <div class="w-full text-left px-4 py-3 bg-primary/5 flex items-center justify-between border-b border-surface-container-highest group">
+                        <div class="flex items-center gap-3 cursor-pointer w-full" onclick="window.location.href='/home_baby/'">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-primary text-[18px]">face</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-primary">小寶</span>
+                                <span class="text-[10px] text-primary/70 font-medium">第二胎</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full text-left px-4 py-3 hover:bg-surface-container-low transition-colors flex items-center justify-between border-b border-surface-container-highest group">
+                        <div class="flex items-center gap-3 cursor-pointer w-full" onclick="window.location.href='/home_baby/'">
+                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-on-surface-variant text-[18px]">face_6</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-on-surface">大寶</span>
+                                <span class="text-[10px] text-on-surface-variant font-medium">第一胎</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full text-left px-4 py-3 hover:bg-surface-container-low transition-colors flex items-center justify-between border-b border-surface-container-highest group">
+                        <div class="flex items-center gap-3 cursor-pointer w-full" onclick="window.location.href='/'">
+                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
+                                <span class="material-symbols-outlined text-on-surface-variant text-[18px]">pregnant_woman</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-on-surface">第三胎</span>
+                                <span class="text-[10px] text-on-surface-variant font-medium">懷孕中 (24w)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 bg-surface-container-low/30">
+                        <button onclick="window.location.href='/userprofile/'" class="w-full text-left px-3 py-2.5 hover:bg-primary/5 transition-colors flex items-center gap-3 rounded-xl cursor-pointer" type="button">
+                            <span class="material-symbols-outlined text-[18px] text-primary">settings</span>
+                            <span class="text-[13px] font-bold text-primary">管理所有胎數與寶寶</span>
+                        </button>
+                        <button onclick="window.location.href='/add_pregnancy_baby/'" class="w-full text-left px-3 py-2.5 hover:bg-primary/5 transition-colors flex items-center gap-3 rounded-xl cursor-pointer" type="button">
+                            <span class="material-symbols-outlined text-[18px] text-primary">add_circle</span>
+                            <span class="text-[13px] font-bold text-primary">新增胎數或小孩</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    {% block content %}{% endblock %}
+
+    {% include "base/footer.html" %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,12 @@
+/* Footer-specific styles */
+.footer-nav-active {
+    background-color: #d6beff;
+    color: #65518a;
+    border-radius: 1.5rem;
+    transform: scale(0.9);
+    transition: transform 0.3s;
+}
+
+.footer-nav-active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
+}

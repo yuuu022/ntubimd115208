@@ -1,0 +1,87 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}成長紀錄{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/baby/babygrowthmap.css' %}">
+{% endblock %}
+{% block content %}
+<div class="bg-surface text-on-surface min-h-screen">
+    <nav class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-surface-container-highest/20 px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        <div class="flex items-center gap-4 max-w-md md:max-w-none w-full mx-auto">
+            <button onclick="window.history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest text-primary hover:bg-primary-container transition-colors shadow-sm cursor-pointer" type="button">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1 class="text-xl font-bold text-primary tracking-tight font-headline">成長里程碑總覽</h1>
+        </div>
+    </nav>
+
+    <main class="pt-8 px-4 max-w-md md:max-w-none mx-auto w-full pb-32 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        <div class="mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-on-surface mb-1 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">timeline</span>
+                    寶寶成長軌跡
+                </h2>
+                <p class="text-xs text-on-surface-variant font-medium">紀錄小寶每個珍貴的「第一次」</p>
+            </div>
+        </div>
+
+        <section class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm border border-surface-container-low mb-8">
+            <div class="relative pl-8 space-y-10 growth-timeline-line">
+                {% if growth_timeline %}
+                    {% for item in growth_timeline %}
+                        <div class="relative">
+                            <div class="absolute -left-[30px] top-0 w-6 h-6 rounded-full {% if forloop.first %}bg-primary{% else %}bg-primary-fixed-dim{% endif %} flex items-center justify-center text-white z-10 shadow-sm ring-4 ring-primary-container/50">
+                                <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">{% if forloop.first %}stars{% else %}check{% endif %}</span>
+                            </div>
+
+                            <div class="flex flex-col gap-4">
+                                <div class="flex items-center justify-between gap-4">
+                                    <h3 class="font-bold text-on-surface text-lg">{{ item.growthrecord }}</h3>
+                                    <span class="text-[10px] font-bold {% if forloop.first %}text-primary bg-primary-container{% else %}text-on-surface-variant bg-surface-container{% endif %} px-2.5 py-1 rounded-full">
+                                        {{ item.baby_statuses|length }} 個月
+                                    </span>
+                                </div>
+
+                                <div class="grid gap-4">
+                                    {% for status in item.baby_statuses %}
+                                        <article class="flex flex-col md:flex-row gap-6 bg-surface-container-low/50 p-6 rounded-[1.5rem] hover:bg-surface-container-low transition-colors duration-300 border border-surface-container-highest/30">
+                                            <div class="flex-grow">
+                                                <h4 class="font-headline text-xl font-bold text-on-surface mb-3">{{ status.baby_name }} - {{ status.record_date|date:"Y年 m月 d日" }}</h4>
+                                                <p class="text-on-surface-variant leading-relaxed text-sm mb-4 whitespace-pre-wrap">{{ status.record }}</p>
+                                                {% if status.photo %}
+                                                    <div class="w-full md:w-48 h-48 rounded-[1.25rem] overflow-hidden flex-shrink-0 shadow-sm">
+                                                        <img alt="{{ status.baby_name }}" class="w-full h-full object-cover" src="{{ status.photo }}"/>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="w-full md:w-48 h-48 rounded-[1.25rem] overflow-hidden flex-shrink-0 bg-surface-container flex items-center justify-center shadow-sm">
+                                                        <span class="material-symbols-outlined text-4xl text-primary-container">image</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </article>
+                                    {% empty %}
+                                        <div class="bg-surface-container-low/50 p-6 rounded-[1.5rem] text-center text-on-surface-variant border border-surface-container-highest/30">
+                                            <p class="text-sm">此成長地圖尚無記錄</p>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="bg-tertiary-container/30 p-12 rounded-[1.5rem] flex flex-col items-center justify-center text-center border border-surface-container-highest/20">
+                        <span class="material-symbols-outlined text-6xl text-primary-container mb-4" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+                        <h3 class="font-headline text-2xl font-bold mb-2">暫無成長地圖</h3>
+                        <p class="text-on-surface-variant">建立第一筆成長記錄，開始珍貴的回憶之旅</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-xl transition-all active:scale-95 hover:scale-110 z-[60]">
+        <span class="material-symbols-outlined text-2xl" data-icon="edit_square">edit_square</span>
+    </button>
+</div>
+{% endblock %}

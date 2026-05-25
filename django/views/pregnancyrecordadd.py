@@ -5,6 +5,11 @@ import datetime
 
 from core.models import Feeling, PhysicalCondition, PregnancyRecord, Prenatalrecord, Userfeeling, Userphysicalcondition
 
+def pregnancyrecord(request):
+    return render(request, 'pregnancy/pregnancyrecord.html')
+def pregnancyrecord_new(request):
+    return render(request, 'pregnancy/pregnancyrecord_new.html')
+
 
 def _build_feelings():
     emoji_map = {
@@ -148,4 +153,4 @@ def pregnancyrecord_add(request):
         'physical_conditions': _build_physical_conditions(),
         'today': datetime.date.today().isoformat(),
     }
-    return render(request, 'pregnancyrecordadd.html', context)
+    return render(request, 'pregnancy/pregnancyrecordadd.html', context)

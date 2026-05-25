@@ -1,0 +1,151 @@
+﻿{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}個人資料{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/user/userprofile.css' %}">
+{% endblock %}
+{% block content %}
+    <main class="px-6 py-8 space-y-6 mx-auto max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        <!-- Unified Profile & Pregnancy Container -->
+        <section
+            class="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(46,47,45,0.06)] overflow-hidden">
+            <!-- Header: Profile & Bio Stats -->
+            <div class="p-8 pb-6">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-surface-container-lowest shadow-sm shrink-0">
+                            <span class="material-symbols-outlined text-primary text-3xl">face_3</span>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-on-surface-variant text-xs font-semibold tracking-widest uppercase">親愛的媽媽</p>
+                            <h2 class="text-3xl font-bold text-primary tracking-tight">林曉美</h2>
+                        </div>
+                    </div>
+                    <button
+                        onclick="window.location.href='/edit_userprofile/'"
+                        class="bg-surface-container-low text-primary p-3 rounded-full hover:bg-primary-container transition-colors shadow-sm cursor-pointer">
+                        <span class="material-symbols-outlined" data-icon="edit">edit</span>
+                    </button>
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex-1 bg-surface-container-low px-4 py-3 rounded-lg text-center">
+                        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider mb-1">身高</p>
+                        <p class="text-lg font-bold text-primary">165<span
+                                class="text-xs font-medium ml-0.5 text-on-surface-variant">cm</span></p>
+                    </div>
+                    <div class="flex-1 bg-surface-container-low px-4 py-3 rounded-lg text-center">
+                        <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider mb-1">體重</p>
+                        <p class="text-lg font-bold text-primary">58.5<span
+                                class="text-xs font-medium ml-0.5 text-on-surface-variant">kg</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-8">
+                <div class="h-px bg-outline-variant/10"></div>
+            </div>
+            <!-- Pregnancy Status Grid -->
+            <div class="p-8 space-y-8">
+                <!-- Pregnancy Progress -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-end">
+                        <div class="space-y-1">
+                            <h3 class="font-bold text-on-surface text-lg">懷孕進度</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl font-bold text-primary">第 6 個月</span>
+                                <span
+                                    class="text-xs text-on-primary-fixed-variant bg-primary-container/30 px-3 py-1 rounded-full font-bold">第
+                                    1 胎</span>
+                            </div>
+                        </div>
+                        <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">剩餘 98 天</p>
+                    </div>
+                    <div class="h-2.5 w-full bg-surface-container-low rounded-full overflow-hidden">
+                        <div class="h-full bg-primary w-[65%] rounded-full"></div>
+                    </div>
+                </div>
+                <!-- Detailed Info Grid -->
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- Baby Nickname -->
+                    <!-- Dates -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-1.5 ml-1">
+                                <span class="material-symbols-outlined text-xs text-on-surface-variant"
+                                    data-icon="event">event</span>
+                                <label
+                                    class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">最後經期首日</label>
+                            </div>
+                            <div
+                                class="bg-surface-container-low rounded-lg p-3 text-sm font-bold text-on-surface text-center">
+                                2023 / 11 / 15</div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-1.5 ml-1">
+                                <span class="material-symbols-outlined text-xs text-primary"
+                                    data-icon="calendar_today">calendar_today</span>
+                                <label class="text-[10px] font-bold text-primary uppercase tracking-wider">預計產期</label>
+                            </div>
+                            <div
+                                class="bg-primary-container/20 border border-primary/10 rounded-lg p-3 text-sm font-bold text-primary text-center">
+                                2024 / 08 / 22</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Helper List Section -->
+        <section class="bg-surface-container-lowest rounded-lg shadow-[0_20px_40px_rgba(46,47,45,0.06)] overflow-hidden">
+            <div class="p-8 pb-6 flex justify-between items-center border-b border-surface-container-high/50">
+                <div class="space-y-1">
+                    <h3 class="font-bold text-on-surface text-lg">協助者名單</h3>
+                    <p class="text-xs text-on-surface-variant font-medium">共同管理寶寶紀錄的家人</p>
+                </div>
+                <button onclick="window.location.href='edit_helper_permissions.html'" class="flex items-center gap-1 bg-surface-container-low hover:bg-surface-container-highest px-3 py-1.5 rounded-full transition-colors text-primary active:scale-95 cursor-pointer">
+                    <span class="material-symbols-outlined text-[16px]">manage_accounts</span>
+                    <span class="text-xs font-bold">修改權限</span>
+                </button>
+            </div>
+            <div class="p-4 space-y-2">
+                <!-- Helper 1 (Husband) -->
+                <div class="flex items-center justify-between p-4 bg-surface-container-low/50 hover:bg-surface-container-low rounded-2xl transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-lg">
+                            <span class="material-symbols-outlined text-[22px]">face</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-on-surface">張偉明</span>
+                            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mt-0.5">爸爸 (共同管理者)</span>
+                        </div>
+                    </div>
+                    <button class="text-on-surface-variant/50 hover:text-primary transition-colors p-2">
+                        <span class="material-symbols-outlined text-[20px]">remove_circle_outline</span>
+                    </button>
+                </div>
+
+                <!-- Helper 2 (Grandma) -->
+                <div class="flex items-center justify-between p-4 bg-surface-container-low/50 hover:bg-surface-container-low rounded-2xl transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-lg">
+                            <span class="material-symbols-outlined text-[22px]">face_3</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-bold text-on-surface">阿嬤 (淑芬)</span>
+                            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mt-0.5">阿嬤 (僅檢視)</span>
+                        </div>
+                    </div>
+                    <button class="text-on-surface-variant/50 hover:text-primary transition-colors p-2">
+                        <span class="material-symbols-outlined text-[20px]">remove_circle_outline</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Area -->
+        <section class="flex flex-col items-center pt-2">
+            <button onclick="window.location.href='login.html'"
+                class="bg-primary/10 text-primary px-10 py-3.5 rounded-full font-bold text-sm hover:bg-primary hover:text-white transition-all duration-300 shadow-sm border border-primary/20 cursor-pointer">
+                登出帳號
+            </button>
+        </section>
+    </main>
+{% endblock %}

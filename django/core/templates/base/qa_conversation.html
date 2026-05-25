@@ -1,0 +1,170 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}知識問答{% endblock %}
+{% block extra_css %}
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+    }
+
+    body > nav:first-of-type {
+        display: none;
+    }
+
+    body {
+        overflow-x: hidden;
+        background-color: #f7f6f3;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="bg-background font-body text-on-surface min-h-screen flex flex-col lg:flex-row">
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/20 z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <aside id="history-sidebar" class="fixed inset-y-0 left-0 w-[280px] shrink-0 bg-surface-container-lowest shadow-2xl z-50 transform -translate-x-full transition-all duration-300 flex flex-col border-r border-surface-container-highest/30 overflow-hidden">
+        <div class="px-6 py-5 border-b border-surface-container-highest/30 flex justify-between items-center">
+            <h2 class="font-bold text-primary text-lg">歷史問答紀錄</h2>
+            <button id="close-sidebar-btn" class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1 rounded-full hover:bg-surface-container-low" type="button">
+                <span class="material-symbols-outlined text-[20px]">close</span>
+            </button>
+        </div>
+				<div class="p-4 border-t border-surface-container-highest/30">
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="new_conversation" />
+                <button type="submit" class="w-full bg-surface-container-low text-on-surface-variant px-4 py-3 rounded-xl font-bold text-sm hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    開啟新對話
+                </button>
+            </form>
+        </div>
+        <div class="flex-grow min-h-0 overflow-y-auto px-4 py-4 space-y-6 hide-scrollbar">
+            {% if items %}
+            <div class="space-y-2">
+                <h3 class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider px-2">近期對話</h3>
+                {% for item in items %}
+                <a href="?conversation_id={{ item.id }}" class="w-full text-left px-4 py-3 rounded-xl font-medium text-sm transition-colors flex items-center gap-3 group {% if item.is_active %}bg-primary/10 text-primary{% else %}hover:bg-surface-container-low text-on-surface{% endif %}">
+                    <span class="material-symbols-outlined text-[18px] {% if item.is_active %}text-primary{% else %}text-on-surface-variant group-hover:text-primary{% endif %}">history</span>
+                    <span class="truncate">{{ item.title|default:item.question }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="px-4 py-3 rounded-2xl bg-surface-container-low text-sm text-on-surface-variant">
+                目前還沒有任何對話紀錄。
+            </div>
+            {% endif %}
+        </div>
+    </aside>
+
+    <div class="flex-1 min-w-0 flex flex-col relative bg-[#f7f6f3]/70 backdrop-blur-md shadow-[0_20px_40px_rgba(46,47,45,0.06)]">
+        <nav class="shrink-0 sticky top-0 z-30 flex justify-between items-center px-4 py-3 md:px-6 bg-background/90 backdrop-blur-md border-b border-surface-container-highest/20">
+            <div class="flex items-center gap-3">
+                <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <div class="flex items-center gap-2 px-2">
+                    <span class="material-symbols-outlined text-[#65518a] text-2xl">child_care</span>
+                    <h1 class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">AuraLink</h1>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col items-center">
+            <div class="w-full max-w-3xl flex flex-col gap-8 pb-40 md:pb-52">
+                <div class="flex flex-col md:flex-row gap-6 items-start md:items-end justify-between px-4">
+                    <div class="max-w-md">
+                        <h2 class="font-headline text-2xl font-extrabold text-primary leading-tight">懷孕知識問答</h2>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6 hide-scrollbar">
+                    {% if current_messages %}
+                    {% for message in current_messages %}
+                    <div class="flex items-start gap-3 max-w-[90%] {% if message.is_user %}self-end flex-row-reverse max-w-[85%]{% endif %}">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {% if message.is_user %}bg-surface-container-high{% else %}bg-primary{% endif %}">
+                            <span class="material-symbols-outlined text-sm {% if message.is_user %}text-on-surface-variant{% else %}text-white{% endif %}" style="font-variation-settings: 'FILL' 1;">{% if message.is_user %}person{% else %}child_care{% endif %}</span>
+                        </div>
+                        <div class="{% if message.is_user %}bg-surface-container-high text-on-surface rounded-tr-none{% else %}bg-primary-container text-on-primary-container rounded-tl-none{% endif %} px-6 py-4 rounded-[2rem] shadow-sm">
+                            <p class="font-medium leading-relaxed whitespace-pre-wrap">{{ message.message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% elif error_message %}
+                    <div class="rounded-[2rem] border border-error/20 bg-error/5 px-6 py-4 text-sm text-error">
+                        {{ error_message }}
+                    </div>
+                    {% else %}
+                    <div class="rounded-[2rem] border border-outline-variant/20 bg-white/80 px-6 py-5 shadow-sm">
+                        <div class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">歡迎開始提問</div>
+                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問營養、產檢、運動或孕期不適，我會把每次對話都保留在同一筆對話紀錄中。</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+
+        <div class="fixed bottom-24 md:bottom-24 left-0 w-full px-4 md:px-8 flex justify-center z-20 pointer-events-none">
+            <form method="post" class="w-full max-w-3xl pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-xl rounded-2xl p-2 shadow-[0_20px_40px_rgba(46,47,45,0.12)] flex items-center gap-2 border border-outline-variant/30">
+                {% csrf_token %}
+                {% if current_conversation_id %}
+                <input type="hidden" name="conversation_id" value="{{ current_conversation_id }}" />
+                {% endif %}
+                <div class="flex-grow">
+                    <input name="question" required class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/60 text-sm font-medium py-2 px-2" placeholder="詢問關於孕期的任何事情..." type="text" />
+                </div>
+                <button type="submit" class="w-9 h-9 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95 shadow-md">
+                    <span class="material-symbols-outlined text-[20px]">send</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    (function () {
+        const sidebar = document.getElementById('history-sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const openButton = document.getElementById('hamburger-menu-btn');
+        const closeButton = document.getElementById('close-sidebar-btn');
+
+        if (!sidebar || !overlay || !openButton || !closeButton) {
+            return;
+        }
+
+        const openSidebar = () => {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            overlay.classList.add('opacity-100', 'pointer-events-auto');
+            document.body.style.overflow = 'hidden';
+        };
+
+        const closeSidebar = () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            overlay.classList.remove('opacity-100', 'pointer-events-auto');
+            document.body.style.overflow = '';
+        };
+
+        openButton.addEventListener('click', openSidebar);
+        closeButton.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+    })();
+</script>
+{% endblock %}

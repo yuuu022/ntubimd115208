@@ -1,0 +1,48 @@
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
+
+body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background-color: #f7f6f3;
+    color: #2e2f2d;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+.headline {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.hide-scrollbar::-webkit-scrollbar,
+.carousel-container::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar,
+.carousel-container,
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.custom-shadow {
+    box-shadow: 0 20px 40px rgba(46, 47, 45, 0.04);
+}
+
+/* Hide number spinner */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
