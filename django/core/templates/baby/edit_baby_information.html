@@ -1,21 +1,16 @@
-﻿<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>編輯寶寶資料 - AuraLink</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="edit_baby_profile.css" rel="stylesheet" />
-    <link href="styles.css" rel="stylesheet" />
-</head>
+﻿{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}編輯寶寶資料{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/baby/edit_baby_profile.css' %}">
+{% endblock %}
+{% block content %}
 <body class="bg-surface text-on-surface min-h-screen pb-32">
     <!-- Header Section -->
     <!-- Main Content -->
-    <main class="pt-24 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <form onsubmit="event.preventDefault(); window.history.back();" class="space-y-6">
-            
+
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
                     <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
@@ -157,6 +152,4 @@
             </button>
         </form>
     </main>
-</body>
-</html>
-
+{% endblock %}

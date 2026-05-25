@@ -19,7 +19,7 @@ def add_user(request):
     else:
         form = UserProfileForm()
 
-    return render(request, 'core/add_user.html', {'form': form})
+    return render(request, 'add_user.html', {'form': form})
 
 
 #成長地圖畫面
