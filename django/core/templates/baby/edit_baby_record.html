@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>修改成長紀錄 - AuraLink</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Be+Vietnam+Pro:wght@400;500;600&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="edit_baby_record.css" rel="stylesheet" />
+    <link href="styles.css" rel="stylesheet" />
+</head>
+
+<body class="bg-surface text-on-surface">
+    <!-- Header Section (TopAppBar Shared Component) -->
+    <main class="pt-24 pb-32 px-6 max-w-2xl md:max-w-none mx-auto space-y-8 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        
+                <!-- Upload Area -->
+        <div class="bg-surface-container-lowest border-2 border-primary-container rounded-[2rem] p-0 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-primary/5 transition-all aspect-[4/3] md:aspect-video shadow-sm overflow-hidden relative group">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsFmTxE1jrirW8qMVp2ndiK0oWNDMTQsnAUPiRxPPGnM7ZPEB15HyG94PTXSO66mK-eVt_ZEgpWCGGXcvKrw8__Zv9F5sQ_k1f3y_2YFmJIZt4XP7lFWXyHLuUeAWP3NiaTRDFEhiTS3p1BHbvzrzxxqirT-nJnKBOwvZ0Udy3yHJRDNWrEIEt-CEQh_LSa5odUOxxP8h7tmwrNvhv-tijRUgdZj84sdWZUscx3oEi31W1dUmyPg4hSxXscuuUawfsKm0AU5JOlWmH" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold">
+                <span class="material-symbols-outlined">edit</span> 更換照片
+            </div>
+        </div>
+
+        <!-- Date Selector -->
+        <div class="space-y-3">
+            <label class="flex items-center gap-2 text-sm font-bold text-on-surface-variant px-1">
+                <span class="material-symbols-outlined text-base">calendar_today</span>
+                紀錄日期
+            </label>
+            <div class="relative w-full">
+                <input class="w-full bg-surface-container-low bg-none border-none rounded-2xl px-6 py-4 text-on-surface font-semibold focus:ring-2 focus:ring-primary-container transition-all appearance-none" type="date" value="2023-10-24" />
+            </div>
+        </div>
+
+        <!-- Vital Indicators Grid (2x2) -->
+        <div class="space-y-3">
+            <label class="block text-sm font-bold text-on-surface-variant px-1">成長指標</label>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-[#ebf4fa] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-on-surface-variant/80">身高 (CM)</span>
+                    <input class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="65.0" />
+                </div>
+                <div class="bg-[#eaf6f9] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-on-surface-variant/80">體重 (KG)</span>
+                    <input class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="7.2" />
+                </div>
+                <div class="bg-[#ebf4fa] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-on-surface-variant/80">頭圍 (CM)</span>
+                    <input class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="42.5" />
+                </div>
+                <div class="bg-[#eaf6f9] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-on-surface-variant/80">胸圍 (CM)</span>
+                    <input class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="34.0" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Milestones Section -->
+        <div class="space-y-4">
+            <label class="block text-sm font-bold text-on-surface-variant px-1">重要里程碑</label>
+            <div class="flex flex-wrap gap-3">
+                <button class="px-5 py-2.5 bg-primary text-white rounded-full text-xs font-bold transition-all shadow-sm">第一次翻身</button>
+                <button class="px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">第一顆牙齒</button>
+                <button class="px-5 py-2.5 bg-primary text-white rounded-full text-xs font-bold transition-all shadow-sm">會坐了</button>
+                <button class="px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">會爬了</button>
+                <button class="px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">開口叫媽媽</button>
+                <button class="px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">踏出第一步</button>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="space-y-4">
+            <label class="block text-sm font-bold text-on-surface-variant px-1">成長筆記</label>
+            <textarea class="w-full bg-surface-container-lowest border-none rounded-[2rem] p-6 h-40 focus:ring-2 focus:ring-primary-container text-on-surface resize-none custom-shadow placeholder:text-on-surface-variant/40 placeholder:font-medium" placeholder="寫下對寶寶的心情或今天發生的趣事...">寶寶今天特別開心，會抓著小木馬玩很久！</textarea>
+        </div>
+
+        <!-- Save Button -->
+        <div class="pt-8 pb-12">
+            <button onclick="window.location.href='babyinformation.html'" class="w-full py-4 bg-[#65518a] text-white rounded-full font-headline font-bold text-lg shadow-[0_20px_40px_rgba(101,81,138,0.2)] hover:scale-[1.02] active:scale-95 transition-all">
+                完成並儲存紀錄
+            </button>
+        </div>
+
+    </main>
+    <!-- BottomNavBar -->
+    <nav class="fixed bottom-0 left-0 w-full md:w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-10px_40px_rgba(46,47,45,0.06)] md:bottom-0 md:rounded-none md:pt-4 md:pb-4 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500 ">
+    <a href="index.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+        <span class="material-symbols-outlined">home</span>
+        <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">首頁</span>
+    </a>
+    <a href="pregnancyrecord.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+        <span class="material-symbols-outlined">edit_note</span>
+        <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">紀錄</span>
+    </a>
+    <a href="babyinformation.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+        <span class="material-symbols-outlined">auto_graph</span>
+        <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">成長</span>
+    </a>
+    <a href="qa_conversation.html" class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
+        <span class="material-symbols-outlined">menu_book</span>
+        <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">知識</span>
+    </a>
+    <a href="userprofile.html" class="flex flex-col items-center justify-center bg-[#d6beff] text-[#65518a] rounded-[1.5rem] px-5 py-2 scale-90 transition-transform duration-300">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person_2</span>
+        <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">個人</span>
+    </a>
+</nav>
+    <!-- Baby Switcher Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const switcherBtn = document.getElementById('baby-switcher-btn');
+            const switcherMenu = document.getElementById('baby-switcher-menu');
+            
+            if (switcherBtn && switcherMenu) {
+                switcherBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = !switcherMenu.classList.contains('opacity-0');
+                    if (isOpen) {
+                        switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                        switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    } else {
+                        switcherMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                        switcherMenu.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!switcherBtn.contains(e.target) && !switcherMenu.contains(e.target)) {
+                        switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                        switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Growth Record Interactions Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Milestones Interaction
+            const milestones = document.querySelectorAll('.flex-wrap.gap-3 > button:not(:last-child)');
+            milestones.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const isActive = btn.classList.contains('bg-primary');
+                    if (isActive) {
+                        btn.classList.remove('bg-primary', 'text-white', 'shadow-sm');
+                        btn.classList.add('bg-surface-container-low', 'text-on-surface-variant', 'hover:bg-primary/10');
+                    } else {
+                        btn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+                        btn.classList.remove('bg-surface-container-low', 'text-on-surface-variant', 'hover:bg-primary/10');
+                    }
+                });
+            });
+
+            // Mood Selector Interaction
+            const moodContainer = document.querySelector('.flex.items-center.justify-around.bg-surface-container-lowest');
+            if (moodContainer) {
+                const moodBtns = moodContainer.querySelectorAll('button');
+                moodBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Reset all to inactive
+                        moodBtns.forEach(b => {
+                            b.className = 'text-4xl hover:scale-110 active:scale-95 transition-transform grayscale opacity-60 flex items-center justify-center';
+                            const dot = b.querySelector('.absolute');
+                            if (dot) dot.remove();
+                        });
+                        // Set clicked to active
+                        btn.className = 'text-[2.75rem] scale-110 shadow-sm transition-transform relative flex items-center justify-center';
+                        // if the HTML contains div, don't duplicate it. Only get the first child text node or innerText properly
+                        const emojiText = Array.from(btn.childNodes).find(n => n.nodeType === Node.TEXT_NODE).textContent.trim();
+                        btn.innerHTML = `${emojiText}<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></div>`;
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
+

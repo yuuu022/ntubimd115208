@@ -1,0 +1,260 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}新增懷孕記錄{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pregnancy/pregnancyrecord_new.css' %}">
+<style>
+    body {
+        min-height: max(884px, 100dvh);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<main class="pt-8 px-4 mx-auto max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64 pb-32">
+    <section class="bg-surface-container-lowest rounded-[2.5rem] overflow-hidden shadow-[0_24px_48px_rgba(46,47,45,0.08)]">
+        <div class="px-6 pt-6 pb-2 flex justify-start items-center">
+            <div id="custom-date-picker-btn" class="relative inline-flex items-center cursor-pointer group hover:bg-primary/5 px-4 py-2 -ml-4 rounded-2xl transition-colors">
+                <h2 id="custom-date-picker-text" class="text-primary font-extrabold text-2xl tracking-tight flex items-center gap-1 relative z-0">
+                    2024年 10月
+                    <span class="material-symbols-outlined text-primary ml-1">keyboard_arrow_down</span>
+                </h2>
+            </div>
+        </div>
+
+        <div class="p-6 pb-8 lg:grid lg:grid-cols-2 lg:gap-12 items-start">
+            <div>
+                <div class="grid grid-cols-7 mb-2">
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase">日</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase">一</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase">二</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase">三</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase">四</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase">五</div>
+                    <div class="text-center text-xs font-bold text-outline py-2 uppercase">六</div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-1">
+                    <div class="aspect-square"></div>
+                    <div class="aspect-square"></div>
+                    <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">1</div>
+                    <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">2</div>
+                    <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">3</div>
+                    <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">4</div>
+                    <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant">5</div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">6</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">7</span></div>
+                    <div data-href="{% url 'pregnancyrecord' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">8</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">9</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">10</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">11</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">12</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">13</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">14</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">15</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">16</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">17</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">18</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">19</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">20</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">21</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">22</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">23</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">24</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">25</span></div>
+                    <div data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors"><span class="text-sm">26</span></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex flex-col items-center justify-center h-full min-h-[250px] lg:min-h-[350px] text-center gap-4 mt-8 lg:mt-0 bg-surface-container-lowest lg:bg-surface-container-low/30 rounded-3xl lg:border lg:border-dashed lg:border-outline-variant/30 lg:p-8">
+                    <div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center text-outline">
+                        <span class="material-symbols-outlined text-3xl">edit_note</span>
+                    </div>
+                    <div>
+                        <h4 class="text-on-surface font-bold text-lg">今日尚無紀錄</h4>
+                        <p class="text-on-surface-variant text-sm mt-1">為今天新增一筆孕期紀錄吧！</p>
+                    </div>
+                    <button data-href="{% url 'pregnancy_record_add' %}" onclick="window.location.href=this.dataset.href" class="mt-2 bg-primary text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-primary/30 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all" type="button">
+                        <span class="material-symbols-outlined">add</span>
+                        新增紀錄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="month-picker-modal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+    <div id="month-picker-backdrop" class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm transition-opacity duration-300"></div>
+    <div id="month-picker-content" class="relative w-full max-w-md bg-surface-container-lowest rounded-t-[2rem] sm:rounded-3xl shadow-2xl transform translate-y-full sm:translate-y-4 sm:scale-95 transition-all duration-300 flex flex-col sm:mb-4">
+        <div class="w-full flex justify-center pt-3 pb-1 sm:hidden">
+            <div class="w-12 h-1.5 bg-outline-variant/30 rounded-full"></div>
+        </div>
+
+        <div class="p-4 border-b border-surface-container-high/50 flex justify-between items-center shrink-0">
+            <button type="button" id="month-picker-prev-year" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <h3 id="month-picker-year-display" class="font-headline font-bold text-lg text-primary">2024年</h3>
+            <button type="button" id="month-picker-next-year" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        </div>
+
+        <div class="p-6 grid grid-cols-4 gap-4" id="month-picker-grid"></div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const switcherBtn = document.getElementById('baby-switcher-btn');
+        const switcherMenu = document.getElementById('baby-switcher-menu');
+
+        if (switcherBtn && switcherMenu) {
+            switcherBtn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const isOpen = !switcherMenu.classList.contains('opacity-0');
+
+                if (isOpen) {
+                    switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                    switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    return;
+                }
+
+                switcherMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                switcherMenu.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!switcherBtn.contains(event.target) && !switcherMenu.contains(event.target)) {
+                    switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                    switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                }
+            });
+        }
+
+        const monthPickerModal = document.getElementById('month-picker-modal');
+        const monthPickerBackdrop = document.getElementById('month-picker-backdrop');
+        const monthPickerContent = document.getElementById('month-picker-content');
+        const monthPickerYearDisplay = document.getElementById('month-picker-year-display');
+        const monthPickerGrid = document.getElementById('month-picker-grid');
+        const prevYearBtn = document.getElementById('month-picker-prev-year');
+        const nextYearBtn = document.getElementById('month-picker-next-year');
+        const customDatePickerBtn = document.getElementById('custom-date-picker-btn');
+        const customDatePickerText = document.getElementById('custom-date-picker-text');
+
+        if (!monthPickerModal || !customDatePickerBtn || !monthPickerContent || !monthPickerGrid || !monthPickerYearDisplay || !prevYearBtn || !nextYearBtn || !monthPickerBackdrop) {
+            return;
+        }
+
+        let currentSelectedYear = 2024;
+        let currentSelectedMonth = 10;
+        const initialText = customDatePickerText.innerText;
+        const match = initialText.match(/(\d{4})年\s*(\d+)月/);
+
+        if (match) {
+            currentSelectedYear = parseInt(match[1], 10);
+            currentSelectedMonth = parseInt(match[2], 10);
+        }
+
+        let tempYear = currentSelectedYear;
+        let tempMonth = currentSelectedMonth;
+
+        function renderMonthGrid() {
+            monthPickerGrid.innerHTML = '';
+
+            for (let month = 1; month <= 12; month++) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'py-3 rounded-xl text-sm font-bold transition-all cursor-pointer border';
+
+                if (tempYear === currentSelectedYear && month === tempMonth) {
+                    button.className += ' bg-primary text-white shadow-md border-primary';
+                } else if (tempMonth === month) {
+                    button.className += ' bg-primary/10 text-primary border-primary/20';
+                } else {
+                    button.className += ' bg-surface-container-lowest text-on-surface hover:bg-surface-container-low border-surface-container-high';
+                }
+
+                button.innerText = `${month}月`;
+                button.onclick = () => {
+                    tempMonth = month;
+                    currentSelectedYear = tempYear;
+                    currentSelectedMonth = tempMonth;
+                    customDatePickerText.innerHTML = `${currentSelectedYear}年 ${currentSelectedMonth}月 <span class="material-symbols-outlined text-primary ml-1">keyboard_arrow_down</span>`;
+
+                    if (window.navigator && window.navigator.vibrate) {
+                        window.navigator.vibrate(50);
+                    }
+
+                    renderMonthGrid();
+                    setTimeout(closeMonthPickerModal, 150);
+                };
+
+                monthPickerGrid.appendChild(button);
+            }
+        }
+
+        function openMonthPicker() {
+            tempYear = currentSelectedYear;
+            tempMonth = currentSelectedMonth;
+            monthPickerYearDisplay.innerText = `${tempYear}年`;
+            renderMonthGrid();
+
+            monthPickerModal.classList.remove('opacity-0', 'pointer-events-none');
+            monthPickerModal.classList.add('opacity-100', 'pointer-events-auto');
+
+            setTimeout(() => {
+                monthPickerContent.classList.remove('translate-y-full', 'sm:translate-y-4', 'sm:scale-95');
+                monthPickerContent.classList.add('translate-y-0', 'sm:translate-y-0', 'sm:scale-100');
+            }, 10);
+        }
+
+        function closeMonthPickerModal() {
+            monthPickerContent.classList.remove('translate-y-0', 'sm:translate-y-0', 'sm:scale-100');
+            monthPickerContent.classList.add('translate-y-full', 'sm:translate-y-4', 'sm:scale-95');
+
+            setTimeout(() => {
+                monthPickerModal.classList.remove('opacity-100', 'pointer-events-auto');
+                monthPickerModal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+        }
+
+        customDatePickerBtn.addEventListener('click', openMonthPicker);
+        monthPickerBackdrop.addEventListener('click', closeMonthPickerModal);
+
+        prevYearBtn.addEventListener('click', () => {
+            tempYear -= 1;
+            monthPickerYearDisplay.innerText = `${tempYear}年`;
+            renderMonthGrid();
+        });
+
+        nextYearBtn.addEventListener('click', () => {
+            tempYear += 1;
+            monthPickerYearDisplay.innerText = `${tempYear}年`;
+            renderMonthGrid();
+        });
+    });
+</script>
+{% endblock %}

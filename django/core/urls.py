@@ -3,15 +3,34 @@
 from django.urls import path
 from django.views.generic import TemplateView
 from views import test
-from views.pregnancyrecordadd import pregnancyrecord_add
-from views.pre import qa
+from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, babyinformation, care_record
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html'), name='index'),
+	# 首頁
+    path('', index.index, name='index'),
+    path('home_baby/', TemplateView.as_view(template_name='home_baby.html'), name='home_baby'),
+	path('add_care_reminder/', care_record.add_care_reminder, name='add_care_reminder'),
+	# 登入
     path('add_user/', test.add_user, name='add_user'),
-    path('pregnancyrecord/', TemplateView.as_view(template_name='pregnancyrecord.html'), name='pregnancyrecord'),
-    path('pregnancyrecord/add', pregnancyrecord_add, name='pregnancyrecord_add'),
-    path('history/', test.history, name='history'),
-    # 新的知識問答入口，會把問題轉送到 n8n Webhook
+
+	# 孕期紀錄
+    path('pregnancyrecord/add/', pregnancyrecordadd.pregnancyrecord_add, name='pregnancy_record_add'),
+	path('pregnancyrecord/', pregnancyrecordadd.pregnancyrecord, name='pregnancyrecord'),
+	path('pregnancyrecord_new/', pregnancyrecordadd.pregnancyrecord_new, name='pregnancy_record_new'),
+
+    # 小孩記錄
+    path('babyinformation/', babyinformation.baby, name='babyinformation'),
+    path('add_baby_record/', babyinformation.add_baby_record, name='add_baby_record'),
+
+    # 成長地圖
+    path('babygrowthmap/', test.baby_growthmap, name='baby_growthmap'),
+
+    # 知識問答
     path('qa/', qa.qa_conversation, name='qa_conversation'),
+
+    # 個人資料
+    path('userprofile/', userprofile.userprofile, name='profile'),
+    path('edit_userprofile/', userprofile.edit_userprofile, name='edit_userprofile'),
+
+
 ]
