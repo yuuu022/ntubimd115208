@@ -3,7 +3,7 @@
 from django.urls import path
 from django.views.generic import TemplateView
 from views import test
-from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, babyinformation, care_record, pregnancycase
+from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, care_record, pregnancycase
 
 urlpatterns = [
 	# 首頁
@@ -26,6 +26,9 @@ urlpatterns = [
     # 小孩記錄
     path('babyinformation/', babyinformation.baby, name='babyinformation'),
     path('add_baby_information/', babyinformation.add_baby_information, name='add_baby_information'),
+    path('add_baby_record/', babyinformation.add_baby_record, name='add_baby_record'),
+    path('babyrecord/<int:babyrecord_id>/edit/', babyinformation.edit_baby_record, name='edit_baby_record'),
+    path('babyrecord/<int:babyrecord_id>/delete/', babyinformation.delete_baby_record, name='delete_baby_record'),
     path('edit_baby_information/', babyinformation.edit_baby_information, name='edit_baby_information'),
 
     # 成長地圖
