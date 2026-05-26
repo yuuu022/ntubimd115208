@@ -26,26 +26,35 @@
         <section class="space-y-4">
             <h2 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest px-2">懷孕中</h2>
             <div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm border border-surface-container-high space-y-3">
-                <!-- Pregnancy Item 1 -->
-                <div class="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-2xl transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-                            <span class="material-symbols-outlined text-primary">pregnant_woman</span>
+                {% if active_cases %}
+                    {% for case in active_cases %}
+                    <!-- Pregnancy Item -->
+                    <div class="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-2xl transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary">pregnant_woman</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-on-surface">{{ case.order_name }} (目前)</p>
+                                <p class="text-xs text-on-surface-variant">預產期：{{ case.expecteddate|date:"Y-m-d" }} ({{ case.gestation_text }})</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-bold text-on-surface">第三胎 (目前)</p>
-                            <p class="text-xs text-on-surface-variant">預產期：2024-10-22 (24w 4d)</p>
+                        <div class="flex items-center gap-1">
+                            <button onclick="window.location.href='/edit_pregnancy_case/?id={{ case.pregnancycase_id }}'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </button>
+                            <button onclick="if(confirm('確定要刪除此胎數紀錄嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ case.pregnancycase_id }}';" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="window.location.href='/edit_pregnancy_case/'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                        </button>
-                        <button onclick="if(confirm('確定要刪除嗎？')) alert('已刪除');" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                        </button>
-                    </div>
-                </div>
+                    {% if not forloop.last %}
+                    <div class="h-px bg-surface-container-highest mx-3"></div>
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-sm text-on-surface-variant p-4 text-center">目前沒有進行中的懷孕紀錄</p>
+                {% endif %}
             </div>
         </section>
 
@@ -53,49 +62,35 @@
         <section class="space-y-4">
             <h2 class="text-sm font-bold text-on-surface-variant uppercase tracking-widest px-2">已出生寶寶</h2>
             <div class="bg-surface-container-lowest rounded-3xl p-4 shadow-sm border border-surface-container-high space-y-1">
-                <!-- Baby Item 1 -->
-                <div class="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-2xl transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center overflow-hidden">
-                             <span class="material-symbols-outlined text-primary">face</span>
+                {% if born_babies %}
+                    {% for baby in born_babies %}
+                    <!-- Baby Item -->
+                    <div class="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-2xl transition-colors">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center overflow-hidden">
+                                 <span class="material-symbols-outlined text-primary">face</span>
+                            </div>
+                            <div>
+                                <p class="font-bold text-on-surface">{{ baby.name }} ({{ baby.case_order_name }})</p>
+                                <p class="text-xs text-on-surface-variant">{{ baby.birthday_str }} ({{ baby.age_text }})</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-bold text-on-surface">小寶 (第二胎)</p>
-                            <p class="text-xs text-on-surface-variant">2023-10-15 (0歲 7個月)</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="window.location.href='/edit_baby_information/'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                        </button>
-                        <button onclick="if(confirm('確定要刪除嗎？')) alert('已刪除');" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="h-px bg-surface-container-highest mx-3"></div>
-
-                <!-- Baby Item 2 -->
-                <div class="flex items-center justify-between p-3 hover:bg-surface-container-low rounded-2xl transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center overflow-hidden">
-                             <span class="material-symbols-outlined text-primary">face_6</span>
-                        </div>
-                        <div>
-                            <p class="font-bold text-on-surface">大寶 (第一胎)</p>
-                            <p class="text-xs text-on-surface-variant">2021-05-20 (3歲 0個月)</p>
+                        <div class="flex items-center gap-1">
+                            <button onclick="window.location.href='/edit_baby_information/?id={{ baby.baby_id }}'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            </button>
+                            <button onclick="if(confirm('確定要刪除嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ baby.pregnancycase.pregnancycase_id }}';" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
+                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="window.location.href='/edit_baby_information/'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-[20px]">edit</span>
-                        </button>
-                        <button onclick="if(confirm('確定要刪除嗎？')) alert('已刪除');" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                        </button>
-                    </div>
-                </div>
+                    {% if not forloop.last %}
+                    <div class="h-px bg-surface-container-highest mx-3"></div>
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-sm text-on-surface-variant p-4 text-center">目前沒有已出生寶寶紀錄</p>
+                {% endif %}
             </div>
         </section>
 

@@ -59,61 +59,118 @@
             </div>
         </section>
         <!-- Component 2: Growth Calendar -->
-        <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
-            <div class="p-6 bg-surface-container-low flex justify-center items-center">
-                <form method="get" class="flex items-center gap-2">
-                    <div class="relative flex items-center group/year">
-                        <select name="year" class="appearance-none !bg-none bg-transparent text-primary font-bold text-base px-2 py-1 outline-none cursor-pointer hover:bg-surface-container-lowest rounded-lg transition-colors text-center" style="background-image: none;">
-                            {% for year in calendar_years %}
-                            <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}年</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="relative flex items-center group/month">
-                        <select name="month" class="appearance-none !bg-none bg-transparent text-primary font-bold text-base px-2 py-1 outline-none cursor-pointer hover:bg-surface-container-lowest rounded-lg transition-colors text-center" style="background-image: none;">
-                            {% for m in calendar_months %}
-                            <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}月</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-bold">顯示</button>
-                </form>
+        <section class="bg-surface-container-lowest rounded-[2.5rem] overflow-hidden shadow-[0_24px_48px_rgba(46,47,45,0.08)]">
+            <!-- Interactive Calendar Header & Filters Section -->
+            <div class="px-6 pt-6 pb-2 flex justify-start items-center gap-2">
+                <button id="month-prev-btn" type="button" class="w-8 h-8 rounded-full hover:bg-primary/10 text-primary font-bold">&lt;</button>
+                <div id="custom-date-picker-btn" class="relative inline-flex items-center cursor-pointer group hover:bg-primary/5 px-4 py-2 -ml-4 rounded-2xl transition-colors">
+                    <h2 id="custom-date-picker-text" class="text-primary font-extrabold text-2xl tracking-tight flex items-center gap-1 relative z-0">
+                        {{ selected_month_label }}
+                        <span class="material-symbols-outlined text-primary ml-1">keyboard_arrow_down</span>
+                    </h2>
+                </div>
+                <button id="month-next-btn" type="button" class="w-8 h-8 rounded-full hover:bg-primary/10 text-primary font-bold">&gt;</button>
+                <button id="month-today-btn" type="button" class="ml-2 px-3 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 font-bold">今天</button>
             </div>
-            <div class="p-4">
-                <div class="grid grid-cols-7 mb-2">
-                    <div class="text-center text-xs font-bold text-outline py-2">日</div>
-                    <div class="text-center text-xs font-bold text-outline py-2">一</div>
-                    <div class="text-center text-xs font-bold text-outline py-2">二</div>
-                    <div class="text-center text-xs font-bold text-outline py-2">三</div>
-                    <div class="text-center text-xs font-bold text-outline py-2">四</div>
-                    <div class="text-center text-xs font-bold text-outline py-2">五</div>
-                    <div class="text-center text-xs font-bold text-outline py-2">六</div>
-                </div>
-                <div class="grid grid-cols-7 gap-1">
-                    {% for week in calendar_weeks %}
-                        {% for day in week %}
-                            {% if day == 0 %}
-                                <div class="aspect-square rounded-lg"></div>
-                            {% else %}
-                                <div class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg {% if day == today_day %}bg-primary-container text-on-primary-container{% else %}hover:bg-surface-container-low cursor-pointer transition-colors{% endif %}">
-                                    <span class="text-sm {% if day == today_day %}font-bold{% endif %}">{{ day }}</span>
-                                    {% if day in record_days %}
-                                    <div class="mt-auto">
-                                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
-                                    </div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
+            
+            <div class="p-6 pb-8 lg:grid lg:grid-cols-2 lg:gap-12 items-start">
+                <div>
+                    <div class="grid grid-cols-7 mb-2">
+                        <div class="text-center text-xs font-bold text-outline py-2 uppercase">日</div>
+                        <div class="text-center text-xs font-bold text-outline py-2 uppercase">一</div>
+                        <div class="text-center text-xs font-bold text-outline py-2 uppercase">二</div>
+                        <div class="text-center text-xs font-bold text-outline py-2 uppercase">三</div>
+                        <div class="text-center text-xs font-bold text-outline py-2 uppercase">四</div>
+                        <div class="text-center text-xs font-bold text-outline py-2 uppercase">五</div>
+                        <div class="text-center text-xs font-bold text-outline py-2 uppercase">六</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1">
+                        {% for week in calendar_weeks %}
+                            {% for cell in week %}
+                                {% if cell.empty %}
+                                    <div class="aspect-square"></div>
+                                {% else %}
+                                    <a href="?date={{ cell.date_iso }}" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors {% if cell.is_selected %}bg-primary-container text-on-primary-container{% endif %}">
+                                        <span class="text-sm {% if cell.is_selected %}font-bold text-on-primary-container{% else %}text-on-surface{% endif %}">{{ cell.day }}</span>
+                                        {% if cell.has_record %}
+                                        <div class="mt-auto">
+                                            <div class="w-2 h-2 rounded-full {% if cell.is_selected %}bg-on-primary-container{% else %}bg-primary{% endif %}"></div>
+                                        </div>
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
+                    </div>
                 </div>
-                <!-- Prominent Entry Button -->
-                <div class="mt-6">
-                    <button onclick="window.location.href='{% url 'add_baby_record' %}'"
-                        class="w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-                        <span class="material-symbols-outlined">add_circle</span>
-                        新增成長紀錄
-                    </button>
+                
+                <div>
+                    <!-- Data Summary List Header -->
+                    <div class="flex justify-between items-center px-2 mb-4 mt-8 lg:mt-0">
+                        <h4 class="text-on-surface-variant text-sm font-bold uppercase tracking-wider">今日紀錄 ({{ selected_date|date:"Y-m-d" }})</h4>
+                        {% if has_day_data %}
+                        <button onclick="window.location.href='{% url 'edit_baby_record' selected_day_record.babyrecord_id %}'"
+                            class="flex items-center gap-1.5 px-5 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer active:scale-95">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                            <span class="text-sm font-bold">修改</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Data Summary List -->
+                    <div class="space-y-4 px-2">
+                        {% if has_day_data %}
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-primary-container/30 rounded-2xl border border-secondary/10 flex flex-col justify-center items-center">
+                                <span class="text-xs font-bold text-on-surface-variant/80">身高</span>
+                                <span class="text-primary text-xl font-extrabold mt-1">{{ selected_day_record.height|default:'-' }} <span class="text-xs font-medium">cm</span></span>
+                            </div>
+                            <div class="p-4 bg-primary-container/30 rounded-2xl border border-secondary/10 flex flex-col justify-center items-center">
+                                <span class="text-xs font-bold text-on-surface-variant/80">體重</span>
+                                <span class="text-primary text-xl font-extrabold mt-1">{{ selected_day_record.weight|default:'-' }} <span class="text-xs font-medium">kg</span></span>
+                            </div>
+                            <div class="p-4 bg-primary-container/30 rounded-2xl border border-secondary/10 flex flex-col justify-center items-center">
+                                <span class="text-xs font-bold text-on-surface-variant/80">頭圍</span>
+                                <span class="text-primary text-xl font-extrabold mt-1">{{ selected_day_record.headcircumference|default:'-' }} <span class="text-xs font-medium">cm</span></span>
+                            </div>
+                            <div class="p-4 bg-primary-container/30 rounded-2xl border border-secondary/10 flex flex-col justify-center items-center">
+                                <span class="text-xs font-bold text-on-surface-variant/80">胸圍</span>
+                                <span class="text-primary text-xl font-extrabold mt-1">{{ selected_day_record.chestcircumference|default:'-' }} <span class="text-xs font-medium">cm</span></span>
+                            </div>
+                        </div>
+                        
+                        {% if selected_day_record.milestones %}
+                        <div class="p-4 bg-primary-container/20 rounded-2xl border border-primary/10">
+                            <p class="text-xs font-bold text-on-surface-variant/80 mb-2">達成里程碑</p>
+                            <div class="flex flex-wrap gap-2">
+                                {% for milestone in selected_day_record.milestones %}
+                                <span class="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{{ milestone }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="p-4 bg-primary-container/10 rounded-2xl border border-primary/5">
+                            <p class="text-xs font-bold text-on-surface-variant/80 mb-1">成長筆記</p>
+                            <p class="text-sm text-on-surface">{{ selected_day_record.note_text|default:selected_day_record.record|default:'無備註' }}</p>
+                        </div>
+                        
+                        {% else %}
+                        <div class="flex flex-col items-center justify-center min-h-[220px] text-center gap-4 bg-surface-container-low/30 rounded-3xl p-6">
+                            <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-outline">
+                                <span class="material-symbols-outlined text-2xl">child_care</span>
+                            </div>
+                            <div>
+                                <h4 class="text-on-surface font-bold text-base">今日沒有紀錄</h4>
+                                <p class="text-on-surface-variant text-xs mt-1">為這天新增一筆成長紀錄吧！</p>
+                            </div>
+                            <button onclick="window.location.href='{% url 'add_baby_record' %}?date={{ selected_date_iso }}'" class="mt-1 bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all" type="button">
+                                <span class="material-symbols-outlined text-sm">add</span>
+                                新增紀錄
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </section>
@@ -240,4 +297,214 @@
             </div>
         </section>
     </main>
+
+    <!-- Month Picker Modal -->
+    <div id="month-picker-modal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        <div id="month-picker-backdrop" class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm transition-opacity duration-300"></div>
+        <div id="month-picker-content" class="relative w-full max-w-md bg-surface-container-lowest rounded-t-[2rem] sm:rounded-3xl shadow-2xl transform translate-y-full sm:translate-y-4 sm:scale-95 transition-all duration-300 flex flex-col sm:mb-4">
+            <div class="w-full flex justify-center pt-3 pb-1 sm:hidden">
+                <div class="w-12 h-1.5 bg-outline-variant/30 rounded-full"></div>
+            </div>
+
+            <div class="p-4 border-b border-surface-container-high/50 flex justify-between items-center shrink-0">
+                <button type="button" id="month-picker-prev-year" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button type="button" id="month-picker-year-display" class="font-headline font-bold text-lg text-primary hover:bg-surface-container-low px-3 py-1 rounded-xl transition-colors">{{ selected_date.year }}年</button>
+                <button type="button" id="month-picker-next-year" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+
+            <div class="p-6 grid grid-cols-4 gap-4" id="month-picker-grid"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const monthPickerModal = document.getElementById('month-picker-modal');
+        const monthPickerBackdrop = document.getElementById('month-picker-backdrop');
+        const monthPickerContent = document.getElementById('month-picker-content');
+        const monthPickerYearDisplay = document.getElementById('month-picker-year-display');
+        const monthPickerGrid = document.getElementById('month-picker-grid');
+        const prevYearBtn = document.getElementById('month-picker-prev-year');
+        const nextYearBtn = document.getElementById('month-picker-next-year');
+        const customDatePickerBtn = document.getElementById('custom-date-picker-btn');
+        const monthPrevBtn = document.getElementById('month-prev-btn');
+        const monthTodayBtn = document.getElementById('month-today-btn');
+        const monthNextBtn = document.getElementById('month-next-btn');
+
+        if (!monthPickerModal || !customDatePickerBtn || !monthPickerContent || !monthPickerGrid || !monthPickerYearDisplay || !prevYearBtn || !nextYearBtn || !monthPickerBackdrop) {
+            return;
+        }
+
+        let currentSelectedYear = new Date().getFullYear();
+        let currentSelectedMonth = new Date().getMonth() + 1;
+        const initialText = (document.getElementById('custom-date-picker-text')||{}).innerText || '';
+        const match = initialText.match(/(\d{4})年\s*(\d+)月/);
+
+        if (match) {
+            currentSelectedYear = parseInt(match[1], 10);
+            currentSelectedMonth = parseInt(match[2], 10);
+        }
+
+        let tempYear = currentSelectedYear;
+        let tempMonth = currentSelectedMonth;
+        let pickerMode = 'month';
+
+        function renderMonthGrid() {
+            monthPickerGrid.innerHTML = '';
+
+            for (let month = 1; month <= 12; month++) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'py-3 rounded-xl text-sm font-bold transition-all cursor-pointer border';
+
+                if (tempYear === currentSelectedYear && month === tempMonth) {
+                    button.className += ' bg-primary text-white shadow-md border-primary';
+                } else if (tempMonth === month) {
+                    button.className += ' bg-primary/10 text-primary border-primary/20';
+                } else {
+                    button.className += ' bg-surface-container-lowest text-on-surface hover:bg-surface-container-low border-surface-container-high';
+                }
+
+                button.innerText = `${month}月`;
+                button.onclick = () => {
+                    const target = `${tempYear}-${String(month).padStart(2,'0')}-01`;
+                    window.location.href = `?date=${target}`;
+                };
+
+                monthPickerGrid.appendChild(button);
+            }
+        }
+
+        function renderYearGrid() {
+            monthPickerGrid.innerHTML = '';
+
+            const startYear = tempYear - 5;
+            for (let offset = 0; offset < 12; offset++) {
+                const year = startYear + offset;
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'py-3 rounded-xl text-sm font-bold transition-all cursor-pointer border';
+
+                if (year === currentSelectedYear) {
+                    button.className += ' bg-primary text-white shadow-md border-primary';
+                } else if (year === tempYear) {
+                    button.className += ' bg-primary/10 text-primary border-primary/20';
+                } else {
+                    button.className += ' bg-surface-container-lowest text-on-surface hover:bg-surface-container-low border-surface-container-high';
+                }
+
+                button.innerText = `${year}年`;
+                button.onclick = () => {
+                    tempYear = year;
+                    currentSelectedYear = year;
+                    pickerMode = 'month';
+                    monthPickerYearDisplay.innerText = `${tempYear}年`;
+                    renderMonthGrid();
+                };
+
+                monthPickerGrid.appendChild(button);
+            }
+        }
+
+        function renderPickerGrid() {
+            if (pickerMode === 'year') {
+                renderYearGrid();
+            } else {
+                renderMonthGrid();
+            }
+        }
+
+        function goToMonth(year, month) {
+            const safeYear = Number(year);
+            const safeMonth = Number(month);
+            if (!safeYear || !safeMonth) {
+                return;
+            }
+            const target = `${safeYear}-${String(safeMonth).padStart(2,'0')}-01`;
+            window.location.href = `?date=${target}`;
+        }
+
+        function shiftMonth(delta) {
+            let year = currentSelectedYear;
+            let month = currentSelectedMonth + delta;
+            if (month < 1) {
+                month = 12;
+                year -= 1;
+            } else if (month > 12) {
+                month = 1;
+                year += 1;
+            }
+            goToMonth(year, month);
+        }
+
+        function openMonthPicker() {
+            tempYear = currentSelectedYear;
+            tempMonth = currentSelectedMonth;
+            pickerMode = 'month';
+            monthPickerYearDisplay.innerText = `${tempYear}年`;
+            renderPickerGrid();
+
+            monthPickerModal.classList.remove('opacity-0', 'pointer-events-none');
+            monthPickerModal.classList.add('opacity-100', 'pointer-events-auto');
+
+            setTimeout(() => {
+                monthPickerContent.classList.remove('translate-y-full', 'sm:translate-y-4', 'sm:scale-95');
+                monthPickerContent.classList.add('translate-y-0', 'sm:translate-y-0', 'sm:scale-100');
+            }, 10);
+        }
+
+        document.openMonthPicker = openMonthPicker;
+
+        function closeMonthPickerModal() {
+            monthPickerContent.classList.remove('translate-y-0', 'sm:translate-y-0', 'sm:scale-100');
+            monthPickerContent.classList.add('translate-y-full', 'sm:translate-y-4', 'sm:scale-95');
+
+            setTimeout(() => {
+                monthPickerModal.classList.remove('opacity-100', 'pointer-events-auto');
+                monthPickerModal.classList.add('opacity-0', 'pointer-events-none');
+            }, 300);
+        }
+
+        customDatePickerBtn.addEventListener('click', openMonthPicker);
+        monthPickerBackdrop.addEventListener('click', closeMonthPickerModal);
+        if (monthPrevBtn) {
+            monthPrevBtn.addEventListener('click', () => shiftMonth(-1));
+        }
+        if (monthNextBtn) {
+            monthNextBtn.addEventListener('click', () => shiftMonth(1));
+        }
+        if (monthTodayBtn) {
+            monthTodayBtn.addEventListener('click', () => {
+                const today = new Date();
+                const y = today.getFullYear();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const d = String(today.getDate()).padStart(2, '0');
+                window.location.href = `?date=${y}-${m}-${d}`;
+            });
+        }
+
+        prevYearBtn.addEventListener('click', () => {
+            tempYear -= pickerMode === 'year' ? 12 : 1;
+            monthPickerYearDisplay.innerText = `${tempYear}年`;
+            renderPickerGrid();
+        });
+
+        nextYearBtn.addEventListener('click', () => {
+            tempYear += pickerMode === 'year' ? 12 : 1;
+            monthPickerYearDisplay.innerText = `${tempYear}年`;
+            renderPickerGrid();
+        });
+
+        monthPickerYearDisplay.addEventListener('click', () => {
+            pickerMode = pickerMode === 'year' ? 'month' : 'year';
+            monthPickerYearDisplay.innerText = `${tempYear}年`;
+            renderPickerGrid();
+        });
+    });
+</script>
 {% endblock %}
