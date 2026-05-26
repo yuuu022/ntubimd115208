@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS docs_vectors (
 	id TEXT PRIMARY KEY,
 	source_file TEXT NOT NULL,
 	chunk_index INTEGER NOT NULL,
-	text TEXT NOT NULL,
+	content TEXT NOT NULL,
 	metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
 	embedding VECTOR(1536) NOT NULL
 );

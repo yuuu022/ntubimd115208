@@ -24,7 +24,7 @@
 
 4. 在 n8n 匯入 n8n/rag.json，然後把以下資訊補上：
 
-	- Webhook URL：Django 端預設透過 N8N_RAG_WEBHOOK_URL 呼叫
+	- Webhook URL：Django 端優先透過 N8N_RAG_WEBHOOK_URL 呼叫，未設定時會使用目前預設的 n8n webhook
 	- Supabase 連線與 table：docs_vectors
 	- Google Sheets credentials 與試算表 ID
 

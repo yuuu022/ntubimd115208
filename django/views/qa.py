@@ -1,21 +1,64 @@
 import json
 import os
+import socket
 from urllib import error, request as urlrequest
+from urllib.parse import urlparse
+import logging
+import time
 
 from django.db.models import Max
 from django.db import transaction
 from django.shortcuts import redirect, render
+from django.http import JsonResponse
 from django.utils import timezone
 from django.urls import reverse
 
 from core.models import QAConversation, QAMessage, UserProfile
 
+logger = logging.getLogger(__name__)
+
 
 ACTIVE_CONVERSATION_SESSION_KEY = "qa_active_conversation_id"
 
+DEFAULT_N8N_RAG_WEBHOOK_URL = "http://localhost:5678/webhook/b2489eda-0b01-425d-be17-3c817fb4cdcd"
+EXPECTED_N8N_RAG_WEBHOOK_PATH = "/webhook/b2489eda-0b01-425d-be17-3c817fb4cdcd"
+
+
+def _normalize_webhook_url(webhook_url):
+    webhook_url = str(webhook_url or "").strip()
+    if not webhook_url:
+        return ""
+
+    if "://" not in webhook_url:
+        webhook_url = f"http://{webhook_url}"
+
+    return webhook_url
+
+
+def _host_is_resolvable(webhook_url):
+    parsed = urlparse(webhook_url)
+    host = parsed.hostname
+    if not host:
+        return False
+
+    try:
+        socket.getaddrinfo(host, parsed.port or 80)
+        return True
+    except OSError:
+        return False
+
+
+def _has_expected_webhook_path(webhook_url):
+    parsed = urlparse(webhook_url)
+    return parsed.path.rstrip("/") == EXPECTED_N8N_RAG_WEBHOOK_PATH
+
 
 def _get_webhook_url():
-    return "http://localhost:5678/webhook-test/django-rag-chat"
+    webhook_url = _normalize_webhook_url(os.getenv("N8N_RAG_WEBHOOK_URL", ""))
+    if webhook_url and _host_is_resolvable(webhook_url) and _has_expected_webhook_path(webhook_url):
+        return webhook_url
+
+    return DEFAULT_N8N_RAG_WEBHOOK_URL
 
 
 def _get_timeout_seconds():
@@ -91,9 +134,21 @@ def _extract_response_data(raw_body):
 
 def _post_to_n8n(question_text):
     webhook_url = _get_webhook_url()
-    if not webhook_url:
-        return None, "請先設定 N8N_RAG_WEBHOOK_URL，讓 Django 可以呼叫 n8n Webhook。"
+    debug_info = {
+        "request_url": webhook_url,
+        "request_payload": (question_text or "")[:1000],
+        "response_status": None,
+        "response_body": None,
+        "exception": None,
+        "duration_seconds": None,
+    }
 
+    if not webhook_url:
+        debug_info["exception"] = "missing_webhook_url"
+        return None, "請先設定 N8N_RAG_WEBHOOK_URL，讓 Django 可以呼叫 n8n Webhook。", debug_info
+
+    logger.info("Posting to n8n webhook: %s", webhook_url)
+    logger.debug("Payload question (truncated): %s", (question_text or '')[:200])
     payload = json.dumps({"message": question_text, "question": question_text}).encode("utf-8")
     req = urlrequest.Request(
         webhook_url,
@@ -102,18 +157,40 @@ def _post_to_n8n(question_text):
         method="POST",
     )
 
+    start = time.time()
     try:
         with urlrequest.urlopen(req, timeout=_get_timeout_seconds()) as response:
-            raw_body = response.read().decode("utf-8").strip()
+            raw_body = response.read().decode("utf-8", errors="ignore").strip()
+            debug_info["response_status"] = getattr(response, 'status', None) or getattr(response, 'getcode', lambda: None)()
+            debug_info["response_body"] = raw_body
+            debug_info["duration_seconds"] = round(time.time() - start, 3)
+
             if not raw_body:
-                return None, "n8n 回傳了空結果。"
+                return None, "n8n 回傳了空結果。", debug_info
 
             data = _extract_response_data(raw_body)
-            return data, None
+            return data, None, debug_info
     except error.HTTPError as exc:
-        return None, f"n8n Webhook 回應失敗：{exc.code} {exc.reason}"
+        try:
+            body = exc.read().decode('utf-8', errors='ignore')
+        except Exception:
+            body = ''
+        debug_info["response_status"] = getattr(exc, 'code', None)
+        debug_info["response_body"] = body
+        debug_info["exception"] = f"HTTPError: {exc.reason}"
+        debug_info["duration_seconds"] = round(time.time() - start, 3)
+        logger.warning("n8n HTTPError %s %s: %s", exc.code, exc.reason, body)
+        return None, f"n8n Webhook 回應失敗：{exc.code} {exc.reason}", debug_info
     except error.URLError as exc:
-        return None, f"無法連線到 n8n Webhook：{exc.reason}"
+        debug_info["exception"] = f"URLError: {exc.reason}"
+        debug_info["duration_seconds"] = round(time.time() - start, 3)
+        logger.warning("n8n URLError: %s", exc.reason)
+        return None, f"無法連線到 n8n Webhook：{exc.reason}", debug_info
+    except Exception as exc:
+        debug_info["exception"] = str(exc)
+        debug_info["duration_seconds"] = round(time.time() - start, 3)
+        logger.exception("Unexpected error while posting to n8n")
+        return None, f"發生未知錯誤：{str(exc)}", debug_info
 
 
 def _store_exchange(question_text, answer_text):
@@ -275,9 +352,22 @@ def qa_conversation(request):
         return redirect(reverse("qa_conversation"))
 
     if request.method == "POST":
+        # Support both normal form POST (redirect) and AJAX (JSON) submissions.
         question = request.POST.get("question", "").strip()
+        # 更寬容的 AJAX 判斷：同時檢查 HTTP_X_REQUESTED_WITH、HTTP_ACCEPT，
+        # 並退回到 request.headers（與 Django 版本相容性保護）。
+        accept_header = ""
+        try:
+            accept_header = request.META.get("HTTP_ACCEPT", "") or (request.headers.get("Accept") if hasattr(request, 'headers') else "")
+        except Exception:
+            accept_header = request.META.get("HTTP_ACCEPT", "")
+
+        is_ajax = (
+            request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+            or "application/json" in (accept_header or "")
+        )
         if question:
-            payload, error_message = _post_to_n8n(question)
+            payload, error_message, debug_info = _post_to_n8n(question)
             if payload:
                 sources = payload.get("sources") or []
                 answer = _normalize_answer_text(payload.get("answer") or "", sources)
@@ -294,7 +384,25 @@ def qa_conversation(request):
                     if conversation:
                         _set_current_conversation_id(request, conversation.qa_conversation_id)
                         request.session.modified = True
+                        if is_ajax:
+                            return JsonResponse(
+                                {
+                                    "ok": True,
+                                    "conversation_id": conversation.qa_conversation_id,
+                                    "answer": answer,
+                                    "sources": sources,
+                                    "debug": debug_info,
+                                }
+                            )
+                        # store debug info to session for next page render
+                        request.session["qa_last_debug"] = debug_info
                         return redirect(f"{reverse('qa_conversation')}?conversation_id={conversation.qa_conversation_id}")
+
+            # If we reach here, there was an error from n8n or empty payload
+            if is_ajax:
+                return JsonResponse({"ok": False, "error": error_message or "n8n 未回傳有效結果", "debug": debug_info})
+            # store debug info for non-ajax flow
+            request.session["qa_last_debug"] = debug_info
 
     current_conversation_id = _get_current_conversation_id(request)
     current_conversation = _get_conversation_by_id(current_conversation_id)
@@ -320,6 +428,8 @@ def qa_conversation(request):
 
     current_messages = _load_conversation_messages(current_conversation)
     current_item = _build_conversation_item(current_conversation, active_conversation_id) if current_conversation else None
+    current_webhook_url = _get_webhook_url()
+    current_debug = request.session.pop("qa_last_debug", None)
 
     context = {
         "error_message": error_message,
@@ -329,5 +439,23 @@ def qa_conversation(request):
         "current_conversation_id": active_conversation_id,
         "current_item": current_item,
         "current_messages": current_messages,
+        "current_webhook_url": current_webhook_url,
+        "current_debug": current_debug,
     }
     return render(request, "base/qa_conversation.html", context)
+
+
+def test_n8n_webhook(request):
+    """Temporary test endpoint to verify Django can POST to the configured n8n webhook.
+
+    Returns JsonResponse with debug info from _post_to_n8n.
+    """
+    test_message = request.GET.get('msg', 'healthcheck')
+    data, error_message, debug_info = _post_to_n8n(test_message)
+    result = {
+        'ok': bool(data and not error_message),
+        'error': error_message,
+        'debug': debug_info,
+        'payload': data,
+    }
+    return JsonResponse(result)

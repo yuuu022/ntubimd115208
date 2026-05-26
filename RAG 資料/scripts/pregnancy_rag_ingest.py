@@ -111,6 +111,10 @@ def chunk_text(text: str, max_chars: int, overlap: int) -> list[str]:
     return chunks
 
 
+def remove_newlines(text: str) -> str:
+    return text.replace("\r", "").replace("\n", "")
+
+
 def build_chunks(pdf_path: Path, source_name: str, max_chars: int, overlap: int) -> list[dict[str, Any]]:
     chunks: list[dict[str, Any]] = []
     for page_data in read_pdf_pages(pdf_path):
@@ -119,6 +123,7 @@ def build_chunks(pdf_path: Path, source_name: str, max_chars: int, overlap: int)
         page_chunks = chunk_text(page_text, max_chars=max_chars, overlap=overlap)
         for chunk_index, chunk_text_value in enumerate(page_chunks):
             chunk_id = f"{source_name}-{page_number}-{chunk_index}-{uuid.uuid4().hex[:8]}"
+            cleaned_chunk_text = remove_newlines(chunk_text_value.strip())
             metadata = {
                 "source_file": source_name,
                 "page": page_number,
@@ -132,8 +137,8 @@ def build_chunks(pdf_path: Path, source_name: str, max_chars: int, overlap: int)
                     "source_file": source_name,
                     "page": page_number,
                     "chunk_index": chunk_index,
-                    "content": chunk_text_value.strip(),
-                    "text": chunk_text_value.strip(),
+                    "content": cleaned_chunk_text,
+                    "text": cleaned_chunk_text,
                     "metadata": metadata,
                 }
             )
