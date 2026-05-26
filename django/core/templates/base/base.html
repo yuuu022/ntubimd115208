@@ -88,6 +88,18 @@
     {% block extra_js %}{% endblock %}
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+            const footerLinks = document.querySelectorAll('a.footer[data-nav]');
+
+            footerLinks.forEach((link) => {
+                const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '') || '/';
+                const isActive = linkPath === '/' ? currentPath === '/' : currentPath.startsWith(linkPath);
+
+                if (isActive) {
+                    link.classList.add('footer-nav-active');
+                }
+            });
+
             const switcherBtn = document.getElementById('baby-switcher-btn');
             const switcherMenu = document.getElementById('baby-switcher-menu');
 
