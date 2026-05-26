@@ -5,9 +5,9 @@
 <link rel="stylesheet" href="{% static 'css/user/edit_userprofile.css' %}">
 {% endblock %}
 {% block content %}
-<body class="bg-surface text-on-surface min-h-screen pb-32">
+<div class="bg-surface text-on-surface min-h-screen pb-32">
     <!-- Header Section -->
-    <header class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md rounded-b-[3rem] shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <header id="edit-profile-header" class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md rounded-b-[3rem] shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="flex items-center gap-3">
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
@@ -71,4 +71,36 @@
             </button>
         </form>
     </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const header = document.getElementById('edit-profile-header');
+        if (!header) {
+            return;
+        }
+
+        let lastY = window.scrollY;
+        const hideOffset = 80;
+
+        const updateHeader = () => {
+            const currentY = window.scrollY;
+            const isScrollingDown = currentY > lastY;
+            const isPastTop = currentY > hideOffset;
+
+            if (isScrollingDown && isPastTop) {
+                header.classList.add('-translate-y-full', 'opacity-0');
+                header.classList.remove('opacity-100');
+            } else {
+                header.classList.remove('-translate-y-full', 'opacity-0');
+                header.classList.add('opacity-100');
+            }
+
+            lastY = currentY;
+        };
+
+        window.addEventListener('scroll', updateHeader, { passive: true });
+    });
+</script>
 {% endblock %}

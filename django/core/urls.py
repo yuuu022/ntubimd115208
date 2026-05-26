@@ -3,7 +3,7 @@
 from django.urls import path
 from django.views.generic import TemplateView
 from views import test
-from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, babyinformation, care_record
+from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, babyinformation, care_record, pregnancycase
 
 urlpatterns = [
 	# 首頁
@@ -18,9 +18,15 @@ urlpatterns = [
 	path('pregnancyrecord/', pregnancyrecordadd.pregnancyrecord, name='pregnancyrecord'),
 	path('pregnancyrecord_new/', pregnancyrecordadd.pregnancyrecord_new, name='pregnancy_record_new'),
 
+    #懷孕胎數
+    path('pregnancycase/', pregnancycase.pregnancy_case, name='pregnancy_case'),
+    path('add_pregnancy_baby/', pregnancycase.add_pregnancy_case, name='add_pregnancy_case'),
+    path('edit_pregnancy_case/', pregnancycase.edit_pregnancy_case, name='edit_pregnancy_case'),
+
     # 小孩記錄
     path('babyinformation/', babyinformation.baby, name='babyinformation'),
-    path('add_baby_record/', babyinformation.add_baby_record, name='add_baby_record'),
+    path('add_baby_information/', babyinformation.add_baby_information, name='add_baby_information'),
+    path('edit_baby_information/', babyinformation.edit_baby_information, name='edit_baby_information'),
 
     # 成長地圖
     path('babygrowthmap/', test.baby_growthmap, name='baby_growthmap'),
@@ -31,6 +37,7 @@ urlpatterns = [
     # 個人資料
     path('userprofile/', userprofile.userprofile, name='profile'),
     path('edit_userprofile/', userprofile.edit_userprofile, name='edit_userprofile'),
+	path('edit_family_member/', userprofile.edit_family_member, name='edit_family_member'),
 
 
 ]
