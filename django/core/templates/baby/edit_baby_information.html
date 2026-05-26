@@ -25,7 +25,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">嬰兒暱稱</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">face</span>
-                            <input type="text" value="小橘子" required placeholder="例如：小寶、球球" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <input type="text" name="baby_name" value="{{ baby_form.baby_name }}" required placeholder="例如：小寶、球球" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                         </div>
                     </div>
 
@@ -35,13 +35,13 @@
                             <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時間</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                                <input type="datetime-local" value="2023-10-15T08:45" class="w-full bg-surface-container-low border-none rounded-xl pl-11 pr-3 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                                <input type="datetime-local" name="birthdaytime" value="{{ baby_form.birthdaytime_value }}" class="w-full bg-surface-container-low border-none rounded-xl pl-11 pr-3 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時週數</label>
                             <div class="relative">
-                                <input type="number" min="20" max="45" value="39" placeholder="週數" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                                <input type="number" name="birth_week" min="20" max="45" value="{{ baby_form.birth_week_number }}" placeholder="週數" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">週</span>
                             </div>
                         </div>
@@ -52,17 +52,17 @@
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">胎次</label>
                             <div class="relative">
-                                <input type="number" min="1" max="10" value="1" placeholder="第幾胎" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                                <input type="number" name="pregnancy_order" min="1" max="10" value="{{ baby_form.pregnancy_order }}" placeholder="第幾胎" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">胎兒數</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">child_care</span>
-                                <select class="w-full bg-surface-container-low bg-none border-none rounded-xl pl-11 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none">
-                                    <option value="1" selected>單胞胎</option>
-                                    <option value="2">雙胞胎</option>
-                                    <option value="3">三胞胎或以上</option>
+                                <select name="pregnancy_count" class="w-full bg-surface-container-low bg-none border-none rounded-xl pl-11 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none">
+                                    <option value="1" {% if baby_form.pregnancy_count == 1 %}selected{% endif %}>單胞胎</option>
+                                    <option value="2" {% if baby_form.pregnancy_count == 2 %}selected{% endif %}>雙胞胎</option>
+                                    <option value="3" {% if baby_form.pregnancy_count >= 3 %}selected{% endif %}>三胞胎或以上</option>
                                 </select>
                             </div>
                         </div>
@@ -75,7 +75,7 @@
                         </label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">vpn_key</span>
-                            <input type="text" value="BB-8899-7766" readonly class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-12 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-extrabold tracking-widest cursor-default select-all" />
+                            <input type="text" name="join_code" value="{{ baby_form.join_code }}" readonly class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-12 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-extrabold tracking-widest cursor-default select-all" />
                             <button type="button" onclick="alert('加入碼已複製！');" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-surface-container-highest active:scale-95 rounded-lg transition-all cursor-pointer text-primary" title="複製加入碼">
                                 <span class="material-symbols-outlined text-[20px]">content_copy</span>
                             </button>
@@ -98,7 +98,7 @@
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生體重</label>
                         <div class="relative">
-                            <input type="number" step="0.1" value="3250" placeholder="如 3200" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" name="birth_weight" step="0.1" value="{{ baby_form.birth_weight }}" placeholder="如 3200" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">g</span>
                         </div>
                     </div>
@@ -107,7 +107,7 @@
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生身長</label>
                         <div class="relative">
-                            <input type="number" step="0.1" value="51.5" placeholder="如 50.5" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" name="birth_height" step="0.1" value="{{ baby_form.birth_height }}" placeholder="如 50.5" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
                         </div>
                     </div>
@@ -116,7 +116,7 @@
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生頭圍</label>
                         <div class="relative">
-                            <input type="number" step="0.1" value="34.0" placeholder="如 34" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" name="birth_head" step="0.1" value="{{ baby_form.birth_head }}" placeholder="如 34" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生胸圍</label>
                         <div class="relative">
-                            <input type="number" step="0.1" value="32.5" placeholder="如 32" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" name="birth_chest" step="0.1" value="{{ baby_form.birth_chest }}" placeholder="如 32" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
                         </div>
                     </div>
@@ -134,12 +134,12 @@
                 <div class="mt-5 space-y-2">
                     <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">生產方式</label>
                     <div class="relative">
-                        <select class="w-full bg-surface-container-low bg-none border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none">
-                            <option value="" disabled>請選擇生產方式</option>
-                            <option value="自然產" selected>自然產</option>
-                            <option value="剖腹產">剖腹產</option>
-                            <option value="無痛分娩">無痛分娩自然產</option>
-                            <option value="水中生產">水中生產</option>
+                        <select name="production_method" class="w-full bg-surface-container-low bg-none border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none">
+                            <option value="" disabled {% if not baby_form.production_method %}selected{% endif %}>請選擇生產方式</option>
+                            <option value="自然產" {% if baby_form.production_method == '自然產' %}selected{% endif %}>自然產</option>
+                            <option value="剖腹產" {% if baby_form.production_method == '剖腹產' %}selected{% endif %}>剖腹產</option>
+                            <option value="無痛分娩" {% if baby_form.production_method == '無痛分娩' %}selected{% endif %}>無痛分娩自然產</option>
+                            <option value="水中生產" {% if baby_form.production_method == '水中生產' %}selected{% endif %}>水中生產</option>
                         </select>
                     </div>
                 </div>

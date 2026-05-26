@@ -16,25 +16,25 @@
             <div class="flex items-center gap-5 mb-6">
                 <div class="w-20 h-20 rounded-full ring-4 ring-primary-container/30 overflow-hidden shrink-0">
                     <img alt="Child" class="w-full h-full object-cover"
-                        data-alt="Close-up of a sleeping newborn baby wrapped in a soft lavender organic cotton blanket with gentle sunlight"
-                        src="https://lh3.googleusercontent.com/aida-public/AB6AXBf9ahdjGnpbuTBSuWH9N3lP6Vw70vCXRrRzUSIrxgYTc-6YbQ_N2L0Baa83RV_z6JrJw5EpTOtdBrU9MKOq6u8ZgWQatv8VxjYVKl6RfxigCVGcGRB8sPSQ1_p_gIbb9jgdZ3FW0bInR2F22gQFBsQ-W0qM9njaMensPJzWOBIGRdFxsaiQlLL9VFIMpW3_fHAGSTZLpsPtc744lzoClKa-4uJFosl_E3w9kZEIDUPZe9reejQiVlXoUXgyA_dsQwck4_dtpT8Eh7P" />
+                        data-alt="Baby avatar"
+                        src="{{ baby_summary.photo_url|default:'https://lh3.googleusercontent.com/aida-public/AB6AXBf9ahdjGnpbuTBSuWH9N3lP6Vw70vCXRrRzUSIrxgYTc-6YbQ_N2L0Baa83RV_z6JrJw5EpTOtdBrU9MKOq6u8ZgWQatv8VxjYVKl6RfxigCVGcGRB8sPSQ1_p_gIbb9jgdZ3FW0bInR2F22gQFBsQ-W0qM9njaMensPJzWOBIGRdFxsaiQlLL9VFIMpW3_fHAGSTZLpsPtc744lzoClKa-4uJFosl_E3w9kZEIDUPZe9reejQiVlXoUXgyA_dsQwck4_dtpT8Eh7P' }}" />
                 </div>
                 <div class="grid grid-cols-2 gap-x-6 gap-y-2 flex-1">
                     <div>
                         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">小名</p>
-                        <p class="text-lg font-bold text-primary">小橘子</p>
+                        <p class="text-lg font-bold text-primary">{{ baby_summary.baby_name }}</p>
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">出生週數</p>
-                        <p class="text-lg font-bold text-primary">39w 4d</p>
+                        <p class="text-lg font-bold text-primary">{{ baby_summary.birth_week }}</p>
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">胎次 / 方式</p>
-                        <p class="text-sm font-bold text-on-surface">第一胎 / 自然產</p>
+                        <p class="text-sm font-bold text-on-surface">{{ baby_summary.birth_order }} / {{ baby_summary.birth_method }}</p>
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">出生時間</p>
-                        <p class="text-sm font-bold text-on-surface">2023.10.15 08:45</p>
+                        <p class="text-sm font-bold text-on-surface">{{ baby_summary.birth_time }}</p>
                     </div>
                 </div>
             </div>
@@ -42,46 +42,42 @@
                 <span class="absolute top-1 left-2 bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold tracking-wider">剛出生紀錄</span>
                 <div class="bg-secondary-container/30 p-2 rounded-lg text-center mt-1">
                     <p class="text-[9px] font-bold text-secondary uppercase">身高</p>
-                    <p class="text-sm font-extrabold text-secondary">51.5<span class="text-[10px] ml-0.5">cm</span></p>
+                    <p class="text-sm font-extrabold text-secondary">{{ baby_summary.birth_height|default:'-' }}<span class="text-[10px] ml-0.5">cm</span></p>
                 </div>
                 <div class="bg-secondary-container/30 p-2 rounded-lg text-center mt-1">
                     <p class="text-[9px] font-bold text-secondary uppercase">體重</p>
-                    <p class="text-sm font-extrabold text-secondary">3,250<span class="text-[10px] ml-0.5">g</span></p>
+                    <p class="text-sm font-extrabold text-secondary">{{ baby_summary.birth_weight|default:'-' }}<span class="text-[10px] ml-0.5">g</span></p>
                 </div>
                 <div class="bg-secondary-container/30 p-2 rounded-lg text-center mt-1">
                     <p class="text-[9px] font-bold text-secondary uppercase">頭圍</p>
-                    <p class="text-sm font-extrabold text-secondary">34.0<span class="text-[10px] ml-0.5">cm</span></p>
+                    <p class="text-sm font-extrabold text-secondary">{{ baby_summary.birth_head|default:'-' }}<span class="text-[10px] ml-0.5">cm</span></p>
                 </div>
                 <div class="bg-secondary-container/30 p-2 rounded-lg text-center mt-1">
                     <p class="text-[9px] font-bold text-secondary uppercase">胸圍</p>
-                    <p class="text-sm font-extrabold text-secondary">32.5<span class="text-[10px] ml-0.5">cm</span></p>
+                    <p class="text-sm font-extrabold text-secondary">{{ baby_summary.birth_chest|default:'-' }}<span class="text-[10px] ml-0.5">cm</span></p>
                 </div>
             </div>
         </section>
         <!-- Component 2: Growth Calendar -->
         <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
             <div class="p-6 bg-surface-container-low flex justify-center items-center">
-                <div class="flex items-center gap-1">
-                    <!-- Year slider -->
+                <form method="get" class="flex items-center gap-2">
                     <div class="relative flex items-center group/year">
-                        <select class="appearance-none !bg-none bg-transparent text-primary font-bold text-base px-2 py-1 outline-none cursor-pointer hover:bg-surface-container-lowest rounded-lg transition-colors text-center" style="background-image: none;">
-                            <option value="2023">2023年</option>
-                            <option value="2024" selected>2024年</option>
-                            <option value="2025">2025年</option>
+                        <select name="year" class="appearance-none !bg-none bg-transparent text-primary font-bold text-base px-2 py-1 outline-none cursor-pointer hover:bg-surface-container-lowest rounded-lg transition-colors text-center" style="background-image: none;">
+                            {% for year in calendar_years %}
+                            <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}年</option>
+                            {% endfor %}
                         </select>
                     </div>
-                    <!-- Month slider -->
                     <div class="relative flex items-center group/month">
-                        <select class="appearance-none !bg-none bg-transparent text-primary font-bold text-base px-2 py-1 outline-none cursor-pointer hover:bg-surface-container-lowest rounded-lg transition-colors text-center" style="background-image: none;">
-                            <option value="01">1月</option>
-                            <option value="02">2月</option>
-                            <option value="03">3月</option>
-                            <option value="04">4月</option>
-                            <option value="05" selected>5月</option>
-                            <option value="06">6月</option>
+                        <select name="month" class="appearance-none !bg-none bg-transparent text-primary font-bold text-base px-2 py-1 outline-none cursor-pointer hover:bg-surface-container-lowest rounded-lg transition-colors text-center" style="background-image: none;">
+                            {% for m in calendar_months %}
+                            <option value="{{ m }}" {% if m == selected_month %}selected{% endif %}>{{ m }}月</option>
+                            {% endfor %}
                         </select>
                     </div>
-                </div>
+                    <button type="submit" class="px-4 py-2 rounded-full bg-primary text-white text-sm font-bold">顯示</button>
+                </form>
             </div>
             <div class="p-4">
                 <div class="grid grid-cols-7 mb-2">
@@ -94,95 +90,96 @@
                     <div class="text-center text-xs font-bold text-outline py-2">六</div>
                 </div>
                 <div class="grid grid-cols-7 gap-1">
-                    <!-- Row 1 -->
-                    <div
-                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant/40">
-                        28</div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant/40">
-                        29</div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-center p-1 rounded-lg text-outline-variant/40">
-                        30</div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">1</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">2</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">3</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm font-bold text-primary">4</span>
-                        <div class="mt-auto">
-                            <div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
-                        </div>
-                    </div>
-                    <!-- Row 2 -->
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">5</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">6</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">7</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">8</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">9</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg bg-primary-container text-on-primary-container relative">
-                        <span class="text-sm font-bold">10</span>
-                        <div class="flex gap-0.5 mt-auto">
-                            <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                        </div>
-                    </div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">11</span></div>
-                    <!-- Row 3 -->
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">12</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">13</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">14</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors relative">
-                        <span class="text-sm">15</span>
-                        <div class="flex gap-0.5 mt-auto">
-                            <div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
-                            <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                        </div>
-                    </div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">16</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">17</span></div>
-                    <div
-                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors">
-                        <span class="text-sm">18</span></div>
+                    {% for week in calendar_weeks %}
+                        {% for day in week %}
+                            {% if day == 0 %}
+                                <div class="aspect-square rounded-lg"></div>
+                            {% else %}
+                                <div class="aspect-square flex flex-col items-center justify-start p-2 rounded-lg {% if day == today_day %}bg-primary-container text-on-primary-container{% else %}hover:bg-surface-container-low cursor-pointer transition-colors{% endif %}">
+                                    <span class="text-sm {% if day == today_day %}font-bold{% endif %}">{{ day }}</span>
+                                    {% if day in record_days %}
+                                    <div class="mt-auto">
+                                        <div class="w-2.5 h-2.5 rounded-full bg-primary"></div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
                 </div>
                 <!-- Prominent Entry Button -->
                 <div class="mt-6">
-                    <button onclick="window.location.href='/add_baby_record/'"
+                    <button onclick="window.location.href='{% url 'add_baby_record' %}'"
                         class="w-full bg-primary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
                         <span class="material-symbols-outlined">add_circle</span>
                         新增成長紀錄
                     </button>
                 </div>
             </div>
+        </section>
+
+        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-on-surface">成長紀錄</h2>
+                    <p class="text-sm text-on-surface-variant">查看、編輯或刪除寶寶的成長紀錄</p>
+                </div>
+                <a href="{% url 'add_baby_record' %}"
+                    class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/80 transition-all">
+                    <span class="material-symbols-outlined">add_circle</span>新增紀錄
+                </a>
+            </div>
+
+            {% if records %}
+            <div class="space-y-4">
+                {% for record in records %}
+                <article class="rounded-3xl border border-surface-container-high p-4 bg-white shadow-sm">
+                    {% if record.photo %}
+                    <div class="overflow-hidden rounded-3xl mb-4 h-48">
+                        <img src="{{ record.photo }}" alt="成長照片" class="w-full h-full object-cover" />
+                    </div>
+                    {% endif %}
+                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-on-surface-variant">紀錄日期</p>
+                            <p class="text-lg font-bold text-on-surface">{{ record.date }}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{% url 'edit_baby_record' record.babyrecord_id %}"
+                                class="inline-flex items-center gap-2 rounded-full border border-primary px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10 transition-all">
+                                <span class="material-symbols-outlined text-sm">edit</span>編輯
+                            </a>
+                            <form method="post" action="{% url 'delete_baby_record' record.babyrecord_id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit"
+                                    class="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3 py-2 text-sm font-bold text-on-surface hover:bg-surface-container-high/80 transition-all">
+                                    <span class="material-symbols-outlined text-sm">delete</span>刪除
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-4 text-sm text-on-surface-variant">
+                        <div>身高：{{ record.height|default:'-' }} cm</div>
+                        <div>體重：{{ record.weight|default:'-' }} kg</div>
+                        <div>頭圍：{{ record.headcircumference|default:'-' }} cm</div>
+                        <div>胸圍：{{ record.chestcircumference|default:'-' }} cm</div>
+                    </div>
+                    {% if record.milestones %}
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        {% for milestone in record.milestones %}
+                        <span class="inline-flex items-center rounded-full bg-primary-container px-3 py-1 text-xs font-semibold text-primary">{{ milestone }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <p class="mt-4 text-sm text-on-surface-variant">{{ record.note_text|default:record.record|default:'無備註' }}</p>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="rounded-3xl border border-dashed border-primary/30 px-6 py-10 text-center text-on-surface-variant">
+                目前尚未有任何成長紀錄，請點擊「新增紀錄」建立第一筆。
+            </div>
+            {% endif %}
         </section>
 
         <!-- Component 4: Growth Timeline -->
