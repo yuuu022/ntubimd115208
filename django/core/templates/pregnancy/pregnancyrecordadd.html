@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}產檢紀錄{% endblock %}
+{% block title %}新增媽媽紀錄{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pregnancy/The_Ethereal_Nursery.css' %}">
 <style>
@@ -36,30 +36,48 @@
         -moz-appearance: textfield;
     }
 
+    input[type="date"] {
+        appearance: none;
+        -webkit-appearance: none;
+        background-color: transparent;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0;
+        display: none;
+    }
+
+    input[type="date"]::-webkit-clear-button,
+    input[type="date"]::-webkit-inner-spin-button {
+        display: none;
+    }
+
 </style>
 {% endblock %}
 {% block content %}
 <div class="bg-surface text-on-surface min-h-screen">
-    <main class="pt-8 px-4 max-w-md md:max-w-none mx-auto w-full pb-32 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <div class="mb-6">
-            <div>
-                <h2 class="text-xl font-bold text-on-surface mb-1 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">timeline</span>
-                    {% if submit_button_text == '更新紀錄' %}修改產檢紀錄{% else %}新增產檢紀錄{% endif %}
-                </h2>
-            </div>
+    <header class="bg-surface/70 backdrop-blur-md px-4 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        <div class="flex flex-col items-start gap-2">
+            <a href="/pregnancyrecord/" class="inline-flex items-center gap-2 rounded-full p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200" aria-label="返回媽媽紀錄">
+                <span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;">arrow_back</span>
+                <span class="text-lg font-bold text-primary">返回</span>
+            </a>
+            <h1 class="w-full text-left font-headline font-bold tracking-tight text-[24px] leading-none text-primary">
+                {% if submit_button_text == '更新紀錄' %}修改媽媽紀錄{% else %}新增媽媽紀錄{% endif %}
+            </h1>
         </div>
+    </header>
 
+    <main class="pt-0 px-4 max-w-md md:max-w-none mx-auto w-full pb-32 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <form method="post" action="{% url 'pregnancy_record_add' %}" enctype="multipart/form-data" class="space-y-8">
             {% csrf_token %}
             {% if selected_day_record_id %}
             <input type="hidden" name="pregnancyrecord_id" id="pregnancyrecord-id-input" value="{{ selected_day_record_id }}" />
             {% endif %}
 
-            <section class="flex items-center justify-between p-6 bg-primary-container rounded-xl">
+            <section class="flex items-center justify-between p-6 bg-[#d6beff4d] rounded-xl">
                 <div class="space-y-1">
-                    <h3 class="font-headline font-bold text-on-primary-container">正式產檢紀錄</h3>
-                    <p class="text-xs text-on-primary-container/80">將此紀錄標記為正式產檢流程</p>
+                    <h3 class="font-headline font-bold text-primary">產檢紀錄</h3>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input id="official-toggle" name="official_record" value="1" class="sr-only peer" type="checkbox" {% if has_prenatalrecord %}checked{% endif %} />
@@ -69,14 +87,14 @@
 
             <section class="space-y-4 -mt-2">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div id="date-card-wrapper" class="bg-surface-container-lowest rounded-3xl p-6 flex items-center gap-4 shadow-sm border border-transparent">
-                        <div class="w-12 h-12 bg-primary-container rounded-lg flex flex-col items-center justify-center text-on-primary-container">
+                    <div id="date-card-wrapper" class="bg-surface-container-lowest rounded-3xl p-6 flex items-center gap-4 shadow-sm border border-transparent cursor-pointer hover:bg-surface-container-low transition-colors">
+                        <div class="w-12 h-12 bg-[#d6beff4d] rounded-lg flex flex-col items-center justify-center text-on-primary-container">
                             <span id="date-badge-month" class="text-[10px] font-bold">{{ selected_month_abbr }}</span>
                             <span id="date-badge-day" class="text-xl font-headline font-black">{{ selected_day }}</span>
                         </div>
                         <div class="flex-1">
                             <p class="text-sm font-bold mb-1">紀錄日期</p>
-                            <input id="check-date-input" name="check_date" class="text-xs text-on-surface-variant bg-transparent border-none p-0 focus:ring-0 w-full" type="date" value="{{ selected_date_iso|default:'' }}" max="{{ today_iso }}" />
+                            <input id="check-date-input" name="check_date" class="text-xs text-on-surface-variant bg-transparent border-none p-0 focus:ring-0 w-full cursor-pointer" type="date" value="{{ selected_date_iso|default:'' }}" max="{{ today_iso }}" />
                         </div>
                     </div>
 
@@ -84,28 +102,29 @@
                         <label class="block text-sm font-medium text-on-surface-variant px-1">基本指標</label>
                         <div class="space-y-4">
                             <div class="relative">
-                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1 block mb-1">體重 (kg)</span>
+                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1 block mb-1">體重</span>
                                 <input name="weight" step="0.1" inputmode="decimal" class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all"  type="number" value="{{ form_weight|default_if_none:'' }}" />
                                 <span class="absolute right-4 top-[65%] -translate-y-1/2 text-on-surface-variant/50 text-sm">kg</span>
                             </div>
                             <div class="relative">
-                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1 block mb-1">身高 (cm)</span>
+                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1 block mb-1">身高</span>
                                 <input name="height" step="0.1" inputmode="decimal" class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all"  type="number" value="{{ form_height|default_if_none:'' }}" />
                                 <span class="absolute right-4 top-[65%] -translate-y-1/2 text-on-surface-variant/50 text-sm">cm</span>
                             </div>
                         </div>
                     </div>
 
-                    <div id="photo-card-wrapper" class="bg-surface-container-lowest border-2 border-dashed border-surface-variant/40 rounded-3xl p-6 flex flex-col items-center justify-center gap-3 group cursor-pointer hover:bg-surface-container-low/50 transition-all aspect-video md:aspect-auto min-h-[160px] official-check-field">
-                        <div class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+                    <div id="photo-card-wrapper" class="relative bg-surface-container-lowest border-2 border-dashed border-surface-variant/40 rounded-3xl overflow-hidden group cursor-pointer hover:bg-surface-container-low/50 transition-all aspect-video md:aspect-auto min-h-[160px] official-check-field">
+                        <img id="photo-preview-image" src="{{ form_photo_url|default:'' }}" class="{% if form_photo_url %}absolute inset-0 w-full h-full object-cover{% else %}hidden absolute inset-0 w-full h-full object-cover{% endif %}" alt="預覽圖片" />
+                        <div id="photo-card-overlay" class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent"></div>
+                        <div id="photo-card-content" class="relative z-10 flex h-full min-h-[160px] flex-col items-center justify-center gap-3 p-6 text-center">
+                            <div id="photo-preview-frame" class="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden backdrop-blur-sm">
+                                <span id="photo-placeholder-icon" class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+                            </div>
+                            <p id="photo-card-text" class="text-[13px] font-medium text-white/90">{% if form_photo_url %}更換超音波照{% else %}新增超音波照{% endif %}</p>
+                            <span id="photo-card-hint" class="text-[11px] font-medium text-white/75">點選這一區塊可上傳或更換圖片</span>
                         </div>
-                        <p class="text-[13px] font-medium text-on-surface-variant/80">新增超音波照</p>
                         <input id="photo-input" type="file" name="photo" accept="image/*" class="hidden" />
-                        <label for="photo-input" class="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer">
-                            <span class="material-symbols-outlined">upload</span>
-                            <span class="text-sm font-medium">上傳照片</span>
-                        </label>
                     </div>
                 </div>
             </section>
@@ -126,12 +145,18 @@
                         <label class="block text-sm font-medium text-on-surface-variant px-1">血壓數據</label>
                         <div class="space-y-4">
                             <div class="space-y-2">
-                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1">收縮壓 (Sys)</span>
-                                <input name="sbp" class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all" type="number" value="{{ form_sbp|default_if_none:'' }}" />
+                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1">收縮壓</span>
+                                <div class="relative">
+                                    <input name="sbp" class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 pr-14 text-primary focus:ring-2 focus:ring-primary-container transition-all" type="number" value="{{ form_sbp|default_if_none:'' }}" />
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-sm font-medium">mmHg</span>
+                                </div>
                             </div>
                             <div class="space-y-2">
-                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1">舒張壓 (Dia)</span>
-                                <input name="dbp" class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 text-primary focus:ring-2 focus:ring-primary-container transition-all" type="number" value="{{ form_dbp|default_if_none:'' }}" />
+                                <span class="text-[10px] text-on-surface-variant uppercase tracking-wider pl-1">舒張壓</span>
+                                <div class="relative">
+                                    <input name="dbp" class="w-full bg-surface-container-low border-none rounded-md px-4 py-4 pr-14 text-primary focus:ring-2 focus:ring-primary-container transition-all" type="number" value="{{ form_dbp|default_if_none:'' }}" />
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-sm font-medium">mmHg</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -148,7 +173,6 @@
                                 <option value="+" {% if form_urine_protein == '+' %}selected{% endif %}>+ (陽性)</option>
                                 <option value="++" {% if form_urine_protein == '++' %}selected{% endif %}>++ (中度)</option>
                                 <option value="+++" {% if form_urine_protein == '+++' %}selected{% endif %}>+++ (高度嚴重)</option>
-                                <option value="++++" {% if form_urine_protein == '++++' %}selected{% endif %}>++++ (極度嚴重)</option>
                             </select>
                         </div>
                         <div class="space-y-1">
@@ -159,7 +183,6 @@
                                 <option value="+" {% if form_urine_glucose == '+' %}selected{% endif %}>+ (陽性)</option>
                                 <option value="++" {% if form_urine_glucose == '++' %}selected{% endif %}>++ (中度)</option>
                                 <option value="+++" {% if form_urine_glucose == '+++' %}selected{% endif %}>+++ (高度嚴重)</option>
-                                <option value="++++" {% if form_urine_glucose == '++++' %}selected{% endif %}>++++ (極度嚴重)</option>
                             </select>
                         </div>
                         <div class="space-y-1">
@@ -186,9 +209,9 @@
                             {% for feeling in feelings %}
                             <div>
                                 <input type="checkbox" id="feeling-{{ feeling.id }}" name="feelings" value="{{ feeling.id }}" class="sr-only peer" {% if feeling.id in selected_day_feeling_ids %}checked{% endif %} />
-                                <label for="feeling-{{ feeling.id }}" class="flex flex-col items-center gap-1.5 cursor-pointer peer-checked:bg-primary-container/20 peer-checked:text-primary rounded-2xl p-1">
-                                    <span class="text-3xl bg-surface-container-low w-14 h-14 flex items-center justify-center rounded-2xl transition-all border-2 border-transparent">{{ feeling.emoji }}</span>
-                                    <span class="text-[11px] font-medium text-on-surface-variant">{{ feeling.name }}</span>
+                                <label for="feeling-{{ feeling.id }}" class="flex flex-col items-center gap-1.5 cursor-pointer bg-surface-container-low peer-checked:bg-primary-container/30 peer-checked:text-primary rounded-2xl p-1 transition-colors">
+                                    <span class="text-3xl w-14 h-14 flex items-center justify-center rounded-2xl transition-all border-2 border-transparent">{{ feeling.emoji }}</span>
+                                    <span class="text-[11px] font-medium text-on-surface-variant peer-checked:text-primary">{{ feeling.name }}</span>
                                 </label>
                             </div>
                             {% empty %}
@@ -233,11 +256,20 @@
     document.addEventListener('DOMContentLoaded', () => {
         const toggle = document.getElementById('official-toggle');
         const officialFields = document.querySelectorAll('.official-check-field');
+        const dateCardWrapper = document.getElementById('date-card-wrapper');
         // Date badge sync: update the small month/day badge when the date input changes
         const checkDateInput = document.getElementById('check-date-input');
         const dateBadgeMonth = document.getElementById('date-badge-month');
         const dateBadgeDay = document.getElementById('date-badge-day');
         const todayIso = '{{ today_iso|default:"" }}';
+        const photoInput = document.getElementById('photo-input');
+        const photoPreviewImage = document.getElementById('photo-preview-image');
+        const photoPlaceholderIcon = document.getElementById('photo-placeholder-icon');
+        const photoCardWrapper = document.getElementById('photo-card-wrapper');
+        const photoCardOverlay = document.getElementById('photo-card-overlay');
+        const photoCardContent = document.getElementById('photo-card-content');
+        const photoCardText = document.getElementById('photo-card-text');
+        const photoCardHint = document.getElementById('photo-card-hint');
 
         function updateDateBadgeFromInput() {
             if (!checkDateInput || !dateBadgeMonth || !dateBadgeDay) return;
@@ -272,6 +304,67 @@
             // initialize on load
             clampToToday();
             updateDateBadgeFromInput();
+        }
+
+        if (dateCardWrapper && checkDateInput) {
+            dateCardWrapper.addEventListener('click', () => {
+                if (typeof checkDateInput.showPicker === 'function') {
+                    checkDateInput.showPicker();
+                } else {
+                    checkDateInput.focus();
+                    checkDateInput.click();
+                }
+            });
+        }
+
+        if (photoInput && photoPreviewImage && photoPlaceholderIcon && photoCardWrapper && photoCardText && photoCardHint && photoCardOverlay && photoCardContent) {
+            const setPhotoSelectedState = (hasFile) => {
+                if (hasFile) {
+                    photoCardWrapper.classList.add('border-primary', 'bg-primary-container/10');
+                    photoCardOverlay.classList.add('hidden');
+                    photoCardContent.classList.add('hidden');
+                } else {
+                    photoCardWrapper.classList.remove('border-primary', 'bg-primary-container/10');
+                    photoCardOverlay.classList.remove('hidden');
+                    photoCardContent.classList.remove('hidden');
+                }
+            };
+
+            const openPhotoPicker = () => {
+                if (typeof photoInput.showPicker === 'function') {
+                    photoInput.showPicker();
+                } else {
+                    photoInput.click();
+                }
+            };
+
+            photoCardWrapper.addEventListener('click', openPhotoPicker);
+
+            photoInput.addEventListener('change', () => {
+                const file = photoInput.files && photoInput.files[0];
+                if (!file) {
+                    photoPreviewImage.src = '';
+                    photoPreviewImage.classList.add('hidden');
+                    photoPlaceholderIcon.classList.remove('hidden');
+                    setPhotoSelectedState(false);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    photoPreviewImage.src = event.target?.result || '';
+                    photoPreviewImage.classList.remove('hidden');
+                    photoPlaceholderIcon.classList.add('hidden');
+                    setPhotoSelectedState(true);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            if (photoPreviewImage.getAttribute('src')) {
+                photoPreviewImage.classList.remove('hidden');
+                photoPlaceholderIcon.classList.add('hidden');
+                setPhotoSelectedState(true);
+            }
         }
 
         const applyVisibility = (isChecked) => {

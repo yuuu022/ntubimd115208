@@ -2,6 +2,8 @@ from .BabyGrowthMap import BabyGrowthMap
 from .BabyInformation import BabyInformation
 from .BabyRecord import BabyRecord
 from .BabyStatus import BabyStatus
+from .CareRecord import CareRecord
+from .CareStatus import CareStatus
 from .PregnancyCase import PregnancyCase
 from .PregnancyRecord import PregnancyRecord
 from .Feeling import Feeling
