@@ -1,4 +1,103 @@
+import datetime
+from datetime import timedelta
+
 from django.shortcuts import render
+from django.utils import timezone
+from zoneinfo import ZoneInfo
+
+from core.models import CareRecord, UserProfile
+
+DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
+TAIWAN_TZ = ZoneInfo('Asia/Taipei')
+
+
+def _parse_selected_date(raw):
+    try:
+        return datetime.date.fromisoformat(raw) if raw else datetime.date.today()
+    except Exception:
+        return datetime.date.today()
+
+
+def _day_bounds_in_taiwan(date_value):
+    start_naive = datetime.datetime.combine(date_value, datetime.time.min)
+    end_naive = start_naive + timedelta(days=1)
+    return start_naive, end_naive
+
 
 def index(request):
-    return render(request, 'index/index.html')
+    selected_date = _parse_selected_date(request.GET.get('date'))
+    today = datetime.date.today()
+    window_start = selected_date - timedelta(days=7)
+    window_end = selected_date + timedelta(days=7)
+
+    current_user = UserProfile.objects.filter(user_id=DEFAULT_USER_ID).first() or UserProfile.objects.first()
+    care_queryset = CareRecord.objects.select_related('carestatus').order_by('recordtime', 'carerecord_id')
+    if current_user:
+        care_queryset = care_queryset.filter(user=current_user)
+
+    window_start_dt, _ = _day_bounds_in_taiwan(window_start)
+    _, window_end_exclusive = _day_bounds_in_taiwan(window_end)
+    window_records = list(
+        care_queryset.filter(recordtime__gte=window_start_dt, recordtime__lt=window_end_exclusive)
+    )
+
+    record_days = set()
+    completion_by_day = {}
+    for rec in window_records:
+        rec_time = rec.recordtime
+        # records are stored as naive local datetimes; just take the date()
+        # directly to avoid applying timezone.localtime to naive datetimes.
+        if isinstance(rec_time, datetime.datetime):
+            d = rec_time.date()
+        else:
+            # fallback: treat as date-like
+            d = rec_time
+        record_days.add(d)
+        completion_by_day.setdefault(d, {'total': 0, 'done': 0})
+        completion_by_day[d]['total'] += 1
+        if rec.state:
+            completion_by_day[d]['done'] += 1
+
+    care_day_cards = []
+    weekday_labels = ['一', '二', '三', '四', '五', '六', '日']
+    for offset in range(15):
+        d = window_start + timedelta(days=offset)
+        day_completion = completion_by_day.get(d)
+        total = day_completion['total'] if day_completion else 0
+        done = day_completion['done'] if day_completion else 0
+        care_day_cards.append({
+            'day': d.day,
+            'weekday': weekday_labels[d.weekday()],
+            'date_iso': d.isoformat(),
+            'month_label': f'{d.month}/{d.day}',
+            'is_selected': d == selected_date,
+            'is_future': d > today,
+            'has_record': d in record_days,
+            'completion': f'{done}/{total}' if total else '',
+            'all_done': bool(total) and done == total,
+            'total': total,
+            'done': done,
+        })
+
+    selected_start_dt, selected_end_dt = _day_bounds_in_taiwan(selected_date)
+    selected_day_records = list(
+        care_queryset.filter(recordtime__gte=selected_start_dt, recordtime__lt=selected_end_dt).order_by('recordtime', 'carerecord_id')
+    )
+    selected_day_total = len(selected_day_records)
+    selected_day_done = sum(1 for r in selected_day_records if r.state)
+
+    context = {
+        'selected_date': selected_date,
+        'selected_date_iso': selected_date.isoformat(),
+        'selected_month_label': f'{selected_date.year}年{selected_date.month}月',
+        'selected_day_label': f'{selected_date.month}/{selected_date.day}',
+        'window_start_iso': window_start.isoformat(),
+        'window_end_iso': window_end.isoformat(),
+        'today_iso': today.isoformat(),
+        'care_day_cards': care_day_cards,
+        'care_records': selected_day_records,
+        'care_done_count': selected_day_done,
+        'care_total_count': selected_day_total,
+        'care_progress_percent': int((selected_day_done / selected_day_total) * 100) if selected_day_total else 0,
+    }
+    return render(request, 'index/index.html', context)
