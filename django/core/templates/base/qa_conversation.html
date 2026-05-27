@@ -8,10 +8,6 @@
         vertical-align: middle;
     }
 
-    body > nav:first-of-type {
-        display: none;
-    }
-
     body {
         overflow-x: hidden;
         background-color: #f7f6f3;
@@ -25,13 +21,31 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+
+        .qa-main {
+            padding-bottom: calc(13rem + env(safe-area-inset-bottom));
+        }
+
+        .qa-input-shell {
+            bottom: calc(10rem + env(safe-area-inset-bottom));
+        }
+
+        @media (min-width: 768px) {
+            .qa-main {
+                padding-bottom: calc(14rem + env(safe-area-inset-bottom));
+            }
+
+            .qa-input-shell {
+                bottom: calc(5rem + env(safe-area-inset-bottom));
+            }
+        }
 </style>
 {% endblock %}
 {% block content %}
 <div class="bg-background font-body text-on-surface min-h-screen flex flex-col lg:flex-row">
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/20 z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <div id="sidebar-overlay" class="fixed inset-x-0 top-[72px] bottom-0 bg-black/20 z-40 opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
-    <aside id="history-sidebar" class="fixed inset-y-0 left-0 w-[280px] shrink-0 bg-surface-container-lowest shadow-2xl z-50 transform -translate-x-full transition-all duration-300 flex flex-col border-r border-surface-container-highest/30 overflow-hidden">
+    <aside id="history-sidebar" class="fixed top-[72px] left-0 h-[calc(100vh-72px)] w-[280px] shrink-0 bg-surface-container-lowest shadow-2xl z-50 transform -translate-x-full transition-all duration-300 flex flex-col border-r border-surface-container-highest/30 overflow-hidden">
         <div class="px-6 py-5 border-b border-surface-container-highest/30 flex justify-between items-center">
             <h2 class="font-bold text-primary text-lg">歷史問答紀錄</h2>
             <button id="close-sidebar-btn" class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer p-1 rounded-full hover:bg-surface-container-low" type="button">
@@ -67,27 +81,18 @@
         </div>
     </aside>
 
-    <div class="flex-1 min-w-0 flex flex-col relative bg-[#f7f6f3]/70 backdrop-blur-md shadow-[0_20px_40px_rgba(46,47,45,0.06)]">
-        <nav class="shrink-0 sticky top-0 z-30 flex justify-between items-center px-4 py-3 md:px-6 bg-background/90 backdrop-blur-md border-b border-surface-container-highest/20">
+    <div class="flex-1 min-w-0 flex flex-col relative bg-[#f7f6f3]/70 backdrop-blur-md shadow-[0_20px_40px_rgba(46,47,45,0.06)] pt-[72px]">
+        <nav class="fixed top-0 left-0 right-0 z-30 flex justify-between items-center px-4 py-3 md:px-6 bg-background/90 backdrop-blur-md border-b border-surface-container-highest/20">
             <div class="flex items-center gap-3">
                 <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
-                <div class="flex items-center gap-2 px-2">
-                    <span class="material-symbols-outlined text-[#65518a] text-2xl">child_care</span>
-                    <h1 class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">AuraLink</h1>
-                </div>
+                <h1 class="text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">懷孕知識問答</h1>
             </div>
         </nav>
 
-        <main class="flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col items-center">
-            <div class="w-full max-w-3xl flex flex-col gap-8 pb-40 md:pb-52">
-                <div class="flex flex-col md:flex-row gap-6 items-start md:items-end justify-between px-4">
-                    <div class="max-w-md">
-                        <h2 class="font-headline text-2xl font-extrabold text-primary leading-tight">懷孕知識問答</h2>
-                    </div>
-                </div>
-
+        <main class="qa-main flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col items-center">
+            <div class="w-full max-w-3xl flex flex-col gap-8">
                 <div class="flex flex-col gap-6 hide-scrollbar">
                     {% if current_messages %}
                     {% for message in current_messages %}
@@ -107,15 +112,15 @@
                     {% else %}
                     <div class="rounded-[2rem] border border-outline-variant/20 bg-white/80 px-6 py-5 shadow-sm">
                         <div class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">歡迎開始提問</div>
-                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問營養、產檢、運動或孕期不適，我會把每次對話都保留在同一筆對話紀錄中。</p>
+                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問營養、產檢、孕期不適、產後照護、0-3 歲寶寶的發展與照護以及準爸爸準媽媽注意事項。</p>
                     </div>
                     {% endif %}
                 </div>
             </div>
         </main>
 
-        <div class="fixed bottom-24 md:bottom-24 left-0 w-full px-4 md:px-8 flex justify-center z-20 pointer-events-none">
-            <form method="post" class="w-full max-w-3xl pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-xl rounded-2xl p-2 shadow-[0_20px_40px_rgba(46,47,45,0.12)] flex items-center gap-2 border border-outline-variant/30">
+        <div class="qa-input-shell fixed bottom-40 left-0 w-full md:w-full flex justify-around items-center px-4 pb-3 pt-2 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 md:bottom-20 md:pt-4 md:pb-4">
+            <form method="post" class="w-full max-w-3xl pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-xl rounded-none p-2  flex items-center gap-2 border border-outline-variant/30 mx-auto">
                 {% csrf_token %}
                 {% if current_conversation_id %}
                 <input type="hidden" name="conversation_id" value="{{ current_conversation_id }}" />
