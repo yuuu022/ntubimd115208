@@ -1,8 +1,11 @@
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect
 from django.db import ProgrammingError, transaction
 from django.utils import timezone
 import datetime
 import calendar
+from pathlib import Path
 
 from core.models import Feeling, PhysicalCondition, PregnancyRecord, Prenatalrecord, Userfeeling, Userphysicalcondition
 
@@ -31,6 +34,49 @@ MARKER_VALUE_MAP = {
 MARKER_LABEL_TO_VALUE = {value: key for key, value in MARKER_VALUE_MAP.items()}
 
 
+def _save_prenatal_photo(image_file):
+    if not image_file:
+        return ''
+    storage = FileSystemStorage(
+        location=settings.BASE_DIR / 'core' / 'static' / 'media',
+        base_url='/static/media/',
+    )
+    filename = storage.save(f'prenatalrecord/{image_file.name}', image_file)
+    return storage.url(filename)
+
+
+def _delete_prenatal_photo(photo_url):
+    if not photo_url:
+        return
+    storage = FileSystemStorage(
+        location=settings.BASE_DIR / 'core' / 'static' / 'media',
+        base_url='/static/media/',
+    )
+    relative_name = str(photo_url)
+    if relative_name.startswith('/static/media/'):
+        relative_name = relative_name[len('/static/media/'):]
+    elif relative_name.startswith('static/media/'):
+        relative_name = relative_name[len('static/media/'):]
+    elif relative_name.startswith('/static/'):
+        relative_name = relative_name[len('/static/'):]
+    if relative_name:
+        storage.delete(relative_name.lstrip('/'))
+
+
+def _store_prenatal_photo(image_file, prenatalrecord_id, existing_photo=''):
+    if not image_file or not prenatalrecord_id:
+        return existing_photo or ''
+
+    storage = FileSystemStorage(
+        location=settings.BASE_DIR / 'core' / 'static' / 'media',
+        base_url='/static/media/',
+    )
+    _delete_prenatal_photo(existing_photo)
+    suffix = Path(image_file.name).suffix.lower()
+    filename = storage.save(f'prenatalrecord/{prenatalrecord_id}{suffix}', image_file)
+    return storage.url(filename)
+
+
 def _parse_selected_date(raw_value):
     try:
         return datetime.date.fromisoformat(raw_value) if raw_value else datetime.date.today()
@@ -55,6 +101,8 @@ def pregnancyrecord(request):
         selected_date = datetime.date.fromisoformat(raw) if raw else datetime.date.today()
     except Exception:
         selected_date = datetime.date.today()
+
+    today_date = datetime.date.today()
 
     year = selected_date.year
     month = selected_date.month
@@ -128,6 +176,7 @@ def pregnancyrecord(request):
             'day': day,
             'date_iso': d.isoformat(),
             'is_selected': d == selected_date,
+            'is_future': d > today_date,
             'has_record': d in month_record_dates,
             'has_weight': d in has_weight_dates,
             'has_fetal_heart_rate': d in has_fetal_heart_rate_dates,
@@ -192,18 +241,40 @@ def pregnancyrecord(request):
             seen_feeling_ids.add(user_feeling.feeling_id)
             selected_day_feelings.append(FEELING_EMOJI_MAP.get(user_feeling.feeling.feeling_name, '🙂'))
 
+    selected_day_physical_conditions = []
+    if selected_day_records:
+        selected_day_record_ids = [record_item.pregnancyrecord_id for record_item in selected_day_records]
+        user_physical_conditions = (
+            Userphysicalcondition.objects
+            .filter(pregnancyrecord_id__in=selected_day_record_ids)
+            .select_related('physicalcondition')
+        )
+        seen_physical_condition_ids = set()
+        for user_physical_condition in user_physical_conditions:
+            if not user_physical_condition.physicalcondition_id or not user_physical_condition.physicalcondition:
+                continue
+            if user_physical_condition.physicalcondition.physicalcondition_name in (None, '', '-'):
+                continue
+            if user_physical_condition.physicalcondition_id in seen_physical_condition_ids:
+                continue
+            seen_physical_condition_ids.add(user_physical_condition.physicalcondition_id)
+            selected_day_physical_conditions.append(user_physical_condition.physicalcondition.physicalcondition_name)
+
     # As long as this date has a record, summary cards should be shown.
     has_day_data = bool(selected_day_records)
 
     context = {
         'selected_date': selected_date,
         'selected_date_iso': selected_date.isoformat(),
+        'today_iso': today_date.isoformat(),
         'selected_month_label': f'{selected_date.year}年 {selected_date.month}月',
         'selected_day': selected_date.day,
         'calendar_weeks': calendar_weeks,
         'selected_day_weight': selected_day_weight,
         'selected_day_fetal_heart_rate': selected_day_fetal_heart_rate,
         'selected_day_feelings': selected_day_feelings,
+        'selected_day_physical_conditions': selected_day_physical_conditions,
+        'selected_day_record_text': selected_day_record.record if selected_day_record else '',
         'has_day_data': has_day_data,
         'selected_day_record_id': selected_day_record.pregnancyrecord_id if selected_day_record else None,
     }
@@ -368,7 +439,16 @@ def pregnancyrecord_add(request):
             edema = MARKER_VALUE_MAP.get(edema_raw, '')
 
             uploaded_photo = request.FILES.get('photo')
-            photo = uploaded_photo.name if uploaded_photo else (request.POST.get('photo') or '')
+            latest_prenatal = None
+            existing_photo = ''
+            if official_record_enabled:
+                latest_prenatal = (
+                    Prenatalrecord.objects
+                    .filter(pregnancyrecord=preg)
+                    .order_by('-prenatalrecord_id')
+                    .first()
+                )
+                existing_photo = latest_prenatal.photo if latest_prenatal else ''
 
             def to_int(v):
                 try:
@@ -377,13 +457,6 @@ def pregnancyrecord_add(request):
                     return None
 
             if official_record_enabled:
-                latest_prenatal = (
-                    Prenatalrecord.objects
-                    .filter(pregnancyrecord=preg)
-                    .order_by('-prenatalrecord_id')
-                    .first()
-                )
-
                 if latest_prenatal:
                     latest_prenatal.sbp = to_int(sbp) or 0
                     latest_prenatal.dbp = to_int(dbp) or 0
@@ -391,10 +464,15 @@ def pregnancyrecord_add(request):
                     latest_prenatal.urine_glucose = urine_glucose
                     latest_prenatal.urine_protein = urine_protein
                     latest_prenatal.edema = edema
-                    latest_prenatal.photo = photo
+                    if uploaded_photo:
+                        latest_prenatal.photo = _store_prenatal_photo(
+                            uploaded_photo,
+                            latest_prenatal.prenatalrecord_id,
+                            existing_photo,
+                        )
                     latest_prenatal.save()
                 else:
-                    Prenatalrecord.objects.create(
+                    latest_prenatal = Prenatalrecord.objects.create(
                         pregnancyrecord=preg,
                         sbp=to_int(sbp) or 0,
                         dbp=to_int(dbp) or 0,
@@ -402,8 +480,15 @@ def pregnancyrecord_add(request):
                         urine_glucose=urine_glucose,
                         urine_protein=urine_protein,
                         edema=edema,
-                        photo=photo,
+                        photo='',
                     )
+                    if uploaded_photo:
+                        latest_prenatal.photo = _store_prenatal_photo(
+                            uploaded_photo,
+                            latest_prenatal.prenatalrecord_id,
+                            '',
+                        )
+                        latest_prenatal.save(update_fields=['photo'])
             else:
                 Prenatalrecord.objects.filter(pregnancyrecord=preg).delete()
 
@@ -491,6 +576,7 @@ def pregnancyrecord_add(request):
         'form_urine_glucose': MARKER_LABEL_TO_VALUE.get(selected_day_prenatal.urine_glucose, '') if selected_day_prenatal else '',
         'form_urine_protein': MARKER_LABEL_TO_VALUE.get(selected_day_prenatal.urine_protein, '') if selected_day_prenatal else '',
         'form_edema': MARKER_LABEL_TO_VALUE.get(selected_day_prenatal.edema, '') if selected_day_prenatal else '',
+        'form_photo_url': selected_day_prenatal.photo if selected_day_prenatal and selected_day_prenatal.photo else '',
         'selected_day_feeling_ids': selected_day_feeling_ids,
         'selected_day_physical_condition_ids': selected_day_physical_condition_ids,
         'has_prenatalrecord': has_prenatalrecord,

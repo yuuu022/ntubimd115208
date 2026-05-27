@@ -15,6 +15,8 @@ from django.urls import reverse
 
 from core.models import QAConversation, QAMessage, UserProfile
 
+DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
+
 logger = logging.getLogger(__name__)
 
 
@@ -198,7 +200,7 @@ def _store_exchange(question_text, answer_text):
         return None
 
     try:
-        user = UserProfile.objects.first()
+        user = UserProfile.objects.filter(user_id=DEFAULT_USER_ID).first() or UserProfile.objects.first()
     except Exception:
         user = None
 
