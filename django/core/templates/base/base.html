@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="{% static 'js/tailwind.config.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'base.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
     <link rel="stylesheet" href="{% static 'css/footer.css' %}" />
     {% block extra_css %}{% endblock %}
 </head>
@@ -22,9 +22,9 @@
         <div class="flex items-center gap-3 relative">
             <button id="baby-switcher-btn" class="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors cursor-pointer group" type="button">
                 <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                    <span class="material-symbols-outlined text-primary text-[14px]">face</span>
+                    <span class="material-symbols-outlined text-primary text-[14px]">{% if switcher_active_item %}{{ switcher_active_item.icon }}{% else %}face{% endif %}</span>
                 </div>
-                <span class="text-[13px] font-bold text-primary">小寶</span>
+                <span class="text-[13px] font-bold text-primary">{{ switcher_active_item.name|default:'切換寶寶' }}</span>
                 <span class="material-symbols-outlined text-primary text-[18px]">swap_horiz</span>
             </button>
             <div id="baby-switcher-menu" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-surface-container-high overflow-hidden opacity-0 pointer-events-none transition-all duration-200 z-[110] transform origin-top-right scale-95">
@@ -32,39 +32,25 @@
                     <div class="px-4 py-2 bg-surface-container-low/50 border-b border-surface-container-highest">
                         <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">切換小孩 / 胎數</span>
                     </div>
-                    <div class="w-full text-left px-4 py-3 bg-primary/5 flex items-center justify-between border-b border-surface-container-highest group">
-                        <div class="flex items-center gap-3 cursor-pointer w-full" onclick="window.location.href='/home_baby/'">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-primary text-[18px]">face</span>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold text-primary">小寶</span>
-                                <span class="text-[10px] text-primary/70 font-medium">第二胎</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-full text-left px-4 py-3 hover:bg-surface-container-low transition-colors flex items-center justify-between border-b border-surface-container-highest group">
-                        <div class="flex items-center gap-3 cursor-pointer w-full" onclick="window.location.href='/home_baby/'">
-                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-on-surface-variant text-[18px]">face_6</span>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold text-on-surface">大寶</span>
-                                <span class="text-[10px] text-on-surface-variant font-medium">第一胎</span>
+                    {% if switcher_items %}
+                        {% for item in switcher_items %}
+                        <div class="w-full text-left px-4 py-3 {% if item == switcher_active_item %}bg-primary/5{% else %}hover:bg-surface-container-low{% endif %} transition-colors flex items-center justify-between border-b border-surface-container-highest group">
+                            <div class="flex items-center gap-3 cursor-pointer w-full" onclick="window.location.href='{{ item.url }}'">
+                                <div class="w-8 h-8 rounded-full {% if item == switcher_active_item %}bg-primary/10{% else %}bg-surface-container-high{% endif %} flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined {% if item == switcher_active_item %}text-primary{% else %}text-on-surface-variant{% endif %} text-[18px]">{{ item.icon }}</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold {% if item == switcher_active_item %}text-primary{% else %}text-on-surface{% endif %}">{{ item.name }}</span>
+                                    <span class="text-[10px] {% if item == switcher_active_item %}text-primary/70{% else %}text-on-surface-variant{% endif %} font-medium">{{ item.desc }}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="w-full text-left px-4 py-3 hover:bg-surface-container-low transition-colors flex items-center justify-between border-b border-surface-container-highest group">
-                        <div class="flex items-center gap-3 cursor-pointer w-full" onclick="window.location.href='/'">
-                            <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
-                                <span class="material-symbols-outlined text-on-surface-variant text-[18px]">pregnant_woman</span>
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-bold text-on-surface">第三胎</span>
-                                <span class="text-[10px] text-on-surface-variant font-medium">懷孕中 (24w)</span>
-                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="px-4 py-4 text-center text-xs text-on-surface-variant border-b border-surface-container-highest">
+                            目前無胎數或寶寶紀錄
                         </div>
-                    </div>
+                    {% endif %}
                     <div class="p-2 bg-surface-container-low/30">
                         <button onclick="window.location.href='/pregnancycase/'" class="w-full text-left px-3 py-2.5 hover:bg-primary/5 transition-colors flex items-center gap-3 rounded-xl cursor-pointer" type="button">
                             <span class="material-symbols-outlined text-[18px] text-primary">settings</span>
@@ -87,19 +73,7 @@
 
     {% block extra_js %}{% endblock %}
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-            const footerLinks = document.querySelectorAll('a.footer[data-nav]');
-
-            footerLinks.forEach((link) => {
-                const linkPath = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '') || '/';
-                const isActive = linkPath === '/' ? currentPath === '/' : currentPath.startsWith(linkPath);
-
-                if (isActive) {
-                    link.classList.add('footer-nav-active');
-                }
-            });
-
+        const initSwitcher = () => {
             const switcherBtn = document.getElementById('baby-switcher-btn');
             const switcherMenu = document.getElementById('baby-switcher-menu');
 
@@ -134,7 +108,13 @@
                     closeSwitcherMenu();
                 }
             });
-        });
+        };
+
+        if (document.readyState !== 'loading') {
+            initSwitcher();
+        } else {
+            document.addEventListener('DOMContentLoaded', initSwitcher);
+        }
     </script>
 </body>
 </html>

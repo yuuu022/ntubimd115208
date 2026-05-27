@@ -17,24 +17,53 @@ def _parse_int(value, default):
         return default
 
 
-def _get_calendar_data(records, year, month):
+def _get_calendar_data(records, selected_date):
+    year = selected_date.year
+    month = selected_date.month
     cal = calendar.Calendar(firstweekday=6)
-    weeks = cal.monthdayscalendar(year, month)
+    
+    first_weekday, days_in_month = calendar.monthrange(year, month)
+    leading_blanks = (first_weekday + 1) % 7
+    
+    cells = []
+    for _ in range(leading_blanks):
+        cells.append({'empty': True})
+        
     record_days = {}
-    for record in records:
-        if record.date.year == year and record.date.month == month:
-            record_days.setdefault(record.date.day, 0)
-            record_days[record.date.day] += 1
-
+    for rec in records:
+        rec_date = rec.date.date() if hasattr(rec.date, 'date') else rec.date
+        if rec_date.year == year and rec_date.month == month:
+            record_days[rec_date.day] = rec
+            
+    for day in range(1, days_in_month + 1):
+        d = datetime.date(year, month, day)
+        cells.append({
+            'empty': False,
+            'day': day,
+            'date_iso': d.isoformat(),
+            'is_selected': d == selected_date,
+            'has_record': d.day in record_days,
+        })
+        
+    while len(cells) % 7 != 0:
+        cells.append({'empty': True})
+        
+    calendar_weeks = [cells[i:i+7] for i in range(0, len(cells), 7)]
+    while len(calendar_weeks) < 5:
+        empty_week = [{'empty': True} for _ in range(7)]
+        calendar_weeks.append(empty_week)
+        
     today = datetime.date.today()
+    record_years = {today.year, year} | {rec.date.year for rec in records if hasattr(rec.date, 'year')}
+    
     return {
-        'calendar_weeks': weeks,
+        'calendar_weeks': calendar_weeks,
         'selected_year': year,
         'selected_month': month,
-        'selected_month_label': f'{year}年{month}月',
-        'record_days': record_days,
-        'today_day': today.day if today.year == year and today.month == month else None,
-        'calendar_years': sorted({today.year, year} | {record.date.year for record in records}, reverse=True),
+        'selected_month_label': f'{year}年 {month}月',
+        'selected_date_iso': selected_date.isoformat(),
+        'selected_day': selected_date.day,
+        'calendar_years': sorted(record_years, reverse=True),
         'calendar_months': list(range(1, 13)),
     }
 
@@ -165,41 +194,75 @@ def _get_baby_summary(baby):
     }
 
 
-def _get_default_baby():
-    return BabyInformation.objects.first()
+def _get_active_baby(request):
+    baby_id = request.GET.get('baby_id') or request.POST.get('baby_id')
+    if baby_id:
+        try:
+            baby = BabyInformation.objects.filter(baby_id=int(baby_id)).first()
+            if baby:
+                request.session['active_baby_id'] = baby.baby_id
+                return baby
+        except (ValueError, TypeError):
+            pass
+
+    session_baby_id = request.session.get('active_baby_id')
+    if session_baby_id:
+        baby = BabyInformation.objects.filter(baby_id=session_baby_id).first()
+        if baby:
+            return baby
+
+    # Fallback to the first baby
+    baby = BabyInformation.objects.first()
+    if baby:
+        request.session['active_baby_id'] = baby.baby_id
+    return baby
 
 
 def baby(request):
-    baby = _get_default_baby()
+    baby = _get_active_baby(request)
     records = []
     if baby is not None:
         records = BabyRecord.objects.filter(baby=baby).order_by('-date')
         for record in records:
             record.milestones, record.note_text = _split_note_and_milestones(record.record)
 
-    today = datetime.date.today()
-    year = _parse_int(request.GET.get('year'), today.year)
-    month = _parse_int(request.GET.get('month'), today.month)
-    if month < 1 or month > 12:
-        month = today.month
+    raw = request.GET.get('date')
+    try:
+        selected_date = datetime.date.fromisoformat(raw) if raw else datetime.date.today()
+    except Exception:
+        selected_date = datetime.date.today()
+
+    selected_day_record = None
+    for rec in records:
+        rec_date = rec.date.date() if hasattr(rec.date, 'date') else rec.date
+        if rec_date == selected_date:
+            selected_day_record = rec
+            break
 
     summary = _get_baby_summary(baby)
     if records:
-        summary['photo_url'] = records[0].photo or summary['photo_url']
+        for r in records:
+            if r.photo:
+                summary['photo_url'] = r.photo
+                break
+
 
     context = {
         'baby': baby,
         'records': records,
         'baby_summary': summary,
         'baby_form': _get_baby_form_data(baby),
+        'selected_date': selected_date,
+        'selected_day_record': selected_day_record,
+        'has_day_data': bool(selected_day_record),
     }
-    context.update(_get_calendar_data(records, year, month))
+    context.update(_get_calendar_data(records, selected_date))
 
     return render(request, 'baby/babyinformation.html', context)
 
 
 def add_baby_information(request):
-    baby = _get_default_baby()
+    baby = _get_active_baby(request)
     return render(request, 'baby/add_baby_information.html', {
         'baby_form': _get_baby_form_data(baby),
         'baby': baby,
@@ -207,7 +270,7 @@ def add_baby_information(request):
 
 
 def edit_baby_information(request):
-    baby = _get_default_baby()
+    baby = _get_active_baby(request)
     return render(request, 'baby/edit_baby_information.html', {
         'baby_form': _get_baby_form_data(baby),
         'baby': baby,
@@ -215,11 +278,14 @@ def edit_baby_information(request):
 
 
 def add_baby_record(request):
-    baby = _get_default_baby()
+    baby = _get_active_baby(request)
+
     if baby is None:
         return render(request, 'baby/add_baby_record.html', {
             'error': '請先建立寶寶資料',
         })
+
+    initial_date = request.GET.get('date', '')
 
     if request.method == 'POST':
         date = request.POST.get('date')
@@ -248,7 +314,7 @@ def add_baby_record(request):
     return render(request, 'baby/add_baby_record.html', {
         'baby': baby,
         'baby_list': baby_list,
-        'form_data': {},
+        'form_data': {'date': initial_date},
         'milestones': '',
     })
 

@@ -1,3 +1,4 @@
+
 {% extends 'base/base.html' %}
 {% load static %}
 {% block title %}新增懷孕胎數{% endblock %}
@@ -5,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'css/pregnancycase/add_pregnancy_case.css' %}">
 {% endblock %}
 {% block content %}
-<body class="bg-surface text-on-surface min-h-screen pb-32">
+<div class="bg-surface text-on-surface min-h-screen pb-32">
     <!-- Header Section -->
     <header class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="flex items-center gap-3">
@@ -18,7 +19,8 @@
 
     <!-- Main Content -->
     <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form onsubmit="event.preventDefault(); window.history.back();" class="space-y-6">
+        <form method="post" action="{% url 'add_pregnancy_case' %}" class="space-y-6">
+            {% csrf_token %}
 
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
@@ -32,7 +34,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                            <input type="date" required class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="date" required name="menstruation" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
                     </div>
 
@@ -41,7 +43,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期 (自動計算或手動填寫)</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">calendar_today</span>
-                            <input type="date" required class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
+                            <input type="date" required name="expecteddate" class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
                         </div>
                     </div>
 
@@ -50,7 +52,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">加入碼 (供其他家人綁定)</label>
                         <div class="relative flex items-center">
                             <span class="material-symbols-outlined absolute left-4 text-on-surface-variant/50">qr_code</span>
-                            <input type="text" value="A8X2B9" readonly class="w-full bg-surface-container-low/50 border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface text-sm outline-none font-bold tracking-widest" />
+                            <input type="text" name="code" value="{{ generated_code }}" readonly class="w-full bg-surface-container-low/50 border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface text-sm outline-none font-bold tracking-widest" />
                             <button type="button" class="absolute right-3 p-1.5 text-primary hover:bg-primary/10 rounded-full transition-colors cursor-pointer" onclick="alert('已複製加入碼！')">
                                 <span class="material-symbols-outlined text-[18px]">content_copy</span>
                             </button>
@@ -73,7 +75,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">嬰兒暱稱</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">face</span>
-                            <input type="text" required placeholder="例如：小寶、球球" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <input type="text" required name="baby_name" placeholder="例如：小寶、球球" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                         </div>
                     </div>
 
@@ -83,7 +85,7 @@
                             <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時間</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                                <input type="datetime-local" class="w-full bg-surface-container-low border-none rounded-xl pl-11 pr-3 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                                <input type="datetime-local" name="birthdaytime" class="w-full bg-surface-container-low border-none rounded-xl pl-11 pr-3 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             </div>
                         </div>
                         <div class="space-y-2">
@@ -111,16 +113,16 @@
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生體重</label>
                         <div class="relative">
-                            <input type="number" step="0.1" placeholder="如 3200" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" step="0.1" name="baby_weight" placeholder="如 3200" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">g</span>
                         </div>
                     </div>
 
-                    <!-- 出生身長 -->
+                    <!-- 出生身高 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生身長</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生身高</label>
                         <div class="relative">
-                            <input type="number" step="0.1" placeholder="如 50.5" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" step="0.1" name="baby_height" placeholder="如 50.5" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
                         </div>
                     </div>
@@ -129,7 +131,7 @@
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生頭圍</label>
                         <div class="relative">
-                            <input type="number" step="0.1" placeholder="如 34" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" step="0.1" name="baby_head" placeholder="如 34" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
                         </div>
                     </div>
@@ -138,7 +140,7 @@
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生胸圍</label>
                         <div class="relative">
-                            <input type="number" step="0.1" placeholder="如 32" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
+                            <input type="number" step="0.1" name="baby_chest" placeholder="如 32" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
                             <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
                         </div>
                     </div>
@@ -147,7 +149,7 @@
                 <div class="mt-5 space-y-2">
                     <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">生產方式</label>
                     <div class="relative">
-                        <select class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium appearance-none">
+                        <select name="production_method" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium appearance-none">
                             <option value="" disabled selected>請選擇生產方式</option>
                             <option value="自然產">自然產</option>
                             <option value="剖腹產">剖腹產</option>
@@ -165,4 +167,5 @@
             </button>
         </form>
     </main>
+</div>
 {% endblock %}

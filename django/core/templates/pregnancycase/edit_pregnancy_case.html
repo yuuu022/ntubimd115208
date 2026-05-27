@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{% static 'css/pregnancycase/edit_pregnancy_case.css' %}">
 {% endblock %}
 {% block content %}
-<body class="bg-surface text-on-surface min-h-screen pb-32">
+<div class="bg-surface text-on-surface min-h-screen pb-32">
     <!-- Header Section -->
     <header class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md  flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="flex items-center gap-3">
@@ -14,7 +14,7 @@
             </button>
             <h1 class="font-headline font-semibold tracking-tight text-lg text-primary">編輯懷孕胎數</h1>
         </div>
-        <button onclick="if(confirm('確定要刪除此胎數紀錄嗎？此動作無法復原。')) window.history.back();" class="text-primary font-bold text-sm hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1">
+        <button onclick="if(confirm('確定要刪除此胎數紀錄嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ case.pregnancycase_id }}';" class="text-primary font-bold text-sm hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1">
             <span class="material-symbols-outlined text-[18px]">delete</span>
             刪除
         </button>
@@ -22,7 +22,8 @@
 
     <!-- Main Content -->
     <main class="pt-24 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form onsubmit="event.preventDefault(); window.history.back();" class="space-y-6">
+        <form method="post" action="{% url 'edit_pregnancy_case' %}?id={{ case.pregnancycase_id }}" class="space-y-6">
+            {% csrf_token %}
 
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
@@ -36,7 +37,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">胎次名稱 (選填)</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">label</span>
-                            <input type="text" value="第三胎" placeholder="例如：大寶、二寶" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="text" name="baby_name" value="{{ baby_name }}" placeholder="例如：大寶、二寶" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
                     </div>
 
@@ -45,7 +46,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                            <input type="date" value="2024-01-15" required class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="date" name="menstruation" value="{{ menstruation_str }}" required class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
                     </div>
 
@@ -54,7 +55,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期 (自動計算或手動填寫)</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">calendar_today</span>
-                            <input type="date" value="2024-10-22" required class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
+                            <input type="date" name="expecteddate" value="{{ expecteddate_str }}" required class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
                         </div>
                     </div>
 
@@ -63,7 +64,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">加入碼 (供其他家人綁定)</label>
                         <div class="relative flex items-center">
                             <span class="material-symbols-outlined absolute left-4 text-on-surface-variant/50">qr_code</span>
-                            <input type="text" value="A8X2B9" readonly class="w-full bg-surface-container-low/50 border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface text-sm outline-none font-bold tracking-widest" />
+                            <input type="text" name="code" value="{{ case.code }}" readonly class="w-full bg-surface-container-low/50 border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface text-sm outline-none font-bold tracking-widest" />
                             <button type="button" class="absolute right-3 p-1.5 text-primary hover:bg-primary/10 rounded-full transition-colors cursor-pointer" onclick="alert('已複製加入碼！')">
                                 <span class="material-symbols-outlined text-[18px]">content_copy</span>
                             </button>
@@ -79,4 +80,5 @@
             </button>
         </form>
     </main>
+</div>
 {% endblock %}

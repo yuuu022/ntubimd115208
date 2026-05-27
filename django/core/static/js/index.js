@@ -214,29 +214,4 @@ window.addEventListener('load', () => {
 		}
 });
 
-// <!-- Baby Switcher Script -->
-document.addEventListener('DOMContentLoaded', () => {
-		const switcherBtn = document.getElementById('baby-switcher-btn');
-		const switcherMenu = document.getElementById('baby-switcher-menu');
 
-		if (switcherBtn && switcherMenu) {
-				switcherBtn.addEventListener('click', (e) => {
-						e.stopPropagation();
-						const isOpen = !switcherMenu.classList.contains('opacity-0');
-						if (isOpen) {
-								switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-								switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
-						} else {
-								switcherMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-								switcherMenu.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
-						}
-				});
-
-				document.addEventListener('click', (e) => {
-						if (!switcherBtn.contains(e.target) && !switcherMenu.contains(e.target)) {
-								switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-								switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
-						}
-				});
-		}
-});
