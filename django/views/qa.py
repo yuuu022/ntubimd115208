@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import socket
 from urllib import error, request as urlrequest
 from urllib.parse import urlparse
@@ -94,6 +95,16 @@ def _stringify_source(source_item):
         return json.dumps(source_item, ensure_ascii=False)
 
     return str(source_item).strip()
+
+
+def _strip_markdown_emphasis(text):
+    if not text:
+        return ""
+
+    normalized_text = str(text).strip()
+    normalized_text = re.sub(r"\*\*(.+?)\*\*", r"\1", normalized_text, flags=re.S)
+    normalized_text = re.sub(r"__(.+?)__", r"\1", normalized_text, flags=re.S)
+    return normalized_text
 
 
 def _extract_response_data(raw_body):
@@ -333,7 +344,7 @@ def _load_recent_items(limit=20):
 
 def _normalize_answer_text(answer_text, sources=None):
     if answer_text:
-        normalized = str(answer_text).strip()
+        normalized = _strip_markdown_emphasis(answer_text)
         if normalized and normalized != "目前知識庫沒有相關資訊":
             return normalized
 
@@ -341,7 +352,6 @@ def _normalize_answer_text(answer_text, sources=None):
         return ""
 
     return "目前資料庫沒有此資訊"
-
 
 def qa_conversation(request):
     error_message = ""
@@ -354,7 +364,6 @@ def qa_conversation(request):
         return redirect(reverse("qa_conversation"))
 
     if request.method == "POST":
-        # Support both normal form POST (redirect) and AJAX (JSON) submissions.
         question = request.POST.get("question", "").strip()
         # 更寬容的 AJAX 判斷：同時檢查 HTTP_X_REQUESTED_WITH、HTTP_ACCEPT，
         # 並退回到 request.headers（與 Django 版本相容性保護）。
