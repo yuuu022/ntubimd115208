@@ -2,44 +2,7 @@
 {% load static %}
 {% block title %}知識問答{% endblock %}
 {% block extra_css %}
-<style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        vertical-align: middle;
-    }
-
-    body {
-        overflow-x: hidden;
-        background-color: #f7f6f3;
-    }
-
-    .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-    }
-
-    .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
-        .qa-main {
-            padding-bottom: calc(13rem + env(safe-area-inset-bottom));
-        }
-
-        .qa-input-shell {
-            bottom: calc(10rem + env(safe-area-inset-bottom));
-        }
-
-        @media (min-width: 768px) {
-            .qa-main {
-                padding-bottom: calc(14rem + env(safe-area-inset-bottom));
-            }
-
-            .qa-input-shell {
-                bottom: calc(5rem + env(safe-area-inset-bottom));
-            }
-        }
-</style>
+<link rel="stylesheet" href="{% static 'css/qa_conversation.css' %}" />
 {% endblock %}
 {% block content %}
 <div class="bg-background font-body text-on-surface min-h-screen flex flex-col lg:flex-row">
@@ -80,25 +43,25 @@
             {% endif %}
         </div>
     </aside>
+    <nav class="header">
+        <div class="flex items-center gap-3">
+            <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <h1 class="qa-page-title text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">懷孕知識問答</h1>
+        </div>
+    </nav>
 
     <div class="flex-1 min-w-0 flex flex-col relative bg-[#f7f6f3]/70 backdrop-blur-md shadow-[0_20px_40px_rgba(46,47,45,0.06)] pt-[72px]">
-        <nav class="fixed top-0 left-0 right-0 z-30 flex justify-between items-center px-4 py-3 md:px-6 bg-background/90 backdrop-blur-md border-b border-surface-container-highest/20">
-            <div class="flex items-center gap-3">
-                <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-                <h1 class="text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">懷孕知識問答</h1>
-            </div>
-        </nav>
 
-        <main class="qa-main flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col items-center">
+        <main id="qa-main-scroll" class="qa-main flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col items-center">
             <div class="w-full max-w-3xl flex flex-col gap-8">
-                <div class="flex flex-col gap-6 hide-scrollbar">
+                <div id="qa-message-list" class="flex flex-col gap-6 hide-scrollbar">
                     {% if current_messages %}
                     {% for message in current_messages %}
                     <div class="flex items-start gap-3 max-w-[90%] {% if message.is_user %}self-end flex-row-reverse max-w-[85%]{% endif %}">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {% if message.is_user %}bg-surface-container-high{% else %}bg-primary{% endif %}">
-                            <span class="material-symbols-outlined text-sm {% if message.is_user %}text-on-surface-variant{% else %}text-white{% endif %}" style="font-variation-settings: 'FILL' 1;">{% if message.is_user %}person{% else %}child_care{% endif %}</span>
+                            <span class="material-symbols-outlined qa-message-icon text-sm {% if message.is_user %}text-on-surface-variant{% else %}text-white{% endif %}">{% if message.is_user %}person{% else %}child_care{% endif %}</span>
                         </div>
                         <div class="{% if message.is_user %}bg-surface-container-high text-on-surface rounded-tr-none{% else %}bg-primary-container text-on-primary-container rounded-tl-none{% endif %} px-6 py-4 rounded-[2rem] shadow-sm">
                             <p class="font-medium leading-relaxed whitespace-pre-wrap">{{ message.message }}</p>
@@ -106,11 +69,11 @@
                     </div>
                     {% endfor %}
                     {% elif error_message %}
-                    <div class="rounded-[2rem] border border-error/20 bg-error/5 px-6 py-4 text-sm text-error">
+                    <div id="qa-empty-state" class="rounded-[2rem] border border-error/20 bg-error/5 px-6 py-4 text-sm text-error">
                         {{ error_message }}
                     </div>
                     {% else %}
-                    <div class="rounded-[2rem] border border-outline-variant/20 bg-white/80 px-6 py-5 shadow-sm">
+                    <div id="qa-empty-state" class="rounded-[2rem] border border-outline-variant/20 bg-white/80 px-6 py-5 shadow-sm">
                         <div class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">歡迎開始提問</div>
                         <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問營養、產檢、孕期不適、產後照護、0-3 歲寶寶的發展與照護以及準爸爸準媽媽注意事項。</p>
                     </div>
@@ -118,23 +81,22 @@
                 </div>
             </div>
         </main>
-
-        <div class="qa-input-shell fixed bottom-40 left-0 w-full md:w-full flex justify-around items-center px-4 pb-3 pt-2 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 md:bottom-20 md:pt-4 md:pb-4">
-            <form method="post" class="w-full max-w-3xl pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-xl rounded-none p-2  flex items-center gap-2 border border-outline-variant/30 mx-auto">
+    </div>
+</div>
+        <div class="qa-input-shell">
+            <form id="qa-chat-form" method="post" class="w-full max-w-3xl pointer-events-auto bg-surface-container-lowest/90 backdrop-blur-xl rounded-none p-2 flex items-center gap-2 border border-outline-variant/30 mx-auto">
                 {% csrf_token %}
                 {% if current_conversation_id %}
                 <input type="hidden" name="conversation_id" value="{{ current_conversation_id }}" />
                 {% endif %}
                 <div class="flex-grow">
-                    <input name="question" required class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/60 text-sm font-medium py-2 px-2" placeholder="詢問關於孕期的任何事情..." type="text" />
+                    <input id="qa-question-input" name="question" required class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/60 text-sm font-medium py-2 px-2" placeholder="詢問關於孕期的任何事情..." type="text" />
                 </div>
                 <button type="submit" class="w-9 h-9 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90 transition-all active:scale-95 shadow-md">
                     <span class="material-symbols-outlined text-[20px]">send</span>
                 </button>
             </form>
         </div>
-    </div>
-</div>
 {% endblock %}
 {% block extra_js %}
 <script>
@@ -143,10 +105,101 @@
         const overlay = document.getElementById('sidebar-overlay');
         const openButton = document.getElementById('hamburger-menu-btn');
         const closeButton = document.getElementById('close-sidebar-btn');
+        const chatForm = document.getElementById('qa-chat-form');
+        const messageList = document.getElementById('qa-message-list');
+        const mainScroll = document.getElementById('qa-main-scroll');
+        const questionInput = document.getElementById('qa-question-input');
 
-        if (!sidebar || !overlay || !openButton || !closeButton) {
+        if (!sidebar || !overlay || !openButton || !closeButton || !chatForm || !messageList || !mainScroll || !questionInput) {
             return;
         }
+
+        const submitButton = chatForm.querySelector('button[type="submit"]');
+
+        const scrollMessagesToBottom = () => {
+            mainScroll.scrollTo({ top: mainScroll.scrollHeight, behavior: 'smooth' });
+        };
+
+        const buildMessageNode = (text, isUser) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = `flex items-start gap-3 max-w-[90%] ${isUser ? 'self-end flex-row-reverse max-w-[85%]' : ''}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-surface-container-high' : 'bg-primary'}`;
+
+            const icon = document.createElement('span');
+            icon.className = `material-symbols-outlined qa-message-icon text-sm ${isUser ? 'text-on-surface-variant' : 'text-white'}`;
+            icon.textContent = isUser ? 'person' : 'child_care';
+            avatar.appendChild(icon);
+
+            const bubble = document.createElement('div');
+            bubble.className = `px-6 py-4 rounded-[2rem] shadow-sm ${isUser ? 'bg-surface-container-high text-on-surface rounded-tr-none' : 'bg-primary-container text-on-primary-container rounded-tl-none'}`;
+
+            const paragraph = document.createElement('p');
+            paragraph.className = 'font-medium leading-relaxed whitespace-pre-wrap';
+            paragraph.textContent = text;
+            bubble.appendChild(paragraph);
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(bubble);
+            return wrapper;
+        };
+
+        const buildTypingMessageNode = () => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex items-start gap-3 max-w-[90%]';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary';
+
+            const icon = document.createElement('span');
+            icon.className = 'material-symbols-outlined qa-message-icon text-white text-sm';
+            icon.textContent = 'child_care';
+            avatar.appendChild(icon);
+
+            const bubble = document.createElement('div');
+            bubble.className = 'px-6 py-4 rounded-[2rem] rounded-tl-none shadow-sm bg-primary-container text-on-primary-container';
+
+            const typing = document.createElement('div');
+            typing.className = 'qa-typing-indicator';
+            typing.setAttribute('aria-label', 'n8n 回覆中');
+            typing.setAttribute('role', 'status');
+
+            for (let index = 0; index < 3; index += 1) {
+                const dot = document.createElement('span');
+                dot.className = 'qa-typing-dot';
+                typing.appendChild(dot);
+            }
+
+            bubble.appendChild(typing);
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(bubble);
+            return wrapper;
+        };
+
+        const removeEmptyState = () => {
+            const emptyState = document.getElementById('qa-empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+        };
+
+        const appendMessage = (text, isUser) => {
+            removeEmptyState();
+            messageList.appendChild(buildMessageNode(text, isUser));
+            scrollMessagesToBottom();
+        };
+
+        const appendTypingMessage = () => {
+            removeEmptyState();
+            const typingNode = buildTypingMessageNode();
+            typingNode.dataset.typingMessage = 'true';
+            messageList.appendChild(typingNode);
+            scrollMessagesToBottom();
+            return typingNode;
+        };
+
+        scrollMessagesToBottom();
 
         const openSidebar = () => {
             sidebar.classList.remove('-translate-x-full');
@@ -168,6 +221,75 @@
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 closeSidebar();
+            }
+        });
+
+        chatForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const question = questionInput.value.trim();
+            if (!question) {
+                return;
+            }
+
+            appendMessage(question, true);
+            questionInput.value = '';
+            questionInput.focus();
+            questionInput.disabled = true;
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            const typingNode = appendTypingMessage();
+
+            const formData = new FormData(chatForm);
+            formData.set('question', question);
+
+            const csrfToken = chatForm.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
+                    },
+                    body: formData,
+                    credentials: 'same-origin',
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.ok) {
+                    typingNode.remove();
+                    appendMessage(data?.error || 'n8n 未回傳有效結果', false);
+                    return;
+                }
+
+                const conversationId = data.conversation_id;
+                if (conversationId) {
+                    let conversationField = chatForm.querySelector('input[name="conversation_id"]');
+                    if (!conversationField) {
+                        conversationField = document.createElement('input');
+                        conversationField.type = 'hidden';
+                        conversationField.name = 'conversation_id';
+                        chatForm.appendChild(conversationField);
+                    }
+                    conversationField.value = conversationId;
+                }
+
+                const answerText = data.answer || '目前資料庫沒有此資訊';
+                typingNode.replaceWith(buildMessageNode(answerText, false));
+                scrollMessagesToBottom();
+            } catch (error) {
+                typingNode.remove();
+                appendMessage('目前無法連線到 n8n，請稍後再試。', false);
+            } finally {
+                questionInput.disabled = false;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
             }
         });
     })();
