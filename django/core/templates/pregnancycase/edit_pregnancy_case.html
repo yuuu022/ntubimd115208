@@ -6,22 +6,22 @@
 {% endblock %}
 {% block content %}
 <div class="bg-surface text-on-surface min-h-screen pb-32">
-    <!-- Header Section -->
-    <header class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md  flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <!-- Title Section -->
+    <div class="flex justify-between items-center px-6 py-4 w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64 mt-4">
         <div class="flex items-center gap-3">
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
             </button>
-            <h1 class="font-headline font-semibold tracking-tight text-lg text-primary">編輯懷孕胎數</h1>
+            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">編輯懷孕胎數</h1>
         </div>
         <button onclick="if(confirm('確定要刪除此胎數紀錄嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ case.pregnancycase_id }}';" class="text-primary font-bold text-sm hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1">
             <span class="material-symbols-outlined text-[18px]">delete</span>
             刪除
         </button>
-    </header>
+    </div>
 
     <!-- Main Content -->
-    <main class="pt-24 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <form method="post" action="{% url 'edit_pregnancy_case' %}?id={{ case.pregnancycase_id }}" class="space-y-6">
             {% csrf_token %}
 

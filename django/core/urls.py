@@ -3,12 +3,12 @@
 from django.urls import path
 from django.views.generic import TemplateView
 from views import test
-from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, care_record, pregnancycase
+from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, home_baby
 
 urlpatterns = [
 	# 首頁
     path('', index.index, name='index'),
-    path('home_baby/', TemplateView.as_view(template_name='home_baby.html'), name='home_baby'),
+    path('home_baby/', home_baby.home_baby, name='home_baby'),
 	path('add_care_reminder/', care_record.add_care_reminder, name='add_care_reminder'),
     path('set_care_status/', care_record.set_care_status, name='set_care_status'),
 	# 登入

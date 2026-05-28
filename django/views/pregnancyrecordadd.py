@@ -7,7 +7,23 @@ import datetime
 import calendar
 from pathlib import Path
 
-from core.models import Feeling, PhysicalCondition, PregnancyRecord, Prenatalrecord, Userfeeling, Userphysicalcondition
+from core.models import Feeling, PhysicalCondition, PregnancyRecord, Prenatalrecord, Userfeeling, Userphysicalcondition, PregnancyCase, UserProfile
+
+def _get_active_pregnancy_case(request):
+    # Only check session (URL parameter handling is done by context processor)
+    active_case_id = request.session.get('active_case_id')
+    if active_case_id:
+        case = PregnancyCase.objects.filter(pregnancycase_id=active_case_id).first()
+        if case:
+            return case
+
+    # Fallback to first case for current user
+    current_user = UserProfile.objects.filter(user_id='test_user_001').first() or UserProfile.objects.first()
+    case = PregnancyCase.objects.filter(user=current_user).order_by('-create_time').first() or PregnancyCase.objects.first()
+    if case:
+        request.session['active_case_id'] = case.pregnancycase_id
+    return case
+
 
 FEELING_EMOJI_MAP = {
     '快樂': '😊',
@@ -96,6 +112,7 @@ def _date_to_safe_datetime(date_value):
     return check_datetime
 
 def pregnancyrecord(request):
+    pregnancy_case = _get_active_pregnancy_case(request)
     raw = request.GET.get('date')
     try:
         selected_date = datetime.date.fromisoformat(raw) if raw else datetime.date.today()
@@ -108,7 +125,7 @@ def pregnancyrecord(request):
     month = selected_date.month
     month_records = list(
         PregnancyRecord.objects
-        .filter(check_date__year=year, check_date__month=month)
+        .filter(pregnancycase=pregnancy_case, check_date__year=year, check_date__month=month)
         .order_by('check_date', 'pregnancyrecord_id')
         .values('pregnancyrecord_id', 'check_date', 'weight')
     )
@@ -194,7 +211,7 @@ def pregnancyrecord(request):
 
     selected_day_records = list(
         PregnancyRecord.objects
-        .filter(check_date__date=selected_date)
+        .filter(pregnancycase=pregnancy_case, check_date__date=selected_date)
         .order_by('-check_date', '-pregnancyrecord_id')
     )
     selected_day_record = selected_day_records[0] if selected_day_records else None
@@ -327,6 +344,7 @@ def _build_physical_conditions():
 
 
 def pregnancyrecord_add(request):
+    pregnancy_case = _get_active_pregnancy_case(request)
     selected_date = _parse_selected_date(request.GET.get('date') or request.POST.get('check_date'))
 
     # If a specific pregnancyrecord_id is provided (e.g. from the calendar edit link),
@@ -355,7 +373,7 @@ def pregnancyrecord_add(request):
     else:
         selected_day_record = (
             PregnancyRecord.objects
-            .filter(check_date__date=selected_date)
+            .filter(pregnancycase=pregnancy_case, check_date__date=selected_date)
             .order_by('-check_date', '-pregnancyrecord_id')
             .first()
         )
@@ -418,7 +436,7 @@ def pregnancyrecord_add(request):
                     check_datetime = _date_to_safe_datetime(selected_date)
 
                     preg = PregnancyRecord.objects.create(
-                        pregnancycase_id=1,
+                        pregnancycase=pregnancy_case,
                         check_date=check_datetime,
                         record=record,
                         weight=weight_val,

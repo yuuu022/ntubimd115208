@@ -2,10 +2,13 @@
 {% load static %}
 {% block title %}成長紀錄{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/baby/babygrowthmap.css' %}">
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+</style>
 {% endblock %}
 {% block content %}
 <div class="bg-surface text-on-surface min-h-screen">
+    <!-- Top AppBar -->
     <nav class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-surface-container-highest/20 px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="flex items-center gap-4 max-w-md md:max-w-none w-full mx-auto">
             <button onclick="window.history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest text-primary hover:bg-primary-container transition-colors shadow-sm cursor-pointer" type="button">
@@ -14,81 +17,102 @@
             <h1 class="text-xl font-bold text-primary tracking-tight font-headline">成長里程碑總覽</h1>
         </div>
     </nav>
-
+    
     <main class="pt-8 px-4 max-w-md md:max-w-none mx-auto w-full pb-32 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="mb-6">
             <div>
                 <h2 class="text-xl font-bold text-on-surface mb-1 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">timeline</span>
-                    {{ growth_owner_name|default:'寶寶' }} 成長軌跡
+                    {{ growth_owner_name|default:'寶寶' }}成長軌跡
                 </h2>
                 <p class="text-xs text-on-surface-variant font-medium">紀錄{{ growth_owner_name|default:'寶寶' }}每個珍貴的「第一次」</p>
             </div>
         </div>
 
         <section class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm border border-surface-container-low mb-8">
-            <div class="relative pl-8 space-y-10 growth-timeline-line">
-                {% if growth_timeline %}
-                    {% for item in growth_timeline %}
+            <div class="relative pl-8 space-y-10 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-surface-container-high">
+                
+                {% for item in growth_timeline %}
+                    {% if item.status == 'completed' %}
+                        <!-- Milestone 1: Done -->
                         <div class="relative">
-                            <div class="absolute -left-[30px] top-0 w-6 h-6 rounded-full {% if forloop.first %}bg-primary{% else %}bg-primary-fixed-dim{% endif %} flex items-center justify-center text-white z-10 shadow-sm ring-4 ring-primary-container/50">
-                                <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">{% if forloop.first %}stars{% else %}check{% endif %}</span>
+                            <div class="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white z-10 shadow-sm ring-4 ring-primary-container/50 animate-pulse-once">
+                                <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check</span>
                             </div>
-
-                            <div class="flex flex-col gap-4">
-                                <div class="flex items-center justify-between gap-4">
-                                    <h3 class="font-bold text-on-surface text-lg">{{ item.growthrecord }}</h3>
-                                    <span class="text-[10px] font-bold {% if forloop.first %}text-primary bg-primary-container{% else %}text-on-surface-variant bg-surface-container{% endif %} px-2.5 py-1 rounded-full">
-                                        {{ item.baby_statuses|length }} 個月
-                                    </span>
+                            <div class="flex flex-col gap-2">
+                                <div class="flex justify-between items-start gap-4">
+                                    <h4 class="font-bold text-on-surface text-base md:text-lg flex-1">{{ item.growthrecord }}</h4>
+                                    <div class="flex items-center gap-1.5 shrink-0 mt-1">
+                                        {% if item.category %}
+                                        <span class="text-[10px] font-bold text-[#65518a] bg-[#d6beff4d] px-2 py-0.5 rounded-md">{{ item.category }}</span>
+                                        {% endif %}
+                                        <span class="text-[10px] font-bold text-primary bg-primary-container px-2.5 py-1 rounded-full">{% if item.timecourse >= 12 %}{% if item.timecourse == 12 %}1 歲{% elif item.timecourse == 18 %}1 歲 6 個月{% elif item.timecourse == 24 %}2 歲{% elif item.timecourse == 36 %}3 歲{% else %}{{ item.timecourse }} 個月{% endif %}{% else %}{{ item.timecourse }} 個月{% endif %}</span>
+                                    </div>
                                 </div>
-
-                                <div class="grid gap-4">
-                                    {% for status in item.baby_statuses %}
-                                        <article class="flex flex-col md:flex-row gap-6 bg-surface-container-low/50 p-6 rounded-[1.5rem] hover:bg-surface-container-low transition-colors duration-300 border border-surface-container-highest/30">
-                                            <div class="flex-grow">
-                                                <h4 class="font-headline text-xl font-bold text-on-surface mb-3">{{ status.baby_name }} - {{ status.record_date|date:"Y年 m月 d日" }}</h4>
-                                                {% if status.milestones %}
-                                                <div class="flex flex-wrap gap-2 mb-4">
-                                                    {% for milestone in status.milestones %}
-                                                    <span class="inline-flex items-center rounded-full bg-primary-container px-3 py-1 text-xs font-semibold text-primary">{{ milestone }}</span>
-                                                    {% endfor %}
-                                                </div>
-                                                {% endif %}
-                                                <p class="text-on-surface-variant leading-relaxed text-sm mb-4 whitespace-pre-wrap">{{ status.record }}</p>
-                                                {% if status.photo %}
-                                                    <div class="w-full md:w-48 h-48 rounded-[1.25rem] overflow-hidden flex-shrink-0 shadow-sm">
-                                                        <img alt="{{ status.baby_name }}" class="w-full h-full object-cover" src="{{ status.photo }}"/>
-                                                    </div>
-                                                {% else %}
-                                                    <div class="w-full md:w-48 h-48 rounded-[1.25rem] overflow-hidden flex-shrink-0 bg-surface-container flex items-center justify-center shadow-sm">
-                                                        <span class="material-symbols-outlined text-4xl text-primary-container">image</span>
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                        </article>
-                                    {% empty %}
-                                        <div class="bg-surface-container-low/50 p-6 rounded-[1.5rem] text-center text-on-surface-variant border border-surface-container-highest/30">
-                                            <p class="text-sm">此成長地圖尚無記錄</p>
+                                <p class="text-on-surface-variant text-sm">{{ item.description }}</p>
+                                <div class="flex items-center gap-1.5 text-xs text-outline font-medium mt-1 mb-2">
+                                    <span class="material-symbols-outlined text-xs">verified</span>
+                                    <span>{{ item.achieved_date }} 達成</span>
+                                </div>
+                                
+                                {% if item.photo %}
+                                    <!-- Attached Media Highlight -->
+                                    <div class="flex gap-2">
+                                        <div class="w-16 h-16 rounded-xl overflow-hidden shadow-sm hover:scale-105 transition-transform duration-300">
+                                            <img src="{{ item.photo }}" class="w-full h-full object-cover">
                                         </div>
-                                    {% endfor %}
-                                </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="bg-tertiary-container/30 p-12 rounded-[1.5rem] flex flex-col items-center justify-center text-center border border-surface-container-highest/20">
-                        <span class="material-symbols-outlined text-6xl text-primary-container mb-4" style="font-variation-settings: 'FILL' 1;">folder_open</span>
-                        <h3 class="font-headline text-2xl font-bold mb-2">暫無成長地圖</h3>
-                        <p class="text-on-surface-variant">建立第一筆成長記錄，開始珍貴的回憶之旅</p>
+                    {% elif item.status == 'in_progress' %}
+                        <!-- Milestone: In Progress (Next Goal) -->
+                        <div class="relative animate-fade-in">
+                            <div class="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white z-10 ring-4 ring-primary-container shadow-sm">
+                                <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">stars</span>
+                            </div>
+                            <div class="flex flex-col gap-3">
+                                <div class="flex justify-between items-start gap-4">
+                                    <h4 class="font-bold text-primary text-base md:text-lg flex-1">{{ item.growthrecord }}</h4>
+                                    <div class="flex items-center gap-1.5 shrink-0 mt-1">
+                                        {% if item.category %}
+                                        <span class="text-[10px] font-bold text-[#65518a] bg-[#d6beff4d] px-2 py-0.5 rounded-md">{{ item.category }}</span>
+                                        {% endif %}
+                                        <span class="text-[10px] font-bold text-primary bg-primary-container px-2.5 py-1 rounded-full">{% if item.timecourse >= 12 %}{% if item.timecourse == 12 %}1 歲{% elif item.timecourse == 18 %}1 歲 6 個月{% elif item.timecourse == 24 %}2 歲{% elif item.timecourse == 36 %}3 歲{% else %}{{ item.timecourse }} 個月{% endif %}{% else %}{{ item.timecourse }} 個月{% endif %}</span>
+                                    </div>
+                                </div>
+                                <p class="text-on-surface-variant text-sm border-l-2 border-primary-container pl-3 py-1 bg-primary/5 rounded-r-xl pr-3">{{ item.description }}</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Milestone: Pending -->
+                        <div class="relative opacity-60">
+                            <div class="absolute -left-[30px] top-1 w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant z-10">
+                                <div class="w-2 h-2 rounded-full bg-outline"></div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <div class="flex justify-between items-start gap-4">
+                                    <h4 class="font-bold text-on-surface-variant text-base md:text-lg flex-1">{{ item.growthrecord }}</h4>
+                                    <div class="flex items-center gap-1.5 shrink-0 mt-1">
+                                        {% if item.category %}
+                                        <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-md">{{ item.category }}</span>
+                                        {% endif %}
+                                        <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">預計 {% if item.timecourse >= 12 %}{% if item.timecourse == 12 %}1 歲{% elif item.timecourse == 18 %}1 歲 6 個月{% elif item.timecourse == 24 %}2 歲{% elif item.timecourse == 36 %}3 歲{% else %}{{ item.timecourse }} 個月{% endif %}{% else %}{{ item.timecourse }} 個月{% endif %}</span>
+                                    </div>
+                                </div>
+                                <p class="text-on-surface-variant text-sm">{{ item.description }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="py-16 text-center text-on-surface-variant">
+                        <span class="material-symbols-outlined text-5xl text-outline mb-2">timeline</span>
+                        <p class="text-sm font-semibold">暫無成長里程碑地圖</p>
                     </div>
-                {% endif %}
+                {% endfor %}
+
             </div>
         </section>
     </main>
-
-    <button class="fixed bottom-28 right-6 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-xl transition-all active:scale-95 hover:scale-110 z-[60]">
-        <span class="material-symbols-outlined text-2xl" data-icon="edit_square">edit_square</span>
-    </button>
 </div>
 {% endblock %}
