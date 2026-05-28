@@ -4,10 +4,71 @@ import datetime
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect, get_object_or_404
-from core.models import BabyInformation, BabyRecord
+from core.models import BabyInformation, BabyRecord, BabyGrowthMap, BabyStatus
+from django.db.models import Q
 from django.utils import timezone
 
 MILESTONE_PREFIX = '里程碑：'
+
+
+def _calculate_age_in_months(birthdaytime, record_date):
+    if not birthdaytime or not record_date:
+        return None
+    
+    if isinstance(birthdaytime, datetime.datetime):
+        birth_date = birthdaytime.date()
+    elif isinstance(birthdaytime, datetime.date):
+        birth_date = birthdaytime
+    else:
+        try:
+            birth_date = datetime.date.fromisoformat(str(birthdaytime)[:10])
+        except Exception:
+            return None
+
+    if isinstance(record_date, datetime.datetime):
+        rec_date = record_date.date()
+    elif isinstance(record_date, datetime.date):
+        rec_date = record_date
+    else:
+        try:
+            rec_date = datetime.date.fromisoformat(str(record_date)[:10])
+        except Exception:
+            return None
+
+    delta = rec_date - birth_date
+    if delta.days < 0:
+        return 0
+        
+    # 以 30.4375 天為一個月計算月齡
+    age_in_months = int(delta.days / 30.4375)
+    return age_in_months
+
+
+def _get_relevant_timecourses(age_in_months):
+    if age_in_months is None:
+        return None
+        
+    if age_in_months <= 0:
+        age_in_months = 1
+        
+    if age_in_months <= 11:
+        m = max(1, age_in_months)
+        courses = {max(1, m - 1), m, m + 1}
+        return sorted(list(courses))
+    elif age_in_months == 12:
+        return [11, 12, 18]
+    elif age_in_months < 18:
+        return [12, 18]
+    elif age_in_months == 18:
+        return [12, 18, 24]
+    elif age_in_months < 24:
+        return [18, 24]
+    elif age_in_months == 24:
+        return [18, 24, 36]
+    elif age_in_months < 36:
+        return [24, 36]
+    else:
+        return [36]
 
 
 def _parse_int(value, default):
@@ -90,7 +151,10 @@ def _split_note_and_milestones(text):
     if text.startswith(MILESTONE_PREFIX):
         first_line, _, rest = text.partition('\n')
         milestones_part = first_line[len(MILESTONE_PREFIX):].strip()
-        milestones = [m.strip() for m in milestones_part.split(',') if m.strip()]
+        if '|' in milestones_part:
+            milestones = [m.strip() for m in milestones_part.split('|') if m.strip()]
+        else:
+            milestones = [m.strip() for m in milestones_part.split(',') if m.strip()]
         return milestones, rest.strip()
     return [], text
 
@@ -218,6 +282,119 @@ def _get_active_baby(request):
     return baby
 
 
+def _get_baby_milestones_summary(baby):
+    if not baby:
+        return []
+
+    growth_maps = BabyGrowthMap.objects.all().order_by('timecourse')
+    baby_records = list(BabyRecord.objects.filter(baby=baby))
+
+    DEFAULT_DESCRIPTIONS = {
+        # 0-6 個月
+        '對巨大聲音有反應': '聽到突如其來的巨大聲響時，會出現驚嚇、眼睛睜大或哭泣等自然反射動作。',
+        '眼睛注視照顧者的臉': '當大人靠近並溫柔說話時，雙眼能主動追隨注視照顧者的臉龐或面部表情。',
+        '逗弄時會微笑及發出咿呀聲': '在照顾者的引導逗樂下，會展現出甜美的微笑，並嘗試發出簡單的「啊」、「喔」咿呀聲。',
+        '趴臥時頭部能短暫抬起': '趴著時，能嘗試將頭部抬起離地數秒，展示頸部肌肉力量的初步發展。',
+        '抬頭自如': '趴著時能穩定用雙手手肘支撐，將頭部高高抬起並觀察四周，持續時間變長。',
+        '眼睛能追視移動的物體或人': '雙眼能順暢、對焦地隨著左右緩慢移動的人臉或玩具移動，視野開闊度增加。',
+        '第一次翻身': '成功從仰躺翻轉成趴姿，學習控制身體與軀幹的力量。',
+        '會主動伸手抓握玩具': '看到眼前感興趣的玩具或懸掛物時，會主動伸出小手去碰觸或緊緊抓握住。',
+        # 6-12 個月
+        '扶著腋下可以站得很穩': '雙手扶在雙腳著地時，能短暫站直並用雙腿支撐部分身體重量。',
+        '會將玩具從一隻手換到另一隻手': '左右手協調度提升，能順暢地將手中的玩具在雙手之間轉移與把玩。',
+        '獨立坐穩': '不需外力支撐可自己平穩坐立超過 5 分鐘，正在穩健學習平衡中。',
+        '開始爬行': '肚子離地，能用雙手與雙膝支撐身體並協調地往前爬行，探索更大空間。',
+        '扶物站立': '能抓住沙發、家具或欄杆自己站立起來，大腿與腳部力量逐步增強。',
+        '會拍手或揮手表示再見': '能模仿大人的肢體動作，主動做出拍手慶祝或揮手說再見的社交互動。',
+        # 1-2 歲
+        '開口叫媽媽': '嘗試發出有意義的單音或疊字（如媽媽、爸爸、奶奶），開啟語言雙向溝通。',
+        '扶著家具能走幾步路': '能抓著家具邊緣橫向跨步，或牽著大人的雙手向前跨出步伐。',
+        '能獨自站立並平穩行走': '不需任何扶持能自己站穩，並能獨立向前跨步，走得平穩且自然。',
+        '會用手指指出想要的東西': '當想索取某樣物品或看到感興趣的事物時，會主動用食指指向該方向表達意願。',
+        '會自己用湯匙吃東西': '手眼協調能力提升，能嘗試自己用湯匙舀起食物並成功送入口中。',
+        '能指認至少3個身體部位': '當大人詢問時，能正確指認並摸摸自己的眼睛、鼻子、嘴巴或耳朵等身體部位。',
+        # 2-3 歲
+        '雙腳能同時跳離地面': '下肢爆發力與平衡感成熟，能在原地做出雙腳同時跳起離地的可愛動作。',
+        '會說 2-3 個字組成的短句子': '語言表達能力大躍進，能說出如「媽媽抱抱」、「吃大蘋果」等兩個以上詞彙組成的短句。',
+        '會自己脫鞋襪或簡單衣物': '生活自理能力萌芽，能自己動手脫掉小鞋子、襪子或解開簡單的小衣物。',
+        '能清楚說出自己的名字': '自我意識與語言認知成熟，當被問起時能清晰且驕傲地說出自己的小名或完整名字。',
+        '學會騎三輪車': '雙腿交替用力與方向控制能力提升，能用雙腳踩踏板並順暢騎乘三輪玩具車。',
+        '能與大人進行流暢的日常對話': '字彙量與文法結構完整，能主動詢問問題、回答照顧者的對話並清晰表達自己的想法。',
+    }
+
+    growth_timeline = []
+    found_in_progress = False
+
+    for growth_map in growth_maps:
+        baby_statuses = list(BabyStatus.objects.filter(babygrowthmap=growth_map, babyrecord__baby=baby))
+        is_completed = len(baby_statuses) > 0
+        matching_record = None
+
+        if is_completed:
+            matching_record = baby_statuses[0].babyrecord
+        else:
+            # 備用文字比對
+            for rec in baby_records:
+                milestones, note_text = _split_note_and_milestones(rec.record)
+                if growth_map.growthrecord in milestones:
+                    is_completed = True
+                    matching_record = rec
+                    break
+
+        item_status = 'pending'
+        achieved_date_str = None
+        description = ""
+
+        if is_completed and matching_record:
+            item_status = 'completed'
+            milestones, note_text = _split_note_and_milestones(matching_record.record)
+            achieved_date_str = matching_record.date.strftime('%Y.%m.%d') if hasattr(matching_record.date, 'strftime') else str(matching_record.date)
+            description = note_text.strip() or DEFAULT_DESCRIPTIONS.get(growth_map.growthrecord)
+            if not description:
+                description = f'恭喜寶寶達成「{growth_map.growthrecord}」里程碑！'
+        else:
+            if not found_in_progress:
+                item_status = 'in_progress'
+                found_in_progress = True
+            else:
+                item_status = 'pending'
+
+            desc_key = growth_map.growthrecord
+            if '新生兒' in desc_key:
+                description = '趴趴抬頭練習與新手父母撫摸擁抱，增強肌張力。'
+            elif '快速適應' in desc_key:
+                description = '開始追視移動物體與對聲音轉頭，逐漸熟悉外界環境。'
+            else:
+                description = DEFAULT_DESCRIPTIONS.get(desc_key)
+                if not description:
+                    description = f'引導與觀察寶寶在 {growth_map.timecourse} 個月左右時「{desc_key}」的成長變化。'
+
+        growth_timeline.append({
+            'growthrecord': growth_map.growthrecord,
+            'timecourse': growth_map.timecourse,
+            'status': item_status,
+            'achieved_date': achieved_date_str,
+            'description': description,
+        })
+
+    completed_items = [item for item in growth_timeline if item['status'] == 'completed']
+    in_progress_items = [item for item in growth_timeline if item['status'] == 'in_progress']
+    pending_items = [item for item in growth_timeline if item['status'] == 'pending']
+
+    summary_list = []
+    if completed_items:
+        summary_list.append(completed_items[-1])  # 顯示最後一個已達成的
+    if in_progress_items:
+        summary_list.extend(in_progress_items)  # 顯示目前進行中的下一個目標
+    if pending_items:
+        summary_list.append(pending_items[0])  # 顯示後續的第一個期待
+
+    if not summary_list:
+        summary_list = growth_timeline[:3]
+
+    return summary_list[:3]
+
+
 def baby(request):
     baby = _get_active_baby(request)
     records = []
@@ -246,6 +423,7 @@ def baby(request):
                 summary['photo_url'] = r.photo
                 break
 
+    milestones_summary = _get_baby_milestones_summary(baby)
 
     context = {
         'baby': baby,
@@ -255,6 +433,7 @@ def baby(request):
         'selected_date': selected_date,
         'selected_day_record': selected_day_record,
         'has_day_data': bool(selected_day_record),
+        'milestones_summary': milestones_summary,
     }
     context.update(_get_calendar_data(records, selected_date))
 
@@ -297,8 +476,10 @@ def add_baby_record(request):
             })
 
         photo_url = _save_uploaded_image(request.FILES.get('photo'))
-        record_text = _build_record_text(request.POST.get('record', ''), request.POST.get('milestones', ''))
-        BabyRecord.objects.create(
+        milestones_str = request.POST.get('milestones', '')
+        record_text = _build_record_text(request.POST.get('record', ''), milestones_str)
+        
+        baby_record = BabyRecord.objects.create(
             baby=baby,
             date=date,
             record=record_text,
@@ -308,13 +489,47 @@ def add_baby_record(request):
             chestcircumference=_parse_float(request.POST.get('chestcircumference')),
             photo=photo_url,
         )
+        
+        # 建立里程碑關係對應，使成長地圖頁面能即時反映
+        milestone_names = [m.strip() for m in milestones_str.split('|') if m.strip()]
+        for m_name in milestone_names:
+            growth_map = BabyGrowthMap.objects.filter(growthrecord=m_name).first()
+            if growth_map:
+                BabyStatus.objects.get_or_create(
+                    babyrecord=baby_record,
+                    babygrowthmap=growth_map
+                )
+                
         return redirect('babyinformation')
 
     baby_list = BabyInformation.objects.all()
+    try:
+        record_date = datetime.date.fromisoformat(initial_date) if initial_date else datetime.date.today()
+    except Exception:
+        record_date = datetime.date.today()
+
+    age_in_months = _calculate_age_in_months(baby.birthdaytime, record_date)
+    relevant_courses = _get_relevant_timecourses(age_in_months)
+
+    # 找出該寶寶過去已勾選並儲存的所有里程碑 ID 列表
+    achieved_ids = BabyStatus.objects.filter(babyrecord__baby=baby).values_list('babygrowthmap_id', flat=True)
+
+    if relevant_courses:
+        all_milestones = BabyGrowthMap.objects.filter(
+            timecourse__in=relevant_courses
+        ).exclude(
+            babygrowthmap_id__in=achieved_ids
+        ).order_by('timecourse')
+    else:
+        all_milestones = BabyGrowthMap.objects.all().exclude(
+            babygrowthmap_id__in=achieved_ids
+        ).order_by('timecourse')
+
     return render(request, 'baby/add_baby_record.html', {
         'baby': baby,
         'baby_list': baby_list,
-        'form_data': {'date': initial_date},
+        'all_milestones': all_milestones,
+        'form_data': {'date': record_date.isoformat()},
         'milestones': '',
     })
 
@@ -334,7 +549,8 @@ def edit_baby_record(request, babyrecord_id):
             })
 
         record.date = date
-        record.record = _build_record_text(request.POST.get('record', ''), request.POST.get('milestones', ''))
+        milestones_str = request.POST.get('milestones', '')
+        record.record = _build_record_text(request.POST.get('record', ''), milestones_str)
         record.weight = _parse_float(request.POST.get('weight'))
         record.height = _parse_float(request.POST.get('height'))
         record.headcircumference = _parse_float(request.POST.get('headcircumference'))
@@ -344,12 +560,50 @@ def edit_baby_record(request, babyrecord_id):
             record.photo = photo_url
         record.update_time = timezone.now()
         record.save()
+
+        # 同步更新里程碑關係對應
+        BabyStatus.objects.filter(babyrecord=record).delete()
+        milestone_names = [m.strip() for m in milestones_str.split('|') if m.strip()]
+        for m_name in milestone_names:
+            growth_map = BabyGrowthMap.objects.filter(growthrecord=m_name).first()
+            if growth_map:
+                BabyStatus.objects.create(
+                    babyrecord=record,
+                    babygrowthmap=growth_map
+                )
+
         return redirect('babyinformation')
+
+    # 根據紀錄當天的日期計算寶寶月齡，並動態過濾
+    record_date = record.date
+    baby = record.baby
+    age_in_months = _calculate_age_in_months(baby.birthdaytime, record_date)
+    relevant_courses = _get_relevant_timecourses(age_in_months)
+
+    # 找出除了目前編輯的這一篇紀錄之外，該寶寶在其他篇紀錄已達成的里程碑 ID 列表
+    achieved_ids_other = BabyStatus.objects.filter(
+        babyrecord__baby=baby
+    ).exclude(
+        babyrecord=record
+    ).values_list('babygrowthmap_id', flat=True)
+
+    if relevant_courses:
+        # 除了時間區間內，也要包含該紀錄本身已勾選的里程碑以防遺失，但需排除其他天已達成的里程碑
+        all_milestones = BabyGrowthMap.objects.filter(
+            Q(timecourse__in=relevant_courses) | Q(growthrecord__in=record.milestones)
+        ).exclude(
+            babygrowthmap_id__in=achieved_ids_other
+        ).distinct().order_by('timecourse')
+    else:
+        all_milestones = BabyGrowthMap.objects.all().exclude(
+            babygrowthmap_id__in=achieved_ids_other
+        ).order_by('timecourse')
 
     return render(request, 'baby/edit_baby_record.html', {
         'record': record,
+        'all_milestones': all_milestones,
         'form_data': {'record': record.note_text},
-        'selected_milestones': ','.join(record.milestones),
+        'selected_milestones': '|'.join(record.milestones),
     })
 
 

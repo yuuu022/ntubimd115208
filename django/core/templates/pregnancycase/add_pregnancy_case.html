@@ -7,15 +7,15 @@
 {% endblock %}
 {% block content %}
 <div class="bg-surface text-on-surface min-h-screen pb-32">
-    <!-- Header Section -->
-    <header class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <!-- Title Section -->
+    <div class="flex justify-between items-center px-6 py-4 w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64 mt-4">
         <div class="flex items-center gap-3">
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
             </button>
-            <h1 class="font-headline font-semibold tracking-tight text-lg text-primary">新增懷孕胎數</h1>
+            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">新增懷孕胎數</h1>
         </div>
-    </header>
+    </div>
 
     <!-- Main Content -->
     <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
@@ -81,14 +81,14 @@
 
                     <!-- 出生時間與週數 -->
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
+                        <div class="space-y-2" id="birthdaytime-container">
                             <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時間</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                                <input type="datetime-local" name="birthdaytime" class="w-full bg-surface-container-low border-none rounded-xl pl-11 pr-3 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                                <input type="datetime-local" id="birthdaytime-input" name="birthdaytime" class="w-full bg-surface-container-low border-none rounded-xl pl-11 pr-3 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                             </div>
                         </div>
-                        <div class="space-y-2">
+                        <div class="space-y-2 hidden" id="birth-week-container">
                             <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時週數</label>
                             <div class="relative">
                                 <input type="number" min="20" max="45" placeholder="週數" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
@@ -100,7 +100,7 @@
             </section>
 
             <!-- Section 3: Birth Vitals -->
-            <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
+            <section id="birth-vitals-section" class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high hidden">
                 <div class="flex items-center gap-2 mb-6">
                     <div class="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center">
                         <span class="material-symbols-outlined text-secondary text-[20px]">monitor_weight</span>
@@ -168,4 +168,39 @@
         </form>
     </main>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const birthdaytimeInput = document.getElementById('birthdaytime-input');
+        const birthdaytimeContainer = document.getElementById('birthdaytime-container');
+        const birthWeekContainer = document.getElementById('birth-week-container');
+        const birthVitalsSection = document.getElementById('birth-vitals-section');
+
+        if (!birthdaytimeInput || !birthdaytimeContainer || !birthWeekContainer || !birthVitalsSection) {
+            return;
+        }
+
+        function toggleBirthInfo() {
+            const hasValue = !!birthdaytimeInput.value;
+            if (hasValue) {
+                birthWeekContainer.classList.remove('hidden');
+                birthVitalsSection.classList.remove('hidden');
+                birthdaytimeContainer.classList.remove('col-span-2');
+            } else {
+                birthWeekContainer.classList.add('hidden');
+                birthVitalsSection.classList.add('hidden');
+                birthdaytimeContainer.classList.add('col-span-2');
+            }
+        }
+
+        // Bind event listeners
+        birthdaytimeInput.addEventListener('input', toggleBirthInfo);
+        birthdaytimeInput.addEventListener('change', toggleBirthInfo);
+
+        // Run on initial load
+        toggleBirthInfo();
+    });
+</script>
 {% endblock %}

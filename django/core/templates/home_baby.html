@@ -1,173 +1,39 @@
-<!DOCTYPE html>
+{% extends 'base/base.html' %}
+{% load tz %}
+{% load static %}
 
-<html lang="zh-Hant">
+{% block title %}寶寶首頁{% endblock %}
 
-<head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>The Ethereal Nursery - 首頁</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Be_Vietnam_Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "on-tertiary-fixed-variant": "#6c3f51",
-                        "secondary": "#2f6275",
-                        "surface-dim": "#d4d5d1",
-                        "on-surface": "#2e2f2d",
-                        "on-primary": "#f8efff",
-                        "background": "#f7f6f3",
-                        "surface-bright": "#f7f6f3",
-                        "on-secondary-fixed-variant": "#2b5e71",
-                        "tertiary-fixed-dim": "#e9aec3",
-                        "on-tertiary": "#ffeff2",
-                        "secondary-fixed-dim": "#a4d6ed",
-                        "secondary-fixed": "#b2e4fb",
-                        "surface-tint": "#65518a",
-                        "on-tertiary-fixed": "#4b2334",
-                        "tertiary-container": "#f8bbd0",
-                        "tertiary-fixed": "#f8bbd0",
-                        "inverse-surface": "#0d0f0d",
-                        "error-dim": "#a70138",
-                        "error-container": "#f74b6d",
-                        "on-primary-fixed": "#362459",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-container-highest": "#ddddd9",
-                        "on-secondary-container": "#1f5467",
-                        "surface-container-high": "#e3e3df",
-                        "outline-variant": "#adadab",
-                        "primary-fixed-dim": "#c8b1f0",
-                        "primary-container": "#d6beff",
-                        "tertiary": "#7d4d5f",
-                        "surface-variant": "#ddddd9",
-                        "on-primary-container": "#4b386e",
-                        "outline": "#767775",
-                        "surface-container-low": "#f1f1ee",
-                        "inverse-primary": "#d6beff",
-                        "tertiary-dim": "#6f4253",
-                        "surface-container": "#e8e8e5",
-                        "inverse-on-surface": "#9d9d9a",
-                        "on-secondary-fixed": "#014154",
-                        "surface": "#f7f6f3",
-                        "on-tertiary-container": "#623648",
-                        "on-secondary": "#e4f5ff",
-                        "on-background": "#2e2f2d",
-                        "on-error-container": "#510017",
-                        "on-error": "#ffefef",
-                        "on-surface-variant": "#5b5c5a",
-                        "secondary-container": "#b2e4fb",
-                        "secondary-dim": "#215669",
-                        "primary-fixed": "#d6beff",
-                        "on-primary-fixed-variant": "#544178",
-                        "error": "#b41340",
-                        "primary": "#65518a",
-                        "primary-dim": "#59467d"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "1rem",
-                        "lg": "2rem",
-                        "xl": "3rem",
-                        "full": "9999px"
-                    },
-                    "fontFamily": {
-                        "headline": ["Plus Jakarta Sans"],
-                        "body": ["Be Vietnam Pro"],
-                        "label": ["Be Vietnam Pro"]
-                    }
-                },
-            },
-        };
-    </script>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
+{% block extra_css %}
+<style>
+    .carousel-container::-webkit-scrollbar,
+    .no-scrollbar::-webkit-scrollbar,
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
 
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: #f7f6f3;
-            color: #2e2f2d;
-            min-height: max(884px, 100dvh);
-            overflow-x: hidden;
-        }
+    .carousel-container,
+    .no-scrollbar,
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+{% endblock %}
 
-        h1,
-        h2,
-        h3,
-        .headline {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .carousel-container::-webkit-scrollbar,
-        .no-scrollbar::-webkit-scrollbar,
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .carousel-container,
-        .no-scrollbar,
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
-</head>
-
-<body class="bg-background min-h-screen pb-32">
-    <!-- TopAppBar Updated per Image 9 -->
-    <header class="bg-white/80 dark:bg-stone-900/80 backdrop-blur-md sticky top-0 z-[100] flex justify-between items-center px-6 py-4 w-full md:px-[calc(50vw-21rem)] lg:px-[calc(50vw-24rem)] transition-all duration-500">
-        <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
-            <span class="text-xl font-bold text-[#65518a] font-headline tracking-tight">AuraLink</span>
-        </div>
-        <div class="flex items-center gap-3 relative">
-                                    <!-- Baby Switcher Button -->
-            <button id="baby-switcher-btn" class="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors cursor-pointer group">
-                <div class="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                    <span class="material-symbols-outlined text-primary text-[14px]">face</span>
-                </div>
-                <span class="text-[13px] font-bold text-primary">小寶</span>
-                <span class="material-symbols-outlined text-primary text-[18px]">swap_horiz</span>
-            </button>
-            <!-- Dropdown Menu -->
-            <div id="baby-switcher-menu" class="absolute top-full right-0 mt-2 w-40 bg-white rounded-2xl shadow-xl border border-surface-container-high overflow-hidden opacity-0 pointer-events-none transition-all duration-200 z-[110] transform origin-top-right scale-95">
-                <div class="max-h-56 overflow-y-auto hide-scrollbar flex flex-col">
-                    <button class="w-full text-left px-4 py-3 bg-primary/5 flex items-center justify-between border-b border-surface-container-highest cursor-pointer">
-                        <span class="text-sm font-bold text-primary">小寶</span>
-                        <span class="material-symbols-outlined text-primary text-[16px]">check</span>
-                    </button>
-                    <button class="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors flex items-center justify-between border-b border-surface-container-highest cursor-pointer">
-                        <span class="text-sm font-bold text-on-surface">大寶</span>
-                    </button>
-                    <!-- New Links -->
-                    <button onclick="window.location.href='add_pregnancy_baby.html'" class="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors flex items-center gap-2 cursor-pointer">
-                        <span class="material-symbols-outlined text-[16px] text-primary">pregnant_woman</span>
-                        <span class="text-[13px] font-bold text-primary">新增胎數與小孩</span>
-                    </button>
-                </div>
-            </div>
-    </header>
-    <main class="mx-auto pb-12 max-w-md md:max-w-2xl lg:max-w-3xl mx-auto w-full transition-all duration-500 ease-in-out">
+{% block content %}
+<main class="mx-auto pb-12 max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <!-- Welcome Section -->
         <section class="px-6 py-6 flex justify-between items-end">
             <div class="space-y-1">
                 <p class="text-on-surface-variant text-sm font-medium">早安，媽媽</p>
-                <h1 class="text-3xl font-extrabold text-primary tracking-tight">今天的旅程</h1>
+                <h1 class="text-3xl font-headline font-black text-primary tracking-tight">今天的旅程</h1>
             </div>
-            <a class="flex items-center gap-1.5 text-on-surface-variant font-bold text-xs bg-surface-container-high px-4 py-2 rounded-full hover:bg-surface-container-highest transition-colors"
-                href="history.html">
-                <span class="material-symbols-outlined text-lg" data-icon="history">history</span>
-                <span>歷史回顧</span>
-            </a>
         </section>
-        <!-- Pregnancy Progress Card -->
-        <div class="px-6 mb-8">
-            <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm relative overflow-hidden">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-8 lg:px-6 items-start">
+            <!-- Baby Progress Card -->
+            <div class="px-6 lg:px-0 mb-8 lg:col-span-2">
+                <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm relative overflow-hidden">
                 <div class="flex items-center gap-6">
                     <div
                         class="relative w-24 h-24 flex items-center justify-center bg-secondary-container rounded-full overflow-hidden shrink-0">
@@ -175,290 +41,210 @@
                             src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrKZf3KG9X7eILhFiWKrV_XnVbNzlNNk53ehHHkkcKKCJERwNP49wVlRn3tR5ZhCszTKBPyEpLefs5YJCM8c-f0xNBc7BGb8IOS_Veq4i-9HM3rUIy8Cm2aUGwM7HseTdogavWToiVWXC8ZwHdyIntscQlw_sHGAJM0EbSIGP1_kRsI5Ly_wfRkCcE2lEEgYemQX1r7B6E_L651x2VN9W-dxJP0Ol8pw9Wo3YJPOmtdm8_bMLA2tWtiEsKOvIEBw2YMf4DrGcl8yKb" />
                     </div>
                     <div class="space-y-0.5">
-                        <span class="text-primary font-bold text-sm">目前進度</span>
+                        <span class="text-primary font-headline font-black text-sm uppercase tracking-wider">目前進度</span>
                         <div class="flex items-baseline gap-1">
-                            <span class="text-4xl font-extrabold text-primary tracking-tighter">24</span>
+                            <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ baby_weeks }}</span>
                             <span class="text-lg font-bold text-on-surface-variant">w</span>
-                            <span class="text-4xl font-extrabold text-primary tracking-tighter">4</span>
+                            <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ baby_days }}</span>
                             <span class="text-lg font-bold text-on-surface-variant">d</span>
                         </div>
-                        <p class="text-on-surface-variant text-[11px] font-medium leading-tight">寶寶現在大約像一個哈密瓜</p>
+                        <p class="text-on-surface-variant text-[11px] font-medium leading-tight">您的寶貝正在一天天著實成長！</p>
                     </div>
                 </div>
                 <div class="mt-8 h-2 w-full bg-secondary-container rounded-full overflow-hidden">
-                    <div class="h-full w-[60%] bg-primary rounded-full"></div>
+                    <div class="h-full bg-primary rounded-full" style="width: {{ baby_percent }}%;"></div>
                 </div>
                 <div class="flex justify-between mt-2">
                     <span class="text-[10px] font-bold text-on-surface-variant/60">第 1 週</span>
-                    <span class="text-[10px] font-bold text-on-surface-variant/60">第 40 週</span>
+                    <span class="text-[10px] font-bold text-on-surface-variant/60">第 52 週</span>
                 </div>
             </div>
         </div>
-        <!-- Today's Checklist - Updated to match style in SCREEN_8 -->
-        <div class="px-6 mb-8">
-            <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm flex flex-col space-y-4">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="flex flex-col">
-                        <h3 class="font-bold text-primary text-lg">清單</h3>
+            <!-- Today's Checklist -->
+            <div class="px-6 lg:px-0 mb-8">
+                <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm flex flex-col space-y-4" data-selected-date="{{ selected_date_iso }}" data-today-date="{{ today_iso }}">
+                    <div class="flex justify-between items-center gap-4 mb-1">
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-xl font-headline font-black text-primary flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[24px]">playlist_add_check</span>
+                                代辦清單
+                            </h3>
+                        </div>
+                        <button onclick="window.location.href='/add_care_reminder/?date={{ selected_date_iso }}&from=home_baby'"
+                            class="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary/20 active:scale-90 transition-colors cursor-pointer shrink-0">
+                            <span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+                        </button>
                     </div>
-                    <button onclick="window.location.href='add_care_reminder.html'"
-                        class="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary/20 active:scale-90 transition-colors cursor-pointer">
-                        <span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+
+                <div class="flex items-center gap-2">
+                    <button id="care-range-prev-btn" type="button" class="w-8 h-8 rounded-full hover:bg-primary/10 text-primary font-bold">&lt;</button>
+                    <button id="care-date-picker-btn" type="button" class="inline-flex items-center cursor-pointer group hover:bg-primary/5 px-4 py-2 rounded-xl transition-colors">
+                        <span id="care-date-picker-text" class="text-primary font-headline font-bold text-base tracking-tight flex items-center gap-1">
+                            {{ selected_month_label }}
+                            <span class="material-symbols-outlined text-primary text-[20px]">keyboard_arrow_down</span>
+                        </span>
                     </button>
+                    <button id="care-range-next-btn" type="button" class="w-8 h-8 rounded-full hover:bg-primary/10 text-primary font-bold">&gt;</button>
+                    <button id="care-today-btn" type="button" class="ml-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 text-sm font-bold transition-all cursor-pointer">今天</button>
                 </div>
 
-                <!-- Horizontal Date List -->
-                <div class="flex overflow-x-auto gap-3 pb-4 scrollbar-hide snap-x touch-pan-x -mx-2 px-2">
-                    <!-- Date Example 1 -->
-                    <div data-date="28" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
-                        <span class="text-[10px] font-bold uppercase">一</span>
-                        <span class="text-sm font-bold mt-1">10/28</span>
-                    </div>
-                    <!-- Date Example 2 -->
-                    <div data-date="29" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
-                        <span class="text-[10px] font-bold uppercase">二</span>
-                        <span class="text-sm font-bold mt-1">10/29</span>
-                    </div>
-                    <!-- Date Example 3 -->
-                    <div data-date="30" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
-                        <span class="text-[10px] font-bold uppercase">三</span>
-                        <span class="text-sm font-bold mt-1">10/30</span>
-                    </div>
-                    <!-- Date Example 4 (Active) -->
-                    <div data-date="31" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-primary text-white shadow-lg shadow-primary/30 snap-center transition-colors transform scale-105">
-                        <span class="text-[10px] font-bold opacity-90 uppercase">四</span>
-                        <span class="text-sm font-bold mt-1 text-white">10/31</span>
-                    </div>
-                    <!-- Date Example 5 -->
-                    <div data-date="1" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
-                        <span class="text-[10px] font-bold uppercase">五</span>
-                        <span class="text-sm font-bold mt-1">11/1</span>
-                    </div>
-                    <!-- Date Example 6 -->
-                    <div data-date="2" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
-                        <span class="text-[10px] font-bold uppercase">六</span>
-                        <span class="text-sm font-bold mt-1">11/2</span>
-                    </div>
-                    <!-- Date Example 7 -->
-                    <div data-date="3" class="date-btn cursor-pointer flex flex-col items-center justify-center min-w-[4rem] py-3 rounded-2xl bg-surface-container-low text-on-surface-variant snap-center transition-colors">
-                        <span class="text-[10px] font-bold uppercase">日</span>
-                        <span class="text-sm font-bold mt-1">11/3</span>
+                <div class="relative">
+                    <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-surface-container-lowest to-transparent"></div>
+                    <div id="care-day-strip" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory">
+                        {% for day in care_day_cards %}
+                            <a href="?date={{ day.date_iso }}" class="min-w-[4.5rem] snap-start rounded-2xl border px-3 py-3 text-center transition-all {% if day.is_selected %}bg-primary text-white border-primary shadow-md{% else %}bg-white border-surface-container-high hover:border-primary/30 hover:bg-primary/5{% endif %}">
+                                <div class="text-[10px] font-bold tracking-wide {% if day.is_selected %}text-white/80{% else %}text-on-surface-variant{% endif %}">{{ day.weekday }}</div>
+                                <div class="mt-1 text-xl font-extrabold leading-none {% if day.is_selected %}text-white{% else %}text-on-surface{% endif %}">{{ day.day }}</div>
+                                <div class="mt-1 text-[10px] font-bold {% if day.is_selected %}text-white/80{% else %}text-on-surface-variant{% endif %}">{{ day.month_label }}</div>
+                                {% if day.has_record %}
+                                    <div class="mt-2 inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[9px] font-bold {% if day.is_selected %}bg-white/15 text-white{% else %}bg-primary/10 text-primary{% endif %}">{{ day.completion }}</div>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
                     </div>
                 </div>
 
-                <div class="mb-2 mt-2 flex flex-col gap-2">
+                <div class="mb-2 mt-1 flex flex-col gap-2">
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-on-surface">進度</span>
-                        <span id="checklist-progress" class="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">2/6</span>
+                        <span class="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">{{ care_done_count }}/{{ care_total_count }}</span>
                     </div>
                     <div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
-                        <div id="checklist-progress-bar" class="bg-primary h-full rounded-full transition-all duration-300" style="width: 33.3%;"></div>
+                        <div class="bg-primary h-full rounded-full transition-all duration-300" style="width: {{ care_progress_percent }}%;"></div>
                     </div>
                 </div>
-                <div class="relative group">
-                    <div
-                        class="flex overflow-x-auto gap-4 scrollbar-hide snap-x snap-mandatory pb-2 carousel-container">
-                        <!-- Card 1 (Current List) -->
-                        <div id="checklist-container" class="min-w-full snap-start space-y-4">
-                            <!-- Task Item 1 -->
-                            <div class="flex items-center gap-4">
-                                <div class="w-6 h-6 rounded-md bg-[#d6beff] flex items-center justify-center shrink-0">
+
+                <div class="space-y-3 pt-1">
+                    {% if care_records %}
+                        {% for care in care_records %}
+                        <div class="flex items-start gap-3">
+                            <form method="post" action="{% url 'set_care_status' %}" class="shrink-0">
+                                {% csrf_token %}
+                                <input type="hidden" name="carerecord_id" value="{{ care.carerecord_id }}">
+                                <input type="hidden" name="selected_date" value="{{ selected_date_iso }}">
+                                <input type="hidden" name="state" value="{% if care.state %}0{% else %}1{% endif %}">
+                                <input type="hidden" name="redirect_to" value="/home_baby/">
+                                <button type="submit" class="w-6 h-6 rounded-md {% if care.state %}bg-[#d6beff]{% else %}border-2 border-[#d6beff]{% endif %} flex items-center justify-center cursor-pointer" aria-label="切換提醒完成狀態">
+                                    {% if care.state %}
                                     <span class="material-symbols-outlined text-primary text-sm font-bold">check</span>
+                                    {% endif %}
+                                </button>
+                            </form>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="text-sm font-bold text-primary shrink-0">{{ care.recordtime|localtime|date:'H:i' }}</span>
+                                    <span class="text-sm font-semibold {% if care.state %}text-on-surface/50 line-through{% else %}text-on-surface{% endif %} truncate">{{ care.content }}</span>
                                 </div>
-                                <div class="flex-1 flex items-center gap-2">
-                                    <p class="text-xs font-semibold text-on-surface/50 line-through">補充葉酸</p>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant text-[18px]">schedule</span>
-                            </div>
-                            <!-- Task Item 2 -->
-                            <div class="flex items-center gap-4">
-                                <div class="w-6 h-6 rounded-md bg-[#d6beff] flex items-center justify-center shrink-0">
-                                    <span class="material-symbols-outlined text-primary text-sm font-bold">check</span>
-                                </div>
-                                <div class="flex-1 flex items-center gap-2">
-                                    <p class="text-xs font-semibold text-on-surface/50 line-through">產前運動 20m</p>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant text-xl">self_care</span>
-                            </div>
-                            <!-- Task Item 3 -->
-                            <div class="flex items-center gap-4">
-                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
-                                <div class="flex-1 flex items-center gap-2">
-                                    <p class="text-xs font-semibold text-on-surface">產檢提醒</p>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant text-[18px]">event</span>
-                            </div>
-                            <!-- Task Item 4 -->
-                            <div class="flex items-center gap-4">
-                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
-                                <div class="flex-1 flex items-center gap-2">
-                                    <p class="text-xs font-semibold text-on-surface">紀錄胎動</p>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant text-[18px]">monitor_heart</span>
-                            </div>
-                            <!-- Task Item 5 -->
-                            <div class="flex items-center gap-4">
-                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
-                                <div class="flex-1 flex items-center gap-2">
-                                    <p class="text-xs font-semibold text-on-surface">喝水 2000cc</p>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant text-[18px]">water_drop</span>
-                            </div>
-                            <div id="extra-checklist-items" class="hidden flex-col gap-4 mt-4">
-                            <!-- Task Item 6 -->
-                            <div class="flex items-center gap-4">
-                                <div class="w-6 h-6 rounded-md border-2 border-[#d6beff] shrink-0"></div>
-                                <div class="flex-1 flex items-center gap-2">
-                                    <p class="text-xs font-semibold text-on-surface">吃鈣片</p>
-                                </div>
-                                <span class="material-symbols-outlined text-outline-variant text-[18px]">medication</span>
-                            </div>
                             </div>
                         </div>
-                        <!-- Partial Next Card Edge -->
-                        <div class="min-w-[20%] snap-start opacity-40">
-                            <div class="h-full w-full border-l-2 border-primary-container/30"></div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="rounded-2xl bg-surface-container-low py-6 px-4 text-center">
+                            <p class="text-xs font-semibold text-on-surface-variant">這一天沒有照顧提醒</p>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
-                <button id="checklist-toggle-btn" class="w-full flex justify-center items-center gap-1 py-2 text-[10px] font-bold text-primary">
-                    <span>查看更多</span>
-                    <span class="material-symbols-outlined text-xs"
-                        data-icon="keyboard_arrow_down">keyboard_arrow_down</span>
-                </button>
             </div>
         </div>
-        <!-- Refined Growth Chart -->
-        <!-- Third Card: Growth Chart -->
-        <div
-            class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(46,47,45,0.06)] space-y-6 mx-6 mb-8">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-primary flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary" data-icon="monitoring">monitoring</span>
-                    生長趨勢
-                </h3>
-                <div class="flex bg-surface-container-low p-1 rounded-full text-[10px] font-bold">
-                    <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='index.html'" class="px-4 py-1.5 rounded-full text-on-surface-variant">媽媽</button>
-                    <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='home_baby.html'" class="px-4 py-1.5 rounded-full bg-white text-primary shadow-sm">寶寶</button>
-                </div>
-            </div>
-                        <div class="flex gap-2">
-                <button id="height-btn" class="px-4 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant text-[10px] font-bold transition-colors">身高</button>
-                <button id="weight-btn" class="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold transition-colors">體重</button>
-            </div>
 
-            <!-- Standard Full Line Chart Graphic -->
-            <div class="relative h-56 w-full mt-4 flex">
-                <!-- Y-Axis Labels -->
-                <div id="y-axis-labels" class="flex flex-col justify-between text-[9px] font-bold text-on-surface-variant/50 pr-2 pb-6">
-                    <span>800g</span>
-                    <span>600g</span>
-                    <span>400g</span>
-                    <span>200g</span>
-                    <span>0g</span>
-                </div>
-
-                <!-- Chart Area -->
-                <div class="relative flex-1">
-                    <!-- Grid Lines -->
-                    <div class="absolute inset-0 flex flex-col justify-between pb-6">
-                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
-                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
-                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
-                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
-                        <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+            <!-- Third Card: Growth Chart -->
+            <div class="px-6 lg:px-0 mb-8">
+                <div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(46,47,45,0.06)] space-y-6 h-full">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-headline font-black text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[24px] text-primary" data-icon="monitoring">monitoring</span>
+                            生長趨勢
+                        </h3>
+                        <div class="flex bg-surface-container-low p-1 rounded-full text-sm font-medium">
+                            <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='/'" class="px-5 py-2 rounded-full text-on-surface-variant transition-all hover:bg-white/50">媽媽</button>
+                            <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='/home_baby/'" class="px-5 py-2 rounded-full bg-white text-primary font-bold shadow-sm transition-all">寶寶</button>
+                        </div>
                     </div>
 
-                    <!-- SVG Chart -->
-                    <div class="absolute inset-0 pb-6">
-                        <svg id="chart-svg" class="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                            <defs>
-                                <linearGradient id="babyGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#65518a" stop-opacity="0.25"></stop>
-                                    <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
-                                </linearGradient>
-                            </defs>
-
-
-
-                            <!-- Area Gradient -->
-                            <path d="M0,100 L0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25 L100,100 Z" fill="url(#babyGrad)"></path>
-
-                            <!-- Actual Weight Line -->
-                            <path d="M0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" vector-effect="non-scaling-stroke"></path>
-
-                            <!-- Data Points -->
-                            <g>
-                                <circle cx="0" cy="99" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="20" cy="98" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="40" cy="94" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="60" cy="81" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="80" cy="62.5" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <!-- Current Week Highlight -->
-                                <circle cx="100" cy="25" r="5" fill="#65518a" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0px 3px 4px rgba(101, 81, 138, 0.4));"></circle>
-                            </g>
-                        </svg>
+                    <div class="flex gap-2">
+                        <button id="height-btn" class="px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant text-sm font-semibold transition-all cursor-pointer">身高</button>
+                        <button id="weight-btn" class="px-5 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold transition-all cursor-pointer">體重</button>
                     </div>
 
-                    <!-- X-Axis Labels -->
-                    <div class="absolute bottom-0 left-0 right-0 flex justify-between text-[9px] font-bold text-on-surface-variant/60 translate-y-2">
-                        <span class="-translate-x-2">4週</span>
-                        <span class="-translate-x-2">8週</span>
-                        <span class="-translate-x-2">12週</span>
-                        <span class="-translate-x-2">16週</span>
-                        <span class="-translate-x-1">20週</span>
-                        <span class="text-primary font-extrabold translate-x-3">24週</span>
+                    <!-- Chart Area -->
+                    <div class="relative h-56 w-full flex">
+                        <!-- Y-Axis Labels -->
+                        <div id="y-axis-labels" class="flex flex-col justify-between text-[11px] font-bold text-on-surface-variant/50 pr-2 pb-6">
+                            <span>800g</span>
+                            <span>600g</span>
+                            <span>400g</span>
+                            <span>200g</span>
+                            <span>0g</span>
+                        </div>
+
+                        <!-- Chart Canvas -->
+                        <div class="relative flex-1">
+                            <!-- Grid Lines -->
+                            <div class="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between">
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                            </div>
+
+                            <!-- SVG Line + Gradient -->
+                            <div class="absolute inset-x-0 top-0 bottom-6">
+                                <svg id="chart-svg" class="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                    <defs>
+                                        <linearGradient id="babyGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#65518a" stop-opacity="0.25"></stop>
+                                            <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
+                                        </linearGradient>
+                                    </defs>
+                                    <!-- Line -->
+                                    <path d="M0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" vector-effect="non-scaling-stroke"></path>
+                                </svg>
+                            </div>
+
+                            <!-- Dots Overlay -->
+                            <div id="chart-dots" class="absolute inset-x-0 top-0 bottom-6 pointer-events-none">
+                                <div class="absolute w-3 h-3 bg-primary rounded-full" style="left: 0%; top: 99%; transform: translate(-50%, -50%);"></div>
+                                <div class="absolute w-3 h-3 bg-primary rounded-full" style="left: 20%; top: 98%; transform: translate(-50%, -50%);"></div>
+                                <div class="absolute w-3 h-3 bg-primary rounded-full" style="left: 40%; top: 94%; transform: translate(-50%, -50%);"></div>
+                                <div class="absolute w-3 h-3 bg-primary rounded-full" style="left: 60%; top: 81%; transform: translate(-50%, -50%);"></div>
+                                <div class="absolute w-3 h-3 bg-primary rounded-full" style="left: 80%; top: 62.5%; transform: translate(-50%, -50%);"></div>
+                                <div class="absolute w-4 h-4 bg-primary rounded-full border-2 border-white shadow-md" style="left: 100%; top: 25%; transform: translate(-50%, -50%);"></div>
+                            </div>
+
+                            <!-- X-Axis Labels -->
+                            <div id="x-axis-labels" class="absolute bottom-0 left-0 right-0 flex justify-between text-[11px] font-bold text-on-surface-variant/60 translate-y-2">
+                                <span class="-translate-x-2">4週</span>
+                                <span class="-translate-x-2">8週</span>
+                                <span class="-translate-x-2">12週</span>
+                                <span class="-translate-x-2">16週</span>
+                                <span class="-translate-x-1">20週</span>
+                                <span class="text-primary font-extrabold translate-x-3">24週</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Legend -->
+                    <div class="flex justify-center items-center gap-6 mt-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-1 rounded-full bg-[#65518a]"></div>
+                            <span id="chart-legend-text" class="text-xs font-bold text-on-surface-variant">預估體重</span>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Chart Legend -->
-            <div class="flex justify-center items-center gap-6 mt-6 mb-2">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-1 rounded-full bg-[#65518a]"></div>
-                    <span id="chart-legend-text" class="text-[10px] font-bold text-on-surface-variant">預估體重</span>
-                </div>
-
-            </div>
-
         </div>
     </main>
 
-    <!-- Floating Join Code Button -->
-    <div class="fixed bottom-32 right-6 z-40 flex items-center gap-1.5 bg-[#65518a] text-white px-4 py-2 rounded-full shadow-[0_8px_25px_rgba(101,81,138,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer md:right-[calc(50vw-24rem)] lg:right-[calc(50vw-28rem)] md:bottom-36 transition-all duration-500">
-        <span class="material-symbols-outlined text-base">vpn_key</span>
-        <span class="font-bold text-[10px] tracking-wide">加入碼: ABC-123</span>
+<!-- Floating Join Code Button -->
+    <div class="fixed bottom-32 right-6 z-40 flex items-center gap-1.5 bg-[#65518a] text-white px-5 py-2.5 rounded-full shadow-[0_8px_25px_rgba(101,81,138,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer md:right-[calc(50vw-24rem)] lg:right-[calc(50vw-28rem)] md:bottom-36 transition-all duration-500">
+        <span class="material-symbols-outlined text-lg">vpn_key</span>
+        <span class="font-bold text-xs tracking-wide">加入碼: ABC-123</span>
     </div>
+{% endblock %}
 
-    <nav class="fixed bottom-0 left-0 w-full md:w-[600px] flex justify-around items-center px-4 pb-6 pt-3 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(46,47,45,0.06)] md:left-1/2 md:-translate-x-1/2 md:bottom-8 md:rounded-[2.5rem] md:pt-4 md:pb-4 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500">
-        <a href="index.html"
-            class="flex flex-col items-center justify-center bg-[#d6beff] text-[#65518a] rounded-[1.5rem] px-5 py-2 scale-90 transition-transform duration-300">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
-            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">首頁</span>
-        </a>
-        <a href="/pregnancyrecord/"
-            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
-            <span class="material-symbols-outlined">edit_note</span>
-            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">紀錄</span>
-        </a>
-        <a href="babyinformation.html"
-            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
-            <span class="material-symbols-outlined">auto_graph</span>
-            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">成長</span>
-        </a>
-        <a href="qa_conversation.html"
-            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
-            <span class="material-symbols-outlined">menu_book</span>
-            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">知識</span>
-        </a>
-        <a href="userprofile.html"
-            class="flex flex-col items-center justify-center text-[#5b5c5a] px-5 py-2 hover:text-[#65518a] transition-opacity">
-            <span class="material-symbols-outlined">person</span>
-            <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">個人</span>
-        </a>
-    </nav>
-
-    <!-- Dynamic Checklist Script -->
+{% block extra_js %}
+<!-- Dynamic Checklist Script -->
     <script id="dynamic-checklist">
         const checklists = {
             '28': [
@@ -630,8 +416,7 @@
         });
     </script>
 
-
-    <!-- Scroll Restoration Script -->
+<!-- Scroll Restoration Script -->
     <script>
         window.addEventListener('load', () => {
             const savedScrollPos = sessionStorage.getItem('scrollPos');
@@ -645,8 +430,7 @@
         });
     </script>
 
-
-    <!-- Chart Interactivity Script -->
+<!-- Chart Interactivity Script -->
     <script id="chart-toggle-script">
         document.addEventListener('DOMContentLoaded', () => {
             const heightBtn = document.getElementById('height-btn');
@@ -657,68 +441,120 @@
             const chartSvg = document.getElementById('chart-svg');
             const chartLegendText = document.getElementById('chart-legend-text');
 
-            const weightLabels = `
-                <span>800g</span>
-                <span>600g</span>
-                <span>400g</span>
-                <span>200g</span>
-                <span>0g</span>
-            `;
-            const heightLabels = `
-                <span>60cm</span>
-                <span>45cm</span>
-                <span>30cm</span>
-                <span>15cm</span>
-                <span>0cm</span>
-            `;
+            // 寶寶身高體重真實數據動態曲線渲染
+            const babyChartDataEl = document.getElementById('baby-chart-data');
+            let babyData = [];
+            let isMock = false;
+            if (babyChartDataEl) {
+                try {
+                    babyData = JSON.parse(babyChartDataEl.textContent);
+                } catch (e) {
+                    console.error("Failed to parse baby chart data", e);
+                }
+            }
 
-            const weightSvg = `
-                            <defs>
-                                <linearGradient id="babyGrad" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#65518a" stop-opacity="0.25"></stop>
-                                    <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
-                                </linearGradient>
-                            </defs>
+            // 若無資料，給予一條優美的發育參考曲線 (Cold Start 優化)
+            const babyWeeks = parseInt("{{ baby_weeks|default:24 }}", 10);
+            if (!babyData || babyData.length === 0) {
+                isMock = true;
+                babyData = [];
+                const totalPoints = Math.max(2, Math.ceil(babyWeeks / 4));
+                for (let i = 0; i <= totalPoints; i++) {
+                    const wk = Math.min(babyWeeks, i * 4);
+                    let simulatedWeight = 3.0 + wk * 0.25;
+                    let simulatedHeight = 50.0 + wk * 0.8;
+                    simulatedWeight = Math.round(simulatedWeight * 10) / 10;
+                    simulatedHeight = Math.round(simulatedHeight * 10) / 10;
+                    babyData.push({ week: wk, weight: simulatedWeight, height: simulatedHeight });
+                    if (wk >= babyWeeks) break;
+                }
+            }
 
+            function renderChart(type) {
+                const values = babyData.map(d => type === 'weight' ? d.weight : d.height).filter(v => v !== null);
+                const weeks = babyData.map(d => d.week);
 
+                if (values.length === 0) return;
 
-                            <!-- Area Gradient -->
-                            <path d="M0,100 L0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25 L100,100 Z" fill="url(#babyGrad)"></path>
+                const minVal = Math.min(...values);
+                const maxVal = Math.max(...values);
+                const minWeek = Math.min(...weeks);
+                const maxWeek = Math.max(...weeks);
 
-                            <!-- Actual Weight Line -->
-                            <path d="M0,99 L20,98 L40,94 L60,81 L80,62.5 L100,25" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+                // 決定 Y 軸極值
+                let minY = Math.max(0, Math.floor(minVal - 3));
+                let maxY = Math.ceil(maxVal + 3);
+                let diffY = maxY - minY;
+                if (diffY < 10) {
+                    maxY = minY + 10;
+                    diffY = 10;
+                }
 
-                            <!-- Data Points -->
-                            <g>
-                                <circle cx="0" cy="99" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="20" cy="98" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="40" cy="94" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="60" cy="81" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <circle cx="80" cy="62.5" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                                <!-- Current Week Highlight -->
-                                <circle cx="100" cy="25" r="5" fill="#65518a" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0px 3px 4px rgba(101, 81, 138, 0.4));"></circle>
-                            </g>
-                        `;
+                const unit = type === 'weight' ? 'kg' : 'cm';
+                // 更新 Y 軸標籤
+                if (yAxisLabels) {
+                    yAxisLabels.innerHTML = `
+                        <span>${maxY}${unit}</span>
+                        <span>${Math.round(minY + diffY * 0.75)}${unit}</span>
+                        <span>${Math.round(minY + diffY * 0.5)}${unit}</span>
+                        <span>${Math.round(minY + diffY * 0.25)}${unit}</span>
+                        <span>${minY}${unit}</span>
+                    `;
+                }
 
-            const heightSvg = `
-                <defs>
-                    <linearGradient id="heightGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#65518a" stop-opacity="0.25"></stop>
-                        <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
-                    </linearGradient>
-                </defs>
+                // 更新 X 軸寬度
+                let diffWeek = maxWeek - minWeek;
+                if (diffWeek === 0) diffWeek = 4;
 
-                <path d="M0,100 L0,99.2 L20,95 L40,90 L60,80 L80,58 L100,45 L100,100 Z" fill="url(#heightGrad)"></path>
-                <path d="M0,99.2 L20,95 L40,90 L60,80 L80,58 L100,45" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" vector-effect="non-scaling-stroke"></path>
-                <g>
-                    <circle cx="0" cy="99.2" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                    <circle cx="20" cy="95" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                    <circle cx="40" cy="90" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                    <circle cx="60" cy="80" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                    <circle cx="80" cy="58" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>
-                    <circle cx="100" cy="45" r="5" fill="#65518a" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0px 3px 4px rgba(101, 81, 138, 0.4));"></circle>
-                </g>
-            `;
+                const points = babyData.map((d) => {
+                    const val = type === 'weight' ? d.weight : d.height;
+                    const xp = ((d.week - minWeek) / diffWeek) * 100;
+                    const yp = 100 - ((val - minY) / diffY) * 100;
+                    return `${xp},${yp}`;
+                });
+
+                // 繪製 SVG 折線與填滿
+                if (chartSvg) {
+                    const gradId = type === 'weight' ? 'babyGrad' : 'heightGrad';
+                    const strokeColor = '#65518a';
+                    chartSvg.innerHTML = `
+                        <defs>
+                            <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#65518a" stop-opacity="0.15"></stop>
+                                <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <!-- Area Gradient -->
+                        <path d="M0,100 L${points.map((p, i) => (i === 0 ? '0' : points[i-1].split(',')[0]) + ',100 L' + p).join(' L')} L100,100 Z" fill="url(#${gradId})"></path>
+                        <!-- 折線 -->
+                        <path d="M${points.join(' L')}" fill="none" stroke="${strokeColor}" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" vector-effect="non-scaling-stroke"></path>
+                        <!-- Data Points -->
+                        <g>
+                            ${points.map((p, idx) => {
+                                const [xp, yp] = p.split(',');
+                                if (idx === babyData.length - 1) {
+                                    return `<circle cx="${xp}" cy="${yp}" r="5" fill="#65518a" stroke="#ffffff" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter: drop-shadow(0px 3px 4px rgba(101, 81, 138, 0.4));"></circle>`;
+                                } else {
+                                    return `<circle cx="${xp}" cy="${yp}" r="3.5" fill="#ffffff" stroke="#65518a" stroke-width="2.5" vector-effect="non-scaling-stroke"></circle>`;
+                                }
+                            }).join('')}
+                        </g>
+                    `;
+                }
+
+                // 更新 X 軸標籤
+                const xAxisLabelsContainer = document.getElementById('x-axis-labels');
+                if (xAxisLabelsContainer) {
+                    let xAxisHtml = '';
+                    const step = diffWeek / 5;
+                    for (let i = 0; i <= 5; i++) {
+                        const wk = Math.round(minWeek + step * i);
+                        const isLast = i === 5;
+                        xAxisHtml += `<span class="${isLast ? 'text-primary font-extrabold translate-x-3' : '-translate-x-2'}">${wk}週</span>`;
+                    }
+                    xAxisLabelsContainer.innerHTML = xAxisHtml;
+                }
+            }
 
             function updateBtnStyles(activeBtn, inactiveBtn) {
                 activeBtn.classList.add('bg-primary/10', 'text-primary');
@@ -729,48 +565,30 @@
 
             heightBtn.addEventListener('click', () => {
                 updateBtnStyles(heightBtn, weightBtn);
-                yAxisLabels.innerHTML = heightLabels;
                 if(chartLegendText) chartLegendText.innerText = '寶寶身高';
-                chartSvg.innerHTML = heightSvg;
+                renderChart('height');
             });
 
             weightBtn.addEventListener('click', () => {
                 updateBtnStyles(weightBtn, heightBtn);
-                yAxisLabels.innerHTML = weightLabels;
-                if(chartLegendText) chartLegendText.innerText = '預估體重';
-                chartSvg.innerHTML = weightSvg;
+                if(chartLegendText) chartLegendText.innerText = '寶寶體重';
+                renderChart('weight');
             });
-        });
-    </script>
 
-    <!-- Baby Switcher Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const switcherBtn = document.getElementById('baby-switcher-btn');
-            const switcherMenu = document.getElementById('baby-switcher-menu');
+            // 預設為體重圖表
+            renderChart('weight');
 
-            if (switcherBtn && switcherMenu) {
-                switcherBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const isOpen = !switcherMenu.classList.contains('opacity-0');
-                    if (isOpen) {
-                        switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-                        switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
-                    } else {
-                        switcherMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-                        switcherMenu.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
-                    }
-                });
-
-                document.addEventListener('click', (e) => {
-                    if (!switcherBtn.contains(e.target) && !switcherMenu.contains(e.target)) {
-                        switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-                        switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
-                    }
-                });
+            // 如果是 Mock，更新生長趨勢的標題加上提示字
+            const chartTitle = document.querySelector('h3.font-bold.text-primary');
+            if (chartTitle && isMock) {
+                const hintSpan = document.createElement('span');
+                hintSpan.className = 'text-[9px] text-on-surface-variant/40 font-medium pl-1';
+                hintSpan.innerText = '(生長參考曲線)';
+                chartTitle.appendChild(hintSpan);
             }
         });
     </script>
-</body>
 
-</html>
+{{ baby_chart_data|json_script:"baby-chart-data" }}
+
+{% endblock %}

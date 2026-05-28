@@ -25,6 +25,9 @@ def baby_switcher(request):
     switcher_items = []
     current_date = timezone.now().date()
 
+    # Determine the current page path (without query parameters)
+    current_path = request.path
+
     for case in cases:
         babies = list(case.babies.all())
         is_active = False
@@ -51,7 +54,6 @@ def baby_switcher(request):
                 'is_baby': False,
                 'name': case.order_name,
                 'desc': gestation_text,
-                'url': '/pregnancyrecord/',  # mom's record listing
                 'icon': 'pregnant_woman',
                 'case_id': case.pregnancycase_id,
             })
@@ -63,35 +65,63 @@ def baby_switcher(request):
                         'is_baby': True,
                         'name': baby.name,
                         'desc': case.order_name,
-                        'url': f'/babyinformation/?baby_id={baby.baby_id}',  # baby information page
                         'icon': 'face',
                         'baby_id': baby.baby_id,
                         'case_id': case.pregnancycase_id,
                     })
 
-    # Try to extract selected baby from URL parameters and save in session
+    # Try to extract selected baby or case from URL parameters and save in session
     baby_id_param = request.GET.get('baby_id')
+    case_id_param = request.GET.get('case_id')
 
     if baby_id_param:
         try:
             request.session['active_baby_id'] = int(baby_id_param)
+            # Auto-associate active_case_id from the baby object
+            baby_obj = BabyInformation.objects.filter(baby_id=int(baby_id_param)).first()
+            if baby_obj and baby_obj.pregnancycase:
+                request.session['active_case_id'] = baby_obj.pregnancycase.pregnancycase_id
         except (ValueError, TypeError):
             pass
 
-    # Retrieve active selection from session
+    if case_id_param:
+        try:
+            request.session['active_case_id'] = int(case_id_param)
+            # Clear baby preference when explicitly selecting a pregnancy case
+            if 'active_baby_id' in request.session:
+                del request.session['active_baby_id']
+        except (ValueError, TypeError):
+            pass
+
+    # Retrieve active selections from session
     active_baby_id = request.session.get('active_baby_id')
+    active_case_id = request.session.get('active_case_id')
+
+    # Determine the current page type for filtering switcher items
+    is_home_page = '/home_baby' in request.path
+    is_pregnancy_page = '/pregnancyrecord' in request.path
+
+    # Filter switcher_items based on current page
+    # Home page: show both born babies and pregnancy cases
+    # Pregnancy record page: only show pregnancy cases, not born babies
+    if is_pregnancy_page:
+        switcher_items = [item for item in switcher_items if not item['is_baby']]
+    # Other pages: show both born babies and pregnancy cases
 
     # Determine which switcher item is "currently active/selected"
     active_item = None
     path = request.path
 
-    if '/babyinformation' in path or '/add_baby_record' in path or '/edit_baby_record' in path or '/edit_baby_information' in path:
+    if '/babyinformation' in path or '/add_baby_record' in path or '/edit_baby_record' in path or '/edit_baby_information' in path or '/home_baby' in path:
         if active_baby_id:
             active_item = next((item for item in switcher_items if item['is_baby'] and item['baby_id'] == active_baby_id), None)
         if not active_item:
             active_item = next((item for item in switcher_items if item['is_baby']), None)
-    elif '/pregnancyrecord' in path:
-        active_item = next((item for item in switcher_items if not item['is_baby']), None)
+    elif '/pregnancyrecord' in path or path == '/':
+        if active_case_id:
+            active_item = next((item for item in switcher_items if not item['is_baby'] and item['case_id'] == active_case_id), None)
+        if not active_item:
+            active_item = next((item for item in switcher_items if not item['is_baby']), None)
 
     # Fallback to the first item if no preference matched
     if not active_item and switcher_items:
@@ -100,5 +130,7 @@ def baby_switcher(request):
     return {
         'switcher_items': switcher_items,
         'switcher_active_item': active_item,
+        'active_case_id': active_case_id,
+        'active_baby_id': active_baby_id,
     }
 

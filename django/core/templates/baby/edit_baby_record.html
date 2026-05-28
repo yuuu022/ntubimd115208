@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 {% load static %}
 
 <html lang="zh-Hant">
@@ -45,7 +45,7 @@
 
         <!-- Date Selector -->
         <div class="space-y-3">
-            <label class="flex items-center gap-2 text-sm font-bold text-on-surface-variant px-1">
+            <label class="flex items-center gap-2 text-sm font-medium text-on-surface-variant px-1">
                 <span class="material-symbols-outlined text-base">calendar_today</span>
                 紀錄日期
             </label>
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="space-y-3">
-            <label class="flex items-center gap-2 text-sm font-bold text-on-surface-variant px-1">
+            <label class="flex items-center gap-2 text-sm font-medium text-on-surface-variant px-1">
                 <span class="material-symbols-outlined text-base">photo_camera</span>
                 上傳照片
             </label>
@@ -63,44 +63,45 @@
 
         <!-- Vital Indicators Grid (2x2) -->
         <div class="space-y-3">
-            <label class="block text-sm font-bold text-on-surface-variant px-1">成長指標</label>
+            <label class="block text-sm font-medium text-on-surface-variant px-1">成長指標</label>
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-[#ebf4fa] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
-                    <span class="text-[10px] font-bold text-on-surface-variant/80">身高 (CM)</span>
-                    <input name="height" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="{{ form_data.height|default:record.height }}" />
+                <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-[#65518a]/80">身高 (CM)</span>
+                    <input name="height" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.height|default:record.height }}" />
                 </div>
-                <div class="bg-[#eaf6f9] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
-                    <span class="text-[10px] font-bold text-on-surface-variant/80">體重 (KG)</span>
-                    <input name="weight" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="{{ form_data.weight|default:record.weight }}" />
+                <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-[#65518a]/80">體重 (KG)</span>
+                    <input name="weight" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.weight|default:record.weight }}" />
                 </div>
-                <div class="bg-[#ebf4fa] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
-                    <span class="text-[10px] font-bold text-on-surface-variant/80">頭圍 (CM)</span>
-                    <input name="headcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="{{ form_data.headcircumference|default:record.headcircumference }}" />
+                <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-[#65518a]/80">頭圍 (CM)</span>
+                    <input name="headcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.headcircumference|default:record.headcircumference }}" />
                 </div>
-                <div class="bg-[#eaf6f9] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
-                    <span class="text-[10px] font-bold text-on-surface-variant/80">胸圍 (CM)</span>
-                    <input name="chestcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-on-surface/50 w-full focus:ring-0 placeholder:text-on-surface/30" type="number" placeholder="0.0" value="{{ form_data.chestcircumference|default:record.chestcircumference }}" />
+                <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                    <span class="text-[10px] font-bold text-[#65518a]/80">胸圍 (CM)</span>
+                    <input name="chestcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.chestcircumference|default:record.chestcircumference }}" />
                 </div>
             </div>
         </div>
 
         <!-- Milestones Section -->
         <div class="space-y-4">
-            <label class="block text-sm font-bold text-on-surface-variant px-1">重要里程碑</label>
+            <label class="block text-sm font-medium text-on-surface-variant px-1">重要里程碑</label>
             <input id="milestones" type="hidden" name="milestones" value="{{ selected_milestones|default:'' }}" />
             <div class="flex flex-wrap gap-3 milestone-buttons">
-                <button type="button" class="milestone-item px-5 py-2.5 bg-primary text-white rounded-full text-xs font-bold transition-all shadow-sm">第一次翻身</button>
-                <button type="button" class="milestone-item px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">第一顆牙齒</button>
-                <button type="button" class="milestone-item px-5 py-2.5 bg-primary text-white rounded-full text-xs font-bold transition-all shadow-sm">會坐了</button>
-                <button type="button" class="milestone-item px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">會爬了</button>
-                <button type="button" class="milestone-item px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">開口叫媽媽</button>
-                <button type="button" class="milestone-item px-5 py-2.5 bg-surface-container-low text-on-surface-variant rounded-full text-xs font-bold hover:bg-primary/10 transition-all">踏出第一步</button>
+                {% for ms in all_milestones %}
+                <button type="button" class="milestone-item px-6 py-3 bg-surface-container-low text-on-surface-variant rounded-full text-sm font-medium hover:bg-primary/10 transition-all cursor-pointer">
+                    {{ ms.growthrecord }}
+                </button>
+                {% empty %}
+                <p class="text-xs text-on-surface-variant">暫無里程碑可供選擇，請先執行導入腳本。</p>
+                {% endfor %}
             </div>
         </div>
 
         <!-- Notes Section -->
         <div class="space-y-4">
-            <label class="block text-sm font-bold text-on-surface-variant px-1">成長筆記</label>
+            <label class="block text-sm font-medium text-on-surface-variant px-1">成長筆記</label>
             <textarea name="record" class="w-full bg-surface-container-lowest border-none rounded-[2rem] p-6 h-40 focus:ring-2 focus:ring-primary-container text-on-surface resize-none custom-shadow placeholder:text-on-surface-variant/40 placeholder:font-medium" placeholder="寫下對寶寶的心情或今天發生的趣事...">{{ form_data.record|default:record.record }}</textarea>
         </div>
 
@@ -175,19 +176,18 @@
                     .filter(btn => btn.dataset.active === 'true')
                     .map(btn => btn.textContent.trim());
                 if (milestonesInput) {
-                    milestonesInput.value = selected.join(',');
+                    milestonesInput.value = selected.join('|');
                 }
             };
 
             milestoneButtons.forEach(button => {
-                const isActive = button.classList.contains('bg-primary');
+                const isActive = button.classList.contains('bg-[#d6beff80]');
                 button.dataset.active = isActive ? 'true' : 'false';
                 button.addEventListener('click', () => {
                     const active = button.dataset.active !== 'true';
                     button.dataset.active = active ? 'true' : 'false';
-                    button.classList.toggle('bg-primary', active);
-                    button.classList.toggle('text-white', active);
-                    button.classList.toggle('shadow-sm', active);
+                    button.classList.toggle('bg-[#d6beff80]', active);
+                    button.classList.toggle('text-[#65518a]', active);
                     button.classList.toggle('bg-surface-container-low', !active);
                     button.classList.toggle('text-on-surface-variant', !active);
                     updateMilestones();
@@ -195,11 +195,11 @@
             });
 
             if (milestonesInput && milestonesInput.value) {
-                const selectedValues = milestonesInput.value.split(',').map(value => value.trim());
+                const selectedValues = milestonesInput.value.split('|').map(value => value.trim());
                 milestoneButtons.forEach(button => {
                     if (selectedValues.includes(button.textContent.trim())) {
                         button.dataset.active = 'true';
-                        button.classList.add('bg-primary', 'text-white', 'shadow-sm');
+                        button.classList.add('bg-[#d6beff80]', 'text-[#65518a]');
                         button.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
                     }
                 });
