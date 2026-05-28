@@ -1,14 +1,14 @@
-"""Ingest chinese_texts.pdf into a Supabase pgvector table for pregnancy RAG.
+"""Ingest text documents into a Supabase pgvector table for pregnancy RAG.
 
 The script is intentionally self-contained:
-- extracts text from the PDF with pypdf
+- extracts text from .txt files or PDF files
 - chunks the text into searchable segments
 - optionally creates OpenAI embeddings
 - optionally writes rows into Supabase/Postgres
 - always writes JSONL/CSV outputs for inspection
 
 Example:
-    python scripts/pregnancy_rag_ingest.py --pdf chinese_texts.pdf --output-dir build/rag --write-supabase
+    python scripts/pregnancy_rag_ingest.py --source-path "RAG 資料/rag" --output-dir build/rag --write-supabase --create-table
 """
 
 from __future__ import annotations
@@ -20,7 +20,6 @@ import json
 import os
 import re
 import sys
-import uuid
 from pathlib import Path
 from typing import Any
 
@@ -39,7 +38,7 @@ try:
 except Exception:
     PdfReader = None
 
-DEFAULT_PDF = Path(__file__).resolve().parent.parent / "chinese_texts.pdf"
+DEFAULT_SOURCE_PATH = Path(__file__).resolve().parent.parent / "rag"
 DEFAULT_TABLE = "docs_vectors"
 DEFAULT_EMBEDDING_MODEL = "text-embedding-3-small"
 LOCAL_EMBEDDING_DIMENSION = 1536
@@ -47,10 +46,15 @@ DEFAULT_MAX_CHARS = 900
 DEFAULT_OVERLAP = 120
 
 
+def _default_output_dir() -> Path:
+    return Path(__file__).resolve().parent.parent / "build" / "rag"
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build pregnancy RAG chunks from chinese_texts.pdf.")
-    parser.add_argument("--pdf", default=str(DEFAULT_PDF), help="PDF file to ingest.")
-    parser.add_argument("--output-dir", default=str(Path(__file__).resolve().parent.parent / "build" / "rag"), help="Directory for generated outputs.")
+    parser = argparse.ArgumentParser(description="Build pregnancy RAG chunks from text files or PDF documents.")
+    parser.add_argument("--source-path", default=str(DEFAULT_SOURCE_PATH), help="File or directory to ingest. Directories are scanned recursively for .txt files.")
+    parser.add_argument("--pdf", default=None, help="Backward-compatible alias for --source-path.")
+    parser.add_argument("--output-dir", default=str(_default_output_dir()), help="Directory for generated outputs.")
     parser.add_argument("--source-name", default=None, help="Logical source name stored in metadata.")
     parser.add_argument("--table", default=DEFAULT_TABLE, help="Supabase/Postgres table name.")
     parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL, help="OpenAI embedding model.")
@@ -61,7 +65,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-embeddings", action="store_true", help="Skip embedding generation even when OpenAI is configured.")
     parser.add_argument("--dry-run", action="store_true", help="Only extract and write local files.")
     parser.add_argument("--create-table", action="store_true", help="Create the pgvector table before inserting rows.")
+    parser.add_argument("--env-file", default=None, help="Path to a .env-like file to load SUPABASE_PG_CONN / SUPABASE_PG_* and OPENAI_API_KEY.")
     return parser.parse_args()
+
+
+def collect_source_files(source_path: Path) -> list[Path]:
+    if source_path.is_file():
+        return [source_path]
+
+    if not source_path.exists():
+        return []
+
+    return sorted(
+        candidate
+        for candidate in source_path.rglob("*")
+        if candidate.is_file() and candidate.suffix.lower() in {".txt", ".pdf"}
+    )
 
 
 def read_pdf_pages(pdf_path: Path) -> list[dict[str, Any]]:
@@ -74,6 +93,11 @@ def read_pdf_pages(pdf_path: Path) -> list[dict[str, Any]]:
         page_text = page.extract_text() or ""
         pages.append({"page": page_number, "text": page_text.replace("\x00", "")})
     return pages
+
+
+def read_text_document(text_path: Path) -> list[dict[str, Any]]:
+    text = text_path.read_text(encoding="utf-8", errors="ignore")
+    return [{"page": None, "text": text.replace("\x00", "")}]
 
 
 def chunk_text(text: str, max_chars: int, overlap: int) -> list[str]:
@@ -115,33 +139,91 @@ def remove_newlines(text: str) -> str:
     return text.replace("\r", "").replace("\n", "")
 
 
-def build_chunks(pdf_path: Path, source_name: str, max_chars: int, overlap: int) -> list[dict[str, Any]]:
+def normalize_chunk_text(text: str) -> str:
+    cleaned = text
+    replacements = [
+        (
+            "0-12個月寶寶該有哪些聽力表現？提升聽覺靈敏度技巧與遊戲零到十二個月寶寶該有哪些聽力表現？",
+            "0-12個月寶寶該有哪些聽力表現？提升聽覺靈敏度技巧與遊戲。",
+        ),
+        ("遊戲二：，生活周遭的小探險", "遊戲二：生活周遭的小探險"),
+        (
+            "0-1歲遊戲重點：啟發五感 & 促進親子互動零到一歲遊戲重點：啟發五感促進親子互動",
+            "0-1歲遊戲重點：啟發五感 & 促進親子互動。",
+        ),
+        (
+            "0-3歲為語言發展黃金期！父母該如何營造促進語言發展的環境？零到三歲為語言發展黃金期！父母該如何營造促進語言發展的環境？",
+            "0-3歲為語言發展黃金期！父母該如何營造促進語言發展的環境？。",
+        ),
+        ("「順利」生產要知道的事「順利」生產要知道的事", "「順利」生產要知道的事。"),
+        ("第一胎約八十五可採自然產", "第一胎約八成五可採自然產"),
+        ("第二胎通常可減少十三至一半的時間", "第二胎通常可減少三分之一至一半的時間"),
+    ]
+
+    for old_text, new_text in replacements:
+        cleaned = cleaned.replace(old_text, new_text)
+
+    return cleaned
+
+
+def _make_chunk_id(relative_path: str, chunk_index: int, content: str) -> str:
+    digest_source = f"{relative_path}:{chunk_index}:{content}"
+    digest = hashlib.sha1(digest_source.encode("utf-8")).hexdigest()[:16]
+    slug = re.sub(r"[^A-Za-z0-9\u4e00-\u9fff]+", "_", relative_path).strip("_") or "document"
+    return f"{slug}-{chunk_index}-{digest}"
+
+
+def build_chunks(source_path: Path, source_name: str, max_chars: int, overlap: int) -> list[dict[str, Any]]:
     chunks: list[dict[str, Any]] = []
-    for page_data in read_pdf_pages(pdf_path):
-        page_number = page_data["page"]
-        page_text = page_data["text"]
-        page_chunks = chunk_text(page_text, max_chars=max_chars, overlap=overlap)
-        for chunk_index, chunk_text_value in enumerate(page_chunks):
-            chunk_id = f"{source_name}-{page_number}-{chunk_index}-{uuid.uuid4().hex[:8]}"
-            cleaned_chunk_text = remove_newlines(chunk_text_value.strip())
-            metadata = {
-                "source_file": source_name,
-                "page": page_number,
-                "chunk_index": chunk_index,
-                "source_path": str(pdf_path),
-                "source_type": "pdf",
-            }
-            chunks.append(
-                {
-                    "id": chunk_id,
-                    "source_file": source_name,
+
+    if source_path.is_file():
+        source_files = [source_path]
+        source_root = source_path.parent
+    else:
+        source_files = collect_source_files(source_path)
+        source_root = source_path
+
+    for file_path in source_files:
+        if file_path.suffix.lower() == ".pdf":
+            source_type = "pdf"
+            page_sources = read_pdf_pages(file_path)
+        else:
+            source_type = "txt"
+            page_sources = read_text_document(file_path)
+
+        try:
+            relative_path = file_path.relative_to(source_root).as_posix()
+        except ValueError:
+            relative_path = file_path.name
+
+        for page_data in page_sources:
+            page_number = page_data["page"]
+            page_text = page_data["text"]
+            page_chunks = chunk_text(page_text, max_chars=max_chars, overlap=overlap)
+            for chunk_index, chunk_text_value in enumerate(page_chunks):
+                cleaned_chunk_text = normalize_chunk_text(remove_newlines(chunk_text_value.strip()))
+                chunk_id = _make_chunk_id(relative_path, chunk_index, cleaned_chunk_text)
+                metadata = {
+                    "source_file": file_path.name,
+                    "relative_path": relative_path,
                     "page": page_number,
                     "chunk_index": chunk_index,
-                    "content": cleaned_chunk_text,
-                    "text": cleaned_chunk_text,
-                    "metadata": metadata,
+                    "source_path": str(file_path),
+                    "source_type": source_type,
+                    "source_name": source_name,
                 }
-            )
+                chunks.append(
+                    {
+                        "id": chunk_id,
+                        "source_file": file_path.name,
+                        "relative_path": relative_path,
+                        "page": page_number,
+                        "chunk_index": chunk_index,
+                        "content": cleaned_chunk_text,
+                        "text": cleaned_chunk_text,
+                        "metadata": metadata,
+                    }
+                )
     return chunks
 
 
@@ -224,14 +306,38 @@ def resolve_connection_string() -> str:
     return f"postgresql://{user}:{password}@{host}:{port}/{dbname}?sslmode={sslmode}"
 
 
+def load_env_file(env_path: Path) -> None:
+    """Load simple KEY=VALUE lines into os.environ. Ignores lines starting with #.
+
+    This avoids adding a new dependency for dotenv. Values wrapped in quotes
+    will have surrounding quotes stripped.
+    """
+    if not env_path.exists():
+        return
+
+    for raw in env_path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            continue
+        key, val = line.split("=", 1)
+        key = key.strip()
+        val = val.strip()
+        if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+            val = val[1:-1]
+        if key and val:
+            os.environ[key] = val
+
+
 def ensure_table(cursor, table_name: str) -> None:
     cursor.execute("CREATE EXTENSION IF NOT EXISTS vector;")
     cursor.execute(
         f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
-            id BIGSERIAL PRIMARY KEY,
-            content TEXT NULL,
-            metadata JSONB NULL,
+            id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+            content TEXT NOT NULL,
+            metadata JSONB NOT NULL DEFAULT '{{}}'::jsonb,
             embedding VECTOR(1536) NOT NULL
         );
         """
@@ -279,16 +385,33 @@ def upsert_chunks(connection_string: str, table_name: str, chunks: list[dict[str
 
 def main() -> int:
     args = parse_args()
-    pdf_path = Path(args.pdf).expanduser().resolve()
-    if not pdf_path.exists():
-        print(f"找不到 PDF：{pdf_path}", file=sys.stderr)
+    # Load env file if provided or from common default locations so the user
+    # doesn't need to set environment variables in the shell.
+    if args.env_file:
+        load_env_file(Path(args.env_file).expanduser().resolve())
+    else:
+        # check a few sensible defaults (repo root .env, RAG 資料/supabase.env,
+        # RAG 資料/supabase/connection.env)
+        candidates = [
+            Path(__file__).resolve().parent.parent / ".env",
+            Path(__file__).resolve().parent.parent / "RAG 資料" / "supabase.env",
+            Path(__file__).resolve().parent.parent / "RAG 資料" / "supabase" / "connection.env",
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                load_env_file(candidate)
+                break
+    source_path_argument = args.source_path or args.pdf or str(DEFAULT_SOURCE_PATH)
+    source_path = Path(source_path_argument).expanduser().resolve()
+    if not source_path.exists():
+        print(f"找不到來源：{source_path}", file=sys.stderr)
         return 1
 
     output_dir = Path(args.output_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    source_name = args.source_name or pdf_path.name
-    chunks = build_chunks(pdf_path, source_name=source_name, max_chars=args.max_chars, overlap=args.overlap)
+    source_name = args.source_name or source_path.name
+    chunks = build_chunks(source_path, source_name=source_name, max_chars=args.max_chars, overlap=args.overlap)
     if args.limit and args.limit > 0:
         chunks = chunks[: args.limit]
 
@@ -297,10 +420,13 @@ def main() -> int:
         return 1
 
     if not args.skip_embeddings:
+        if args.write_supabase and not os.getenv("OPENAI_API_KEY", "").strip():
+            print("警告：目前沒有 OPENAI_API_KEY，將使用本機 fallback embeddings。若 n8n 使用 OpenAI Embeddings，查詢可能回傳空結果。", file=sys.stderr)
         add_embeddings(chunks, args.embedding_model)
 
-    jsonl_path = output_dir / f"{pdf_path.stem}.jsonl"
-    csv_path = output_dir / f"{pdf_path.stem}.csv"
+    output_stem = source_path.stem if source_path.is_file() else source_path.name
+    jsonl_path = output_dir / f"{output_stem}.jsonl"
+    csv_path = output_dir / f"{output_stem}.csv"
     write_jsonl(jsonl_path, chunks)
     write_csv(csv_path, chunks)
 
