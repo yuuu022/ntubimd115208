@@ -1,12 +1,11 @@
 import datetime
 from django.utils import timezone
 from core.models import UserProfile, PregnancyCase, BabyInformation
+from views.session_utils import get_current_user_profile
 
 def baby_switcher(request):
     """Dynamic context processor to populate the baby/pregnancy case switcher in base.html."""
-    user = UserProfile.objects.filter(user_id='test_user_001').first()
-    if not user:
-        user = UserProfile.objects.first()
+    user = get_current_user_profile(request)
     if not user:
         return {}  # No user, return empty context
 

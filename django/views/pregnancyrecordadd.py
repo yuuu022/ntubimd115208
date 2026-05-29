@@ -8,6 +8,7 @@ import calendar
 from pathlib import Path
 
 from core.models import Feeling, PhysicalCondition, PregnancyRecord, Prenatalrecord, Userfeeling, Userphysicalcondition, PregnancyCase, UserProfile
+from views.session_utils import get_current_user_profile
 
 def _get_active_pregnancy_case(request):
     # Only check session (URL parameter handling is done by context processor)
@@ -18,8 +19,11 @@ def _get_active_pregnancy_case(request):
             return case
 
     # Fallback to first case for current user
-    current_user = UserProfile.objects.filter(user_id='test_user_001').first() or UserProfile.objects.first()
-    case = PregnancyCase.objects.filter(user=current_user).order_by('-create_time').first() or PregnancyCase.objects.first()
+    current_user = get_current_user_profile(request)
+    if not current_user:
+        return None
+
+    case = PregnancyCase.objects.filter(user=current_user).order_by('-create_time').first()
     if case:
         request.session['active_case_id'] = case.pregnancycase_id
     return case

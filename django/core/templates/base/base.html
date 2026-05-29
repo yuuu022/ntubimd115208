@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>{% block title %}{% endblock %}</title>
+    <link rel="icon" href="/logo/LOGO.png" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -16,8 +17,8 @@
 <body class="bg-background text-on-surface min-h-screen overflow-x-hidden">
     <nav class="sticky top-0 z-[100] bg-[#f7f6f3]/70 backdrop-blur-md rounded-none shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full md:px-12 transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <a href="/" class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-[#65518a] text-2xl" data-icon="child_care">child_care</span>
-            <span class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">AuraLink</span>
+            <img src="/logo/LOGO.png" alt="CoLoGrowth LOGO" class="h-8 w-auto object-contain" />
+            <span class="text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">CoLoGrowth</span>
         </a>
         <div class="flex items-center gap-3 relative">
             <button id="baby-switcher-btn" class="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors cursor-pointer group" type="button">
