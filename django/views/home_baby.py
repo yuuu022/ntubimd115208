@@ -2,9 +2,10 @@ import datetime
 from datetime import timedelta
 from zoneinfo import ZoneInfo
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from core.models import CareRecord, UserProfile, BabyInformation, BabyRecord, PregnancyCase
 from views.babyinformation import _get_active_baby
+from views.session_utils import get_current_user_profile
 
 DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
 TAIWAN_TZ = ZoneInfo('Asia/Taipei')
@@ -44,10 +45,11 @@ def home_baby(request):
     window_start = selected_date - timedelta(days=7)
     window_end = selected_date + timedelta(days=7)
 
-    current_user = UserProfile.objects.filter(user_id=DEFAULT_USER_ID).first() or UserProfile.objects.first()
+    current_user = get_current_user_profile(request)
+    if not current_user:
+        return redirect('login')
     care_queryset = CareRecord.objects.select_related('carestatus').order_by('recordtime', 'carerecord_id')
-    if current_user:
-        care_queryset = care_queryset.filter(user=current_user)
+    care_queryset = care_queryset.filter(user=current_user)
 
     window_start_dt, _ = _day_bounds_in_taiwan(window_start)
     _, window_end_exclusive = _day_bounds_in_taiwan(window_end)

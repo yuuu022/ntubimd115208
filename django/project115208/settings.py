@@ -123,3 +123,5 @@ USE_TZ = False
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+GOOGLE_CLIENT_ID = '1005276403057-p67ocf8c13e5121akigm7sq93l7db7s2.apps.googleusercontent.com'

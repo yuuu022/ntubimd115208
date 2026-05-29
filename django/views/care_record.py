@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from core.models import CareStatus, CareRecord, UserProfile
 from django.db import transaction, models as djmodels
+from views.session_utils import get_current_user_profile
 
 
 DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
@@ -44,7 +45,7 @@ def add_care_reminder(request):
             if not carestatus:
                 error_message = '請選擇有效的類別。'
 
-        current_user = UserProfile.objects.filter(user_id=DEFAULT_USER_ID).first() or UserProfile.objects.first()
+        current_user = get_current_user_profile(request)
         if not error_message and not current_user:
             error_message = '找不到對應的使用者。'
 
@@ -82,7 +83,7 @@ def set_care_status(request):
     care_id = request.POST.get('carerecord_id')
     new_state = request.POST.get('state') in ('1', 'true', 'True', 'on')
 
-    current_user = UserProfile.objects.filter(user_id=DEFAULT_USER_ID).first() or UserProfile.objects.first()
+    current_user = get_current_user_profile(request)
     if care_id and current_user:
         care_record = CareRecord.objects.filter(carerecord_id=care_id, user=current_user).first()
         if care_record:

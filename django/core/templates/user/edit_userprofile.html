@@ -18,7 +18,7 @@
 
     <!-- Main Content -->
     <main class="pt-24 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form onsubmit="event.preventDefault(); window.location.href='userprofile.html';" class="space-y-6">
+        <form onsubmit="event.preventDefault(); window.location.href='/userprofile/';" class="space-y-6">
 
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
@@ -47,7 +47,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">媽媽姓名 / 暱稱</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">badge</span>
-                            <input type="text" required value="林曉美" placeholder="請輸入姓名或暱稱" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <input type="text" required value="{{ current_user.line_name }}" placeholder="請輸入姓名或暱稱" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                         </div>
                     </div>
 
@@ -56,7 +56,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">電子郵件 (Email)</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">mail</span>
-                            <input type="email" required value="xiaomei.lin@example.com" placeholder="請輸入電子郵件" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <input type="email" required value="{{ current_user.email }}" placeholder="請輸入電子郵件" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                         </div>
                     </div>
                 </div>

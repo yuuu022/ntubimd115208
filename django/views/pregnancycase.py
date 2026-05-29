@@ -4,21 +4,7 @@ from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from core.models import UserProfile, PregnancyCase, BabyInformation
-
-def _get_default_user():
-    """Fetch the default UserProfile for testing/fallback, aligning with codebase conventions."""
-    user = UserProfile.objects.filter(user_id='test_user_001').first()
-    if not user:
-        user = UserProfile.objects.first()
-    if not user:
-        user = UserProfile.objects.create(
-            user_id='test_user_001',
-            line_name='測試媽媽',
-            avatar='avatar.jpg',
-            email='test@example.com',
-            password='test123'
-        )
-    return user
+from views.session_utils import get_current_user_profile
 
 def _generate_unique_code():
     """Generate a unique 6-character alphanumeric join code."""
@@ -42,7 +28,9 @@ def pregnancy_case(request):
         case.delete()
         return redirect('pregnancy_case')
 
-    user = _get_default_user()
+    user = get_current_user_profile(request)
+    if not user:
+        return redirect('login')
     # Retrieve all pregnancy cases for this user, ordered by creation time ascending
     cases = PregnancyCase.objects.filter(user=user).order_by('create_time')
     cases_list = list(cases)
@@ -109,7 +97,9 @@ def pregnancy_case(request):
 
 def add_pregnancy_case(request):
     if request.method == 'POST':
-        user = _get_default_user()
+        user = get_current_user_profile(request)
+        if not user:
+            return redirect('login')
         menstruation_str = request.POST.get('menstruation')
         expecteddate_str = request.POST.get('expecteddate')
         code = request.POST.get('code')
@@ -151,6 +141,9 @@ def edit_pregnancy_case(request):
         return redirect('pregnancy_case')
 
     case = get_object_or_404(PregnancyCase, pregnancycase_id=case_id)
+    current_user = get_current_user_profile(request)
+    if not current_user or case.user_id != current_user.user_id:
+        return redirect('login')
     baby = case.babies.first()
 
     if request.method == 'POST':
