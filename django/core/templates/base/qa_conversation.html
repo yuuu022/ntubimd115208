@@ -54,14 +54,18 @@
 
     <div class="flex-1 min-w-0 flex flex-col relative bg-[#f7f6f3]/70 backdrop-blur-md shadow-[0_20px_40px_rgba(46,47,45,0.06)] pt-[72px]">
 
-        <main id="qa-main-scroll" class="qa-main flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col items-center">
+        <main id="qa-main-scroll" class="qa-main flex-1 min-h-0 overflow-y-auto px-8 pt-6 flex flex-col items-center">
             <div class="w-full max-w-3xl flex flex-col gap-8">
                 <div id="qa-message-list" class="flex flex-col gap-6 hide-scrollbar">
                     {% if current_messages %}
                     {% for message in current_messages %}
-                    <div class="flex items-start gap-3 max-w-[90%] {% if message.is_user %}self-end flex-row-reverse max-w-[85%]{% endif %}">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 {% if message.is_user %}bg-surface-container-high{% else %}bg-primary{% endif %}">
-                            <span class="material-symbols-outlined qa-message-icon text-sm {% if message.is_user %}text-on-surface-variant{% else %}text-white{% endif %}">{% if message.is_user %}person{% else %}child_care{% endif %}</span>
+                    <div class="flex items-start gap-1 max-w-[90%] {% if message.is_user %}self-end flex-row-reverse max-w-[85%]{% endif %}">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden {% if message.is_user %}bg-surface-container-high{% else %}bg-white border border-outline-variant/20{% endif %}">
+                            {% if message.is_user %}
+                            <span class="material-symbols-outlined qa-message-icon text-sm text-on-surface-variant">person</span>
+                            {% else %}
+                            <img src="/logo/LOGO 小圖.png" alt="LOGO" class="w-full h-full object-contain p-0.5" />
+                            {% endif %}
                         </div>
                         <div class="{% if message.is_user %}bg-surface-container-high text-on-surface rounded-tr-none{% else %}bg-primary-container text-on-primary-container rounded-tl-none{% endif %} px-6 py-4 rounded-[2rem] shadow-sm">
                             <p class="font-medium leading-relaxed whitespace-pre-wrap">{{ message.message }}</p>
@@ -109,6 +113,7 @@
         const messageList = document.getElementById('qa-message-list');
         const mainScroll = document.getElementById('qa-main-scroll');
         const questionInput = document.getElementById('qa-question-input');
+        const botAvatarSrc = "/logo/LOGO 小圖.png";
 
         if (!sidebar || !overlay || !openButton || !closeButton || !chatForm || !messageList || !mainScroll || !questionInput) {
             return;
@@ -125,12 +130,20 @@
             wrapper.className = `flex items-start gap-3 max-w-[90%] ${isUser ? 'self-end flex-row-reverse max-w-[85%]' : ''}`;
 
             const avatar = document.createElement('div');
-            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isUser ? 'bg-surface-container-high' : 'bg-primary'}`;
+            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden ${isUser ? 'bg-surface-container-high' : 'bg-white border border-outline-variant/20'}`;
 
-            const icon = document.createElement('span');
-            icon.className = `material-symbols-outlined qa-message-icon text-sm ${isUser ? 'text-on-surface-variant' : 'text-white'}`;
-            icon.textContent = isUser ? 'person' : 'child_care';
-            avatar.appendChild(icon);
+            if (isUser) {
+                const icon = document.createElement('span');
+                icon.className = 'material-symbols-outlined qa-message-icon text-sm text-on-surface-variant';
+                icon.textContent = 'person';
+                avatar.appendChild(icon);
+            } else {
+                const avatarImage = document.createElement('img');
+                avatarImage.src = botAvatarSrc;
+                avatarImage.alt = 'LOGO';
+                avatarImage.className = 'w-full h-full object-contain p-0.5';
+                avatar.appendChild(avatarImage);
+            }
 
             const bubble = document.createElement('div');
             bubble.className = `px-6 py-4 rounded-[2rem] shadow-sm ${isUser ? 'bg-surface-container-high text-on-surface rounded-tr-none' : 'bg-primary-container text-on-primary-container rounded-tl-none'}`;
@@ -150,12 +163,13 @@
             wrapper.className = 'flex items-start gap-3 max-w-[90%]';
 
             const avatar = document.createElement('div');
-            avatar.className = 'w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-primary';
+            avatar.className = 'w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-white border border-outline-variant/20';
 
-            const icon = document.createElement('span');
-            icon.className = 'material-symbols-outlined qa-message-icon text-white text-sm';
-            icon.textContent = 'child_care';
-            avatar.appendChild(icon);
+            const avatarImage = document.createElement('img');
+            avatarImage.src = botAvatarSrc;
+            avatarImage.alt = 'LOGO';
+            avatarImage.className = 'w-full h-full object-contain p-0.5';
+            avatar.appendChild(avatarImage);
 
             const bubble = document.createElement('div');
             bubble.className = 'px-6 py-4 rounded-[2rem] rounded-tl-none shadow-sm bg-primary-container text-on-primary-container';
