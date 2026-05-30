@@ -346,10 +346,13 @@
 
         <!-- Action Area -->
         <section class="flex flex-col items-center pt-2">
-            <button onclick="window.location.href='login.html'"
-                class="bg-primary/10 text-primary px-10 py-3.5 rounded-full font-bold text-sm hover:bg-primary hover:text-white transition-all duration-300 shadow-sm border border-primary/20 cursor-pointer">
-                登出帳號
-            </button>
+            <form action="/logout/" method="post">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <button type="submit"
+                    class="bg-primary/10 text-primary px-10 py-3.5 rounded-full font-bold text-sm hover:bg-primary hover:text-white transition-all duration-300 shadow-sm border border-primary/20 cursor-pointer">
+                    登出帳號
+                </button>
+            </form>
         </section>
     </main>
     <!-- Bottom Navigation Bar -->

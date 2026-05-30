@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -97,6 +98,7 @@ def google_auth_login(request):
 	return HttpResponseRedirect(reverse('index'))
 
 
+@require_POST
 def logout_user(request):
 	request.session.flush()
 	return redirect('login')
