@@ -4,7 +4,9 @@ import datetime
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from core.models import BabyInformation, BabyRecord, BabyGrowthMap, BabyStatus
+from views.pregnancycase import url_with_active_selection
 from django.db.models import Q
 from django.utils import timezone
 
@@ -197,7 +199,7 @@ def _get_baby_form_data(baby):
 
     pregnancy_count = 1
     if getattr(baby, 'pregnancycase', None):
-        pregnancy_count = baby.pregnancycase.babies.count() or 1
+        pregnancy_count = baby.pregnancycase.babyinformation_set.count() or 1
 
     return {
         'baby_name': baby.name or '',
@@ -242,7 +244,7 @@ def _get_baby_summary(baby):
 
     baby_count = 1
     if baby.pregnancycase_id:
-        baby_count = baby.pregnancycase.babies.count()
+        baby_count = baby.pregnancycase.babyinformation_set.count()
 
     return {
         'baby_name': baby.name or '小寶',
@@ -259,27 +261,10 @@ def _get_baby_summary(baby):
 
 
 def _get_active_baby(request):
-    baby_id = request.GET.get('baby_id') or request.POST.get('baby_id')
-    if baby_id:
-        try:
-            baby = BabyInformation.objects.filter(baby_id=int(baby_id)).first()
-            if baby:
-                request.session['active_baby_id'] = baby.baby_id
-                return baby
-        except (ValueError, TypeError):
-            pass
+    from views.pregnancycase import resolve_active_baby
+    from views.session_utils import get_current_user_profile
 
-    session_baby_id = request.session.get('active_baby_id')
-    if session_baby_id:
-        baby = BabyInformation.objects.filter(baby_id=session_baby_id).first()
-        if baby:
-            return baby
-
-    # Fallback to the first baby
-    baby = BabyInformation.objects.first()
-    if baby:
-        request.session['active_baby_id'] = baby.baby_id
-    return baby
+    return resolve_active_baby(request, get_current_user_profile(request))
 
 
 def _get_baby_milestones_summary(baby):
@@ -450,6 +435,29 @@ def add_baby_information(request):
 
 def edit_baby_information(request):
     baby = _get_active_baby(request)
+    if baby is None:
+        return redirect('pregnancy_case')
+
+    if request.method == 'POST':
+        baby_name = (request.POST.get('baby_name') or '').strip()
+        if baby_name:
+            baby.name = baby_name
+
+        birthdaytime_str = (request.POST.get('birthdaytime') or '').strip()
+        if birthdaytime_str:
+            naive = datetime.datetime.strptime(birthdaytime_str, '%Y-%m-%dT%H:%M')
+            baby.birthdaytime = timezone.make_aware(naive)
+
+        baby.baby_weight = _parse_float(request.POST.get('birth_weight'))
+        baby.baby_height = _parse_float(request.POST.get('birth_height'))
+        baby.babyheadcircumference = _parse_float(request.POST.get('birth_head'))
+        baby.chestcircumference = _parse_float(request.POST.get('birth_chest'))
+        production_method = (request.POST.get('production_method') or '').strip()
+        if production_method:
+            baby.production_method = production_method
+        baby.save()
+        return redirect('pregnancy_case')
+
     return render(request, 'baby/edit_baby_information.html', {
         'baby_form': _get_baby_form_data(baby),
         'baby': baby,
@@ -500,7 +508,7 @@ def add_baby_record(request):
                     babygrowthmap=growth_map
                 )
                 
-        return redirect('babyinformation')
+        return redirect(url_with_active_selection(request, reverse('babyinformation')))
 
     baby_list = BabyInformation.objects.all()
     try:
@@ -572,7 +580,7 @@ def edit_baby_record(request, babyrecord_id):
                     babygrowthmap=growth_map
                 )
 
-        return redirect('babyinformation')
+        return redirect(url_with_active_selection(request, reverse('babyinformation')))
 
     # 根據紀錄當天的日期計算寶寶月齡，並動態過濾
     record_date = record.date
@@ -611,4 +619,4 @@ def delete_baby_record(request, babyrecord_id):
     record = get_object_or_404(BabyRecord, babyrecord_id=babyrecord_id)
     if request.method == 'POST':
         record.delete()
-    return redirect('babyinformation')
+    return redirect(url_with_active_selection(request, reverse('babyinformation')))

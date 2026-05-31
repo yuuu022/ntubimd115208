@@ -5,7 +5,14 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from zoneinfo import ZoneInfo
 
-from core.models import CareRecord, PregnancyCase, PregnancyRecord, UserProfile
+from core.models import CareRecord, UserProfile
+from views.pregnancy_records import records_for_case
+from views.pregnancycase import (
+    build_pregnancy_progress,
+    resolve_active_baby,
+    resolve_active_pregnancy_case,
+    sync_active_selection_from_request,
+)
 from views.session_utils import get_current_user_profile
 
 DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
@@ -25,29 +32,12 @@ def _day_bounds_in_taiwan(date_value):
     return start_naive, end_naive
 
 
-def _get_active_pregnancy_case(request):
-    active_case_id = request.session.get('active_case_id')
-    if active_case_id:
-        case = PregnancyCase.objects.filter(pregnancycase_id=active_case_id).first()
-        if case:
-            return case
-
-    current_user = get_current_user_profile(request)
-    if not current_user:
-        return None
-
-    case = PregnancyCase.objects.filter(user=current_user).order_by('-create_time').first()
-    if case:
-        request.session['active_case_id'] = case.pregnancycase_id
-    return case
-
-
 def _build_pregnancy_chart_data(pregnancy_case):
     if not pregnancy_case:
         return []
 
     chart_rows = []
-    records = PregnancyRecord.objects.filter(pregnancycase=pregnancy_case).order_by('check_date', 'pregnancyrecord_id')
+    records = records_for_case(pregnancy_case).order_by('check_date', 'pregnancyrecord_id')
     for record in records:
         check_date = record.check_date.date() if isinstance(record.check_date, datetime.datetime) else record.check_date
         if not check_date:
@@ -70,8 +60,16 @@ def index(request):
     if not current_user:
         return redirect('login')
 
-    pregnancy_case = _get_active_pregnancy_case(request)
+    sync_active_selection_from_request(request, current_user)
+    has_baby_selection = bool(
+        request.session.get('active_baby_id') or request.GET.get('baby_id')
+    )
+    active_baby = resolve_active_baby(
+        request, current_user, fallback=has_baby_selection
+    )
+    pregnancy_case = resolve_active_pregnancy_case(request, current_user)
     pregnancy_chart_data = _build_pregnancy_chart_data(pregnancy_case)
+    pregnancy_progress = build_pregnancy_progress(pregnancy_case, today)
 
     care_queryset = CareRecord.objects.select_related('carestatus').order_by('recordtime', 'carerecord_id')
     care_queryset = care_queryset.filter(user=current_user)
@@ -143,5 +141,7 @@ def index(request):
         'pregnancy_case': pregnancy_case,
         'pregnancy_chart_data': pregnancy_chart_data,
         'pregnancy_chart_has_data': bool(pregnancy_chart_data),
+        'pregnancy_progress': pregnancy_progress,
+        'active_baby': active_baby,
     }
     return render(request, 'index/index.html', context)

@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}小孩記錄{% endblock %}
+{% block title %}嬰幼兒記錄{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/baby/babyinformation.css' %}">
 {% endblock %}
@@ -8,7 +8,7 @@
     <main class="mx-auto px-4 pt-8 space-y-8 max-w-md md:max-w-2xl lg:max-w-3xl mx-auto w-full transition-all duration-500 ease-in-out">
         <!-- Header Text -->
         <section class="space-y-1">
-            <h1 class="text-4xl font-extrabold text-primary tracking-tight">小孩紀錄</h1>
+            <h1 class="text-4xl font-extrabold text-primary tracking-tight">嬰幼兒紀錄</h1>
             <p class="text-on-surface-variant font-medium">陪伴寶貝從出生到三歲的成長點滴</p>
         </section>
         <!-- Component 1: Compact Child Info Summary -->
@@ -174,7 +174,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
                     <h2 class="text-xl font-bold text-on-surface">成長紀錄</h2>
-                    <p class="text-sm text-on-surface-variant">查看、編輯或刪除寶寶的成長紀錄</p>
+                    <p class="text-sm text-on-surface-variant">查看、編輯或刪除嬰幼兒的成長紀錄</p>
                 </div>
                 <a href="{% url 'add_baby_record' %}"
                     class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/80 transition-all">

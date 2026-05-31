@@ -46,17 +46,18 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                            <input type="date" name="menstruation" value="{{ menstruation_str }}" required class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="date" name="menstruation" id="menstruation-input" value="{{ menstruation_str }}" required class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
                     </div>
 
                     <!-- 預產期 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期 (自動計算或手動填寫)</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期 (選擇最後月經日後自動推算，亦可手動修改)</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">calendar_today</span>
-                            <input type="date" name="expecteddate" value="{{ expecteddate_str }}" required class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
+                            <input type="date" name="expecteddate" id="expecteddate-input" value="{{ expecteddate_str }}" required class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
                         </div>
+     
                     </div>
 
                     <!-- 加入碼 -->
@@ -81,4 +82,18 @@
         </form>
     </main>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/pregnancy_due_date.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.PregnancyDueDate) {
+            PregnancyDueDate.bindDueDateAutoCalc(
+                document.getElementById('menstruation-input'),
+                document.getElementById('expecteddate-input')
+            );
+        }
+    });
+</script>
 {% endblock %}

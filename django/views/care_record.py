@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from core.models import CareStatus, CareRecord, UserProfile
 from django.db import transaction, models as djmodels
+from views.pregnancycase import url_with_active_selection
 from views.session_utils import get_current_user_profile
 
 
@@ -63,7 +64,7 @@ def add_care_reminder(request):
                     content=form_data['content'][:255],
                     create_time=datetime.datetime.now(ZoneInfo('Asia/Taipei')).replace(tzinfo=None),
                 )
-            return redirect(f"/?date={form_data['record_date']}")
+            return redirect(url_with_active_selection(request, '/', {'date': form_data['record_date']}))
 
     carestatus_list = list(CareStatus.objects.all())
     return render(request, 'index/add_care_reminder.html', {
@@ -90,4 +91,4 @@ def set_care_status(request):
             care_record.state = new_state
             care_record.save(update_fields=['state'])
 
-    return redirect(f'/?date={selected_date.isoformat()}')
+    return redirect(url_with_active_selection(request, '/', {'date': selected_date.isoformat()}))

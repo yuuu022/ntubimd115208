@@ -1,6 +1,6 @@
-﻿{% extends 'base/base.html' %}
+{% extends 'base/base.html' %}
 {% load static %}
-{% block title %}編輯寶寶資料{% endblock %}
+{% block title %}編輯嬰幼兒資料{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/baby/edit_baby_profile.css' %}">
 {% endblock %}
@@ -9,14 +9,16 @@
     <!-- Header Section -->
     <!-- Main Content -->
     <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form onsubmit="event.preventDefault(); window.history.back();" class="space-y-6">
+        <form method="post" action="{% url 'edit_baby_information' %}?baby_id={{ baby.baby_id }}" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="baby_id" value="{{ baby.baby_id }}" />
 
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
                     <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                         <span class="material-symbols-outlined text-primary text-[20px]">child_care</span>
                     </div>
-                    <h2 class="font-headline font-bold text-lg">寶寶基本資料</h2>
+                    <h2 class="font-headline font-bold text-lg">嬰幼兒基本資料</h2>
                 </div>
 
                 <div class="space-y-5">

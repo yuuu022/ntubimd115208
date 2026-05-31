@@ -37,7 +37,7 @@
                     {% endfor %}
                     <a href="{% url 'add_pregnancy_case' %}" class="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors flex items-center gap-2">
                         <span class="material-symbols-outlined text-[16px] text-primary">pregnant_woman</span>
-                        <span class="text-[13px] font-bold text-primary">新增胎數與小孩</span>
+                        <span class="text-[13px] font-bold text-primary">新增胎數與嬰幼兒</span>
                     </a>
                 </div>
             </div>
@@ -113,7 +113,7 @@
             <!-- Notes Section -->
             <div class="space-y-4">
                 <label class="block text-sm font-medium text-on-surface-variant px-1">成長筆記</label>
-                <textarea name="record" class="w-full bg-surface-container-lowest border-none rounded-[2rem] p-6 h-40 focus:ring-2 focus:ring-primary-container text-on-surface resize-none custom-shadow placeholder:text-on-surface-variant/40 placeholder:font-medium" placeholder="寫下對寶寶的心情或今天發生的趣事...">{{ form_data.record|default:'' }}</textarea>
+                <textarea name="record" class="w-full bg-surface-container-lowest border-none rounded-[2rem] p-6 h-40 focus:ring-2 focus:ring-primary-container text-on-surface resize-none custom-shadow placeholder:text-on-surface-variant/40 placeholder:font-medium" placeholder="寫下對嬰幼兒的心情或今天發生的趣事...">{{ form_data.record|default:'' }}</textarea>
             </div>
 
             <!-- Save Button -->
