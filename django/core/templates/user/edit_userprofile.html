@@ -33,7 +33,11 @@
                     <div class="flex flex-col items-center gap-3 pb-2">
                         <div class="relative group cursor-pointer">
                             <div class="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-4 border-surface-container-lowest shadow-sm">
+                                {% if current_user.avatar %}
+                                <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}" class="w-full h-full object-cover">
+                                {% else %}
                                 <span class="material-symbols-outlined text-primary text-4xl">face_3</span>
+                                {% endif %}
                             </div>
                             <div class="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-md border-2 border-surface-container-lowest group-hover:scale-110 transition-transform">
                                 <span class="material-symbols-outlined text-[16px]">photo_camera</span>
@@ -47,7 +51,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">媽媽姓名 / 暱稱</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">badge</span>
-                            <input type="text" required value="{{ current_user.line_name }}" placeholder="請輸入姓名或暱稱" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <input type="text" required value="{{ current_user.name }}" placeholder="請輸入姓名或暱稱" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                         </div>
                     </div>
 

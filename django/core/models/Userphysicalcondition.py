@@ -1,5 +1,4 @@
 from django.db import models
-
 from .Physicalcondition import PhysicalCondition
 from .PregnancyRecord import PregnancyRecord
 
@@ -7,8 +6,8 @@ from .PregnancyRecord import PregnancyRecord
 # 使用者選取的身體狀況
 class Userphysicalcondition(models.Model):
     userphysicalcondition_id = models.AutoField(primary_key=True)
-    pregnancyrecord = models.ForeignKey(PregnancyRecord, on_delete=models.CASCADE, db_column='pregnancyrecord_id', related_name='userphysicalconditions')
-    physicalcondition = models.ForeignKey(PhysicalCondition, on_delete=models.CASCADE, db_column='physicalcondition_id', related_name='userphysicalconditions')
+    pregnancyrecord = models.ForeignKey(PregnancyRecord, on_delete=models.CASCADE)
+    physicalcondition = models.ForeignKey(PhysicalCondition, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'userphysicalcondition'

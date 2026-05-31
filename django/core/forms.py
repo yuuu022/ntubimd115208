@@ -9,6 +9,5 @@ class UserProfileForm(forms.ModelForm):
             'line_name': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Enter your Line Name'}),
             'avatar': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Avatar URL'}),
             'email': forms.EmailInput(attrs={'class': 'form-input', 'placeholder': 'Enter your email'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Enter your password'}),
             'birthday': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
         }
