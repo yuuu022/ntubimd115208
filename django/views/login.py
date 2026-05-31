@@ -1,12 +1,13 @@
 import json
-import uuid
 
 from django.conf import settings
+from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db.models import Max
 from google.oauth2 import id_token
 from google.auth.transport import requests
 
@@ -15,6 +16,11 @@ from core.models import UserProfile
 
 def login_page(request):
 	return render(request, 'login.html')
+
+
+def _next_user_id():
+	max_user_id = UserProfile.objects.aggregate(max_user_id=Max('user_id')).get('max_user_id')
+	return (max_user_id or 0) + 1
 
 
 @csrf_exempt
@@ -52,31 +58,38 @@ def google_auth_login(request):
 	picture = idinfo.get('picture', '')
 	display_name = (name or email.split('@')[0])[:50]
 
-	user_profile = UserProfile.objects.filter(email=email).first()
-	if not user_profile:
-		user_profile = UserProfile.objects.filter(line_name=email).first()
-	if not user_profile:
-		user_profile = UserProfile(
-			user_id=str(uuid.uuid4()),
-			line_name=display_name,
-			avatar=picture or '',
-			email=email,
-			password='',
-		)
-		user_profile.save()
+	with transaction.atomic():
+		# find existing user by email or by line id
+		user_profile = UserProfile.objects.filter(email=email).first()
+		if not user_profile:
+			user_profile = UserProfile.objects.filter(line_id=email).first()
+		if not user_profile:
+			# unmanaged table: assign the next numeric user_id manually
+			user_profile = UserProfile(
+				user_id=_next_user_id(),
+				line_id='',
+				name=display_name,
+				avatar=picture or '',
+				email=email,
+			)
+			user_profile.save(force_insert=True)
 
-	update_fields = []
-	if user_profile.email != email:
-		user_profile.email = email
-		update_fields.append('email')
-	if user_profile.line_name != display_name:
-		user_profile.line_name = display_name
-		update_fields.append('line_name')
-	if picture and user_profile.avatar != picture:
-		user_profile.avatar = picture
-		update_fields.append('avatar')
-	if update_fields:
-		user_profile.save(update_fields=update_fields)
+		update_fields = []
+		if user_profile.email != email:
+			user_profile.email = email
+			update_fields.append('email')
+		if user_profile.name != display_name:
+			user_profile.name = display_name
+			update_fields.append('name')
+		# keep line_id empty for Google-based accounts
+		if user_profile.line_id not in (None, ''):
+			user_profile.line_id = ''
+			update_fields.append('line_id')
+		if picture and user_profile.avatar != picture:
+			user_profile.avatar = picture
+			update_fields.append('avatar')
+		if update_fields:
+			user_profile.save(update_fields=update_fields)
 
 	request.session['user_id'] = str(user_profile.user_id)
 	request.session['user_email'] = email

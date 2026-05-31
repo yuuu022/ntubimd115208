@@ -5,7 +5,7 @@ from .BabyInformation import BabyInformation
 #嬰兒紀錄
 class BabyRecord(models.Model):
     babyrecord_id = models.AutoField(primary_key=True)
-    baby = models.ForeignKey(BabyInformation, on_delete=models.CASCADE, db_column='baby_id', related_name='records')
+    baby = models.ForeignKey(BabyInformation, on_delete=models.CASCADE)
     date = models.DateField()
     record = models.TextField()
     weight = models.FloatField(null=True, blank=True)
@@ -20,4 +20,4 @@ class BabyRecord(models.Model):
         managed = False
 
     def __str__(self):
-        return f"Baby Record: {self.date}"
+        return self.date

@@ -6,8 +6,8 @@ from .Feeling import Feeling
 #心情表
 class Userfeeling(models.Model):
     userfeeling_id = models.AutoField(primary_key=True)
-    pregnancyrecord = models.ForeignKey(PregnancyRecord, on_delete=models.CASCADE, db_column='pregnancyrecord_id', related_name='userfeelings')
-    feeling = models.ForeignKey(Feeling, on_delete=models.CASCADE, db_column='feeling_id', related_name='userfeelings')
+    pregnancyrecord = models.ForeignKey(PregnancyRecord, on_delete=models.CASCADE)
+    feeling = models.ForeignKey(Feeling, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'userfeeling'

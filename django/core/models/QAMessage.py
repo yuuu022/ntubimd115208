@@ -4,8 +4,8 @@ from .QAConversation import QAConversation
 
 class QAMessage(models.Model):
     serno = models.AutoField(primary_key=True)
-    qa_conversation = models.ForeignKey(QAConversation, db_column='qa_conversation_id', on_delete=models.CASCADE, related_name='messages')
-    role = models.CharField(max_length=255)
+    qa_conversation = models.ForeignKey(QAConversation, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10)
     message = models.TextField()
     create_time = models.DateTimeField()
 
