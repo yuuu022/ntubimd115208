@@ -58,6 +58,17 @@
     </style>
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex items-center justify-center relative overflow-hidden">
+    {% if request.GET.notice == 'login_required' %}
+    <script>
+        alert('請先登入');
+        if (window.history && window.history.replaceState) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('notice');
+            window.history.replaceState({}, '', url.toString());
+        }
+    </script>
+    {% endif %}
+
     <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-container/40 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-secondary-container/40 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 

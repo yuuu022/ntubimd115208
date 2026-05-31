@@ -29,6 +29,26 @@ def _get_active_pregnancy_case(request):
     return case
 
 
+def _get_unique_record_for_date(pregnancy_case, selected_date):
+    if not pregnancy_case:
+        return None
+
+    records = list(
+        PregnancyRecord.objects
+        .filter(pregnancycase=pregnancy_case, check_date__date=selected_date)
+        .order_by('-check_date', '-pregnancyrecord_id')
+    )
+    if not records:
+        return None
+
+    primary_record = records[0]
+    duplicate_ids = [record.pregnancyrecord_id for record in records[1:]]
+    if duplicate_ids:
+        PregnancyRecord.objects.filter(pregnancyrecord_id__in=duplicate_ids).delete()
+
+    return primary_record
+
+
 FEELING_EMOJI_MAP = {
     '快樂': '😊',
     '幸福': '🥰',
@@ -369,18 +389,12 @@ def pregnancyrecord_add(request):
                     selected_date = preg_from_get.check_date.date()
                 except Exception:
                     pass
-
     selected_day_record = None
     # If we loaded a specific record by id, prefer it. Otherwise pick by date.
     if preg_from_get:
         selected_day_record = preg_from_get
     else:
-        selected_day_record = (
-            PregnancyRecord.objects
-            .filter(pregnancycase=pregnancy_case, check_date__date=selected_date)
-            .order_by('-check_date', '-pregnancyrecord_id')
-            .first()
-        )
+        selected_day_record = _get_unique_record_for_date(pregnancy_case, selected_date)
 
     selected_day_prenatal = (
         Prenatalrecord.objects
@@ -393,7 +407,6 @@ def pregnancyrecord_add(request):
     if request.method == 'POST':
         with transaction.atomic():
             weight = request.POST.get('weight') or None
-            height = request.POST.get('height') or None
             record = request.POST.get('record') or ''
             official_record_enabled = request.POST.get('official_record') in ('1', 'on', 'true', 'True')
 
@@ -401,11 +414,6 @@ def pregnancyrecord_add(request):
                 weight_val = float(weight) if weight not in (None, '') else None
             except ValueError:
                 weight_val = None
-
-            try:
-                height_val = float(height) if height not in (None, '') else None
-            except ValueError:
-                height_val = None
 
             # If the form included an explicit pregnancyrecord id, update that record.
             # The submitted check_date is the new target date for that same row.
@@ -422,20 +430,29 @@ def pregnancyrecord_add(request):
             if preg:
                 # user intends to edit this existing record; update its check_date if changed
                 check_datetime = _date_to_safe_datetime(selected_date)
-                preg.check_date = check_datetime
                 preg.record = record
                 preg.weight = weight_val
-                preg.height = height_val
-                preg.save(update_fields=['check_date', 'record', 'weight', 'height'])
+                conflict_record = _get_unique_record_for_date(pregnancy_case, selected_date)
+                if conflict_record and conflict_record.pregnancyrecord_id != preg.pregnancyrecord_id:
+                    conflict_record.record = record
+                    conflict_record.weight = weight_val
+                    conflict_record.check_date = check_datetime
+                    conflict_record.save(update_fields=['check_date', 'record', 'weight'])
+                    if preg.pregnancyrecord_id != conflict_record.pregnancyrecord_id:
+                        preg.delete()
+                    preg = conflict_record
+                else:
+                    preg.check_date = check_datetime
+                    preg.save(update_fields=['check_date', 'record', 'weight'])
             else:
                 # fallback: if there is a record for the chosen date, update that; otherwise create
+                selected_day_record = _get_unique_record_for_date(pregnancy_case, selected_date)
                 if selected_day_record:
                     preg = selected_day_record
                     check_datetime = preg.check_date
                     preg.record = record
                     preg.weight = weight_val
-                    preg.height = height_val
-                    preg.save(update_fields=['record', 'weight', 'height'])
+                    preg.save(update_fields=['record', 'weight'])
                 else:
                     check_datetime = _date_to_safe_datetime(selected_date)
 
@@ -444,7 +461,6 @@ def pregnancyrecord_add(request):
                         check_date=check_datetime,
                         record=record,
                         weight=weight_val,
-                        height=height_val,
                     )
 
             # Keep the page redirect aligned with the final saved date for this exact row.
@@ -588,7 +604,6 @@ def pregnancyrecord_add(request):
         'selected_month_abbr': selected_date.strftime('%b').upper(),
         'selected_day': selected_date.day,
         'form_weight': selected_day_record.weight if selected_day_record else '',
-        'form_height': selected_day_record.height if selected_day_record else '',
         'form_record': selected_day_record.record if selected_day_record else '',
         'form_fetal_heart_rate': (
             selected_day_prenatal.fetal_heart_rate if selected_day_prenatal and selected_day_prenatal.fetal_heart_rate else ''
