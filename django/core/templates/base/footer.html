@@ -1,4 +1,4 @@
-<nav class="fixed bottom-0 left-0 w-full md:w-full flex justify-around items-center px-4 pb-3 pt-2 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-10px_40px_rgba(46,47,45,0.06)] md:bottom-0 md:rounded-none md:pt-3 md:pb-3 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500">
+<nav class="fixed bottom-0 left-0 w-full md:w-full flex justify-around items-center px-4 pb-3 pt-2 bg-[#f7f6f3]/80 backdrop-blur-xl z-50 shadow-[0_-10px_40px_rgba(46,47,45,0.06)] md:bottom-0 md:rounded-none md:pt-3 md:pb-3 md:shadow-2xl md:border md:border-surface-container-high/50 transition-all duration-500">
     <a data-nav="home" href="/{% if active_selection_query %}?{{ active_selection_query }}{% endif %}" class="flex w-[64px] h-[48px] flex-col items-center justify-center text-[#5b5c5a] hover:text-[#65518a] transition-opacity footer">
         <span class="material-symbols-outlined">home</span>
         <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">首頁</span>
@@ -13,10 +13,54 @@
     </a>
     <a data-nav="knowledge" href="/qa/{% if active_selection_query %}?{{ active_selection_query }}{% endif %}" class="flex w-[64px] h-[48px] flex-col items-center justify-center text-[#5b5c5a] hover:text-[#65518a] transition-opacity footer">
         <span class="material-symbols-outlined">menu_book</span>
-        <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">知識</span>
+        <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">Growth</span>
     </a>
     <a data-nav="profile" href="/userprofile/{% if active_selection_query %}?{{ active_selection_query }}{% endif %}" class="flex w-[64px] h-[48px] flex-col items-center justify-center text-[#5b5c5a] hover:text-[#65518a] transition-opacity footer">
         <span class="material-symbols-outlined">person_2</span>
         <span class="font-['Be_Vietnam_Pro'] text-[10px] font-medium mt-1">個人</span>
     </a>
 </nav>
+
+<script>
+    (() => {
+        const navLinks = Array.from(document.querySelectorAll('a[data-nav]'));
+
+        if (!navLinks.length) {
+            return;
+        }
+
+        const navMatchers = {
+            home: (location) => location.pathname === '/',
+            record: (location) => location.pathname.startsWith('/pregnancyrecord/'),
+            growth: (location) => location.pathname.startsWith('/babyinformation/'),
+            knowledge: (location) => location.pathname.startsWith('/qa/'),
+            profile: (location) => location.pathname.startsWith('/userprofile/'),
+        };
+
+        const setActiveLink = (activeLink) => {
+            navLinks.forEach((link) => {
+                const isActive = link === activeLink;
+                link.classList.toggle('footer-nav-active', isActive);
+
+                if (isActive) {
+                    link.setAttribute('aria-current', 'page');
+                } else {
+                    link.removeAttribute('aria-current');
+                }
+            });
+        };
+
+        const currentLink = navLinks.find((link) => {
+            const matcher = navMatchers[link.dataset.nav];
+            return matcher ? matcher(window.location) : false;
+        });
+
+        setActiveLink(currentLink || navLinks[0]);
+
+        navLinks.forEach((link) => {
+            link.addEventListener('click', () => {
+                setActiveLink(link);
+            });
+        });
+    })();
+</script>

@@ -2,9 +2,9 @@ from django.db import models
 from django.utils import timezone
 
 class UserProfile(models.Model):
-    user_id = models.AutoField(max_length=255, primary_key=True)
-    line_id = models.CharField(max_length=100, unique=True)
-    email = models.EmailField(max_length=100, unique=True)
+    user_id = models.SmallIntegerField(primary_key=True)
+    line_id = models.CharField(max_length=100, null=True, blank=True)
+    email = models.EmailField(max_length=100, null=True, blank=True)
     avatar = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=20)
     birthday = models.DateField(null=True, blank=True)

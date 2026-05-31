@@ -16,7 +16,7 @@ from django.urls import reverse
 
 from core.models import QAConversation, QAMessage, UserProfile
 
-DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
+DEFAULT_USER_ID = None
 
 logger = logging.getLogger(__name__)
 
@@ -206,23 +206,39 @@ def _post_to_n8n(question_text):
         return None, f"發生未知錯誤：{str(exc)}", debug_info
 
 
-def _store_exchange(question_text, answer_text):
+def _store_exchange(question_text, answer_text, request=None):
     if not question_text or not answer_text:
-        return None
+        return None, "缺少問題或回答內容"
 
     try:
-        user = UserProfile.objects.filter(user_id=DEFAULT_USER_ID).first() or UserProfile.objects.first()
+        user = None
+        if request is not None:
+            session_user_id = request.session.get("user_id")
+            if session_user_id not in (None, ""):
+                try:
+                    user = UserProfile.objects.filter(user_id=int(session_user_id)).first()
+                except (TypeError, ValueError):
+                    user = None
+
+        if user is None and DEFAULT_USER_ID is not None:
+            try:
+                user = UserProfile.objects.filter(user_id=int(DEFAULT_USER_ID)).first()
+            except (TypeError, ValueError):
+                user = None
+
+        if user is None:
+            user = UserProfile.objects.order_by("user_id").first()
     except Exception:
         user = None
 
     if not user:
-        return None
+        return None, "找不到可用的使用者資料，無法寫入 qaconversation"
 
     try:
         now = timezone.now()
         with transaction.atomic():
             conversation = QAConversation.objects.create(
-                user_id=user.user_id,
+                user_id=user,
                 title=(question_text[:250] or "孕期知識問答"),
                 create_time=now,
             )
@@ -238,14 +254,15 @@ def _store_exchange(question_text, answer_text):
                 message=answer_text,
                 create_time=now,
             )
-        return conversation
-    except Exception:
-        return None
+        return conversation, None
+    except Exception as exc:
+        logger.exception("Failed to store QA exchange")
+        return None, str(exc)
 
 
 def _append_message(conversation, role, message_text):
     if not conversation or not message_text:
-        return
+        return "缺少對話或訊息內容"
 
     try:
         with transaction.atomic():
@@ -255,15 +272,17 @@ def _append_message(conversation, role, message_text):
                 message=message_text,
                 create_time=timezone.now(),
             )
-    except Exception:
-        return
+        return None
+    except Exception as exc:
+        logger.exception("Failed to append QA message")
+        return str(exc)
 
 
 def _get_conversation_by_id(conversation_id):
     if not conversation_id:
         return None
 
-    return QAConversation.objects.filter(qa_conversation_id=conversation_id).first()
+    return QAConversation.objects.filter(qaconversation_id=conversation_id).first()
 
 
 def _get_current_conversation_id(request):
@@ -309,14 +328,14 @@ def _build_conversation_item(conversation, active_conversation_id=None):
     latest_message_time = messages[-1]["create_time"] if messages else None
 
     return {
-        "id": conversation.qa_conversation_id,
+        "id": conversation.qaconversation_id,
         "title": conversation.title,
         "create_time": conversation.create_time,
         "latest_message_time": latest_message_time,
         "question": user_messages[-1]["message"] if user_messages else conversation.title,
         "answers": [message["message"] for message in assistant_messages],
         "messages": messages,
-        "is_active": str(conversation.qa_conversation_id) == str(active_conversation_id),
+        "is_active": str(conversation.qaconversation_id) == str(active_conversation_id),
     }
 
 
@@ -387,19 +406,24 @@ def qa_conversation(request):
                     conversation = _get_conversation_by_id(current_conversation_id)
 
                     if not conversation:
-                        conversation = _store_exchange(question, answer)
+                        conversation, store_error = _store_exchange(question, answer, request=request)
+                        if store_error:
+                            debug_info["store_error"] = store_error
                     else:
-                        _append_message(conversation, "user", question)
-                        _append_message(conversation, "assistant", answer)
+                        user_error = _append_message(conversation, "user", question)
+                        assistant_error = _append_message(conversation, "assistant", answer)
+                        if user_error or assistant_error:
+                            debug_info["store_error"] = user_error or assistant_error
+                            conversation = None
 
                     if conversation:
-                        _set_current_conversation_id(request, conversation.qa_conversation_id)
+                        _set_current_conversation_id(request, conversation.qaconversation_id)
                         request.session.modified = True
                         if is_ajax:
                             return JsonResponse(
                                 {
                                     "ok": True,
-                                    "conversation_id": conversation.qa_conversation_id,
+                                    "conversation_id": conversation.qaconversation_id,
                                     "answer": answer,
                                     "sources": sources,
                                     "debug": debug_info,
@@ -407,11 +431,11 @@ def qa_conversation(request):
                             )
                         # store debug info to session for next page render
                         request.session["qa_last_debug"] = debug_info
-                        return redirect(f"{reverse('qa_conversation')}?conversation_id={conversation.qa_conversation_id}")
+                        return redirect(f"{reverse('qa_conversation')}?conversation_id={conversation.qaconversation_id}")
 
             # If we reach here, there was an error from n8n or empty payload
             if is_ajax:
-                return JsonResponse({"ok": False, "error": error_message or "n8n 未回傳有效結果", "debug": debug_info})
+                return JsonResponse({"ok": False, "error": error_message or debug_info.get("store_error") or "n8n 未回傳有效結果", "debug": debug_info})
             # store debug info for non-ajax flow
             request.session["qa_last_debug"] = debug_info
 
@@ -430,7 +454,7 @@ def qa_conversation(request):
             current_conversation = None
 
     if current_conversation:
-        _set_current_conversation_id(request, current_conversation.qa_conversation_id)
+        _set_current_conversation_id(request, current_conversation.qaconversation_id)
 
     active_conversation_id = request.session.get(ACTIVE_CONVERSATION_SESSION_KEY)
     recent_items = _load_recent_items()

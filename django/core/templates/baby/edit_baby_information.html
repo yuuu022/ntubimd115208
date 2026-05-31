@@ -49,27 +49,6 @@
                         </div>
                     </div>
 
-                    <!-- 胎次與胎兒數 -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">胎次</label>
-                            <div class="relative">
-                                <input type="number" name="pregnancy_order" min="1" max="10" value="{{ baby_form.pregnancy_order }}" placeholder="第幾胎" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">胎兒數</label>
-                            <div class="relative">
-                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">child_care</span>
-                                <select name="pregnancy_count" class="w-full bg-surface-container-low bg-none border-none rounded-xl pl-11 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none">
-                                    <option value="1" {% if baby_form.pregnancy_count == 1 %}selected{% endif %}>單胞胎</option>
-                                    <option value="2" {% if baby_form.pregnancy_count == 2 %}selected{% endif %}>雙胞胎</option>
-                                    <option value="3" {% if baby_form.pregnancy_count >= 3 %}selected{% endif %}>三胞胎或以上</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- 加入碼 -->
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1 flex justify-between items-center">

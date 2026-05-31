@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}知識問答{% endblock %}
+{% block title %}Goowth AI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/qa_conversation.css' %}" />
 {% endblock %}
@@ -48,7 +48,7 @@
             <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <h1 class="qa-page-title text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">懷孕知識問答</h1>
+            <h1 class="qa-page-title text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">Goowth AI</h1>
         </div>
     </nav>
 
@@ -79,7 +79,7 @@
                     {% else %}
                     <div id="qa-empty-state" class="rounded-[2rem] border border-outline-variant/20 bg-white/80 px-6 py-5 shadow-sm">
                         <div class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">歡迎開始提問</div>
-                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問營養、產檢、孕期不適、產後照護、0-3 歲寶寶的發展與照護以及準爸爸準媽媽注意事項。</p>
+                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問產檢、孕期不適的注意事項。</p>
                     </div>
                     {% endif %}
                 </div>
@@ -213,6 +213,42 @@
             return typingNode;
         };
 
+        const formatErrorDetails = (data, rawBody, response) => {
+            const parts = [];
+
+            if (data?.error) {
+                parts.push(`錯誤訊息：${data.error}`);
+            }
+
+            if (data?.debug?.exception) {
+                parts.push(`例外：${data.debug.exception}`);
+            }
+
+            if (data?.debug?.store_error) {
+                parts.push(`寫入失敗：${data.debug.store_error}`);
+            }
+
+            if (data?.debug?.response_status) {
+                parts.push(`HTTP 狀態：${data.debug.response_status}`);
+            }
+
+            if (data?.debug?.response_body) {
+                parts.push(`n8n 回應：${data.debug.response_body}`);
+            } else if (rawBody && rawBody !== data?.error && rawBody !== data?.answer) {
+                parts.push(`原始回應：${rawBody}`);
+            }
+
+            if (!parts.length && response && !response.ok) {
+                parts.push(`HTTP 狀態：${response.status}`);
+            }
+
+            if (!parts.length) {
+                return 'n8n 未回傳有效結果';
+            }
+
+            return parts.join('\n\n');
+        };
+
         scrollMessagesToBottom();
 
         const openSidebar = () => {
@@ -273,11 +309,22 @@
                     credentials: 'same-origin',
                 });
 
-                const data = await response.json();
+                const rawBody = await response.text();
+                let data = {};
 
-                if (!response.ok || !data.ok) {
+                if (rawBody) {
+                    try {
+                        data = JSON.parse(rawBody);
+                    } catch (parseError) {
+                        data = { ok: response.ok, answer: rawBody };
+                    }
+                } else {
+                    data = { ok: response.ok };
+                }
+
+                if (!response.ok || data.ok === false) {
                     typingNode.remove();
-                    appendMessage(data?.error || 'n8n 未回傳有效結果', false);
+                    appendMessage(formatErrorDetails(data, rawBody, response), false);
                     return;
                 }
 
@@ -293,12 +340,12 @@
                     conversationField.value = conversationId;
                 }
 
-                const answerText = data.answer || '目前資料庫沒有此資訊';
+                const answerText = data.answer || data.output || data.response || data.text || rawBody || '目前資料庫沒有此資訊';
                 typingNode.replaceWith(buildMessageNode(answerText, false));
                 scrollMessagesToBottom();
             } catch (error) {
                 typingNode.remove();
-                appendMessage('目前無法連線到 n8n，請稍後再試。', false);
+                appendMessage(`目前無法連線到 n8n，請稍後再試。\n\n錯誤訊息：${error?.message || String(error)}`, false);
             } finally {
                 questionInput.disabled = false;
                 if (submitButton) {
