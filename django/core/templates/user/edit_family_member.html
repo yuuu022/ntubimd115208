@@ -7,7 +7,7 @@
 {% block content %}
 <body class="bg-surface text-on-surface min-h-screen pb-32">
     <!-- Header Section -->
-    <header class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md rounded-b-[3rem] shadow-[0_20px_40px_rgba(46,47,45,0.06)] flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <header class="sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="flex items-center gap-3">
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
@@ -17,12 +17,12 @@
     </header>
 
     <!-- Main Content -->
-    <main class="pt-24 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <main class="px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <form onsubmit="event.preventDefault(); window.location.href='userprofile.html';" class="space-y-6">
 
             <!-- Target Helper Info -->
-            <button type="button" id="helper-selector-btn" class="w-full text-left bg-primary/5 hover:bg-primary/10 transition-colors rounded-3xl p-6 flex items-center gap-4 border border-primary/10 cursor-pointer group relative overflow-hidden">
-                <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-xl shrink-0 group-hover:scale-105 transition-transform">
+            <button type="button" id="helper-selector-btn" class="w-full text-left bg-primary/5 hover:bg-primary/10 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-3xl p-6 flex items-center gap-4 border border-primary/10 ring-1 ring-transparent hover:ring-primary/20 cursor-pointer group relative overflow-hidden active:scale-[0.99]">
+                <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-xl shrink-0 group-hover:scale-105 transition-transform duration-200">
                     <span id="current-helper-icon" class="material-symbols-outlined text-[28px]">face</span>
                 </div>
                 <div class="flex flex-col flex-1">
@@ -31,6 +31,10 @@
                         <span id="current-helper-name">張偉明</span>
                         <span id="current-helper-role" class="text-sm font-medium text-on-surface-variant">(爸爸)</span>
                     </span>
+                </div>
+                <div class="flex items-center gap-1 self-center shrink-0 rounded-full bg-white/90 px-3 py-2 text-primary border border-primary/15 shadow-sm">
+                    <span class="material-symbols-outlined text-[18px]">touch_app</span>
+                    <span class="text-xs font-bold tracking-wider">變更</span>
                 </div>
             </button>
 

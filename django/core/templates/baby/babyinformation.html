@@ -52,6 +52,10 @@
                     <p class="text-sm font-extrabold text-primary">{{ baby_summary.birth_chest|default:'-' }}<span class="text-[10px] ml-0.5">cm</span></p>
                 </div>
             </div>
+            <button onclick="window.location.href='/edit_baby_information/'" class="w-full mt-4 bg-surface-container-low text-primary hover:bg-primary-container py-2.5 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-2 text-sm font-bold shadow-sm">
+                <span class="material-symbols-outlined text-[16px]">edit</span>
+                編輯嬰幼兒資料
+            </button>
         </section>
         <!-- Component 2: Growth Calendar -->
         <section class="bg-surface-container-lowest rounded-[2.5rem] overflow-hidden shadow-[0_24px_48px_rgba(46,47,45,0.08)]">
@@ -67,7 +71,7 @@
                 <button id="month-next-btn" type="button" class="w-8 h-8 rounded-full hover:bg-primary/10 text-primary font-bold">&gt;</button>
                 <button id="month-today-btn" type="button" class="ml-2 px-3 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 font-bold">今天</button>
             </div>
-            
+
             <div class="p-6 pb-8 lg:grid lg:grid-cols-2 lg:gap-12 items-start">
                 <div>
                     <div class="grid grid-cols-7 mb-2">
@@ -98,7 +102,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                
+
                 <div>
                     <!-- Data Summary List Header -->
                     <div class="flex justify-between items-center px-2 mb-4 mt-8 lg:mt-0">
@@ -111,7 +115,7 @@
                         </button>
                         {% endif %}
                     </div>
-                    
+
                     <!-- Data Summary List -->
                     <div class="space-y-4 px-2">
                         {% if has_day_data %}
@@ -133,7 +137,7 @@
                                 <span class="text-primary text-xl font-extrabold mt-1">{{ selected_day_record.chestcircumference|default:'-' }} <span class="text-xs font-medium">cm</span></span>
                             </div>
                         </div>
-                        
+
                         {% if selected_day_record.milestones %}
                         <div class="p-4 bg-primary-container/20 rounded-2xl border border-primary/10">
                             <p class="text-xs font-bold text-on-surface-variant/80 mb-2">達成里程碑</p>
@@ -144,12 +148,12 @@
                             </div>
                         </div>
                         {% endif %}
-                        
+
                         <div class="p-4 bg-primary-container/10 rounded-2xl border border-primary/5">
                             <p class="text-xs font-bold text-on-surface-variant/80 mb-1">成長筆記</p>
                             <p class="text-sm text-on-surface">{{ selected_day_record.note_text|default:selected_day_record.record|default:'無備註' }}</p>
                         </div>
-                        
+
                         {% else %}
                         <div class="flex flex-col items-center justify-center min-h-[220px] text-center gap-4 bg-surface-container-low/30 rounded-3xl p-6">
                             <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-outline">
