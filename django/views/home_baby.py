@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 from django.shortcuts import render, redirect
 from core.models import CareRecord, UserProfile, BabyInformation, BabyRecord, PregnancyCase
-from views.babyinformation import _get_active_baby
+from views.pregnancycase import resolve_active_baby, resolve_active_pregnancy_case, sync_active_selection_from_request
 from views.session_utils import get_current_user_profile
 
 DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
@@ -22,21 +22,6 @@ def _day_bounds_in_taiwan(date_value):
     start_naive = datetime.datetime.combine(date_value, datetime.time.min)
     end_naive = start_naive + timedelta(days=1)
     return start_naive, end_naive
-
-
-def _get_active_case(request):
-    """Get the currently selected pregnancy case from session (URL parameter handling is done by context processor)."""
-    session_case_id = request.session.get('active_case_id')
-    if session_case_id:
-        case = PregnancyCase.objects.filter(pregnancycase_id=session_case_id).first()
-        if case:
-            return case
-
-    # Fallback to the first pregnancy case
-    case = PregnancyCase.objects.first()
-    if case:
-        request.session['active_case_id'] = case.pregnancycase_id
-    return case
 
 
 def home_baby(request):
@@ -99,21 +84,20 @@ def home_baby(request):
     selected_day_total = len(selected_day_records)
     selected_day_done = sum(1 for r in selected_day_records if r.state)
 
-    # Get active baby or case (URL parameter handling is done by context processor)
+    sync_active_selection_from_request(request, current_user)
+
     baby = None
     case = None
     is_pregnancy_view = False
 
-    active_baby_id = request.session.get('active_baby_id')
-    active_case_id = request.session.get('active_case_id')
-
-    if active_case_id and not active_baby_id:
-        case = _get_active_case(request)
-        is_pregnancy_view = True
+    if request.session.get('active_baby_id'):
+        baby = resolve_active_baby(request, current_user)
+        case = baby.pregnancycase if baby else None
     else:
-        baby = _get_active_baby(request)
+        case = resolve_active_pregnancy_case(request, current_user)
+        is_pregnancy_view = bool(case)
 
-    baby_list = BabyInformation.objects.all()
+    baby_list = BabyInformation.objects.filter(pregnancycase__user=current_user)
 
     # Calculate data based on selection
     if is_pregnancy_view and case:

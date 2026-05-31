@@ -35,12 +35,19 @@
                                 <span class="material-symbols-outlined text-primary">pregnant_woman</span>
                             </div>
                             <div>
-                                <p class="font-bold text-on-surface">{{ case.order_name }} (目前)</p>
+                                <p class="font-bold text-on-surface">
+                                    {{ case.order_name }}{% if case.display_baby %} · {{ case.display_baby.name }}{% endif %}
+                                </p>
                                 <p class="text-xs text-on-surface-variant">預產期：{{ case.expecteddate|date:"Y-m-d" }} ({{ case.gestation_text }})</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button onclick="window.location.href='/edit_pregnancy_case/?id={{ case.pregnancycase_id }}'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
+                            {% if case.display_baby %}
+                            <button onclick="window.location.href='{% url 'edit_baby_information' %}?baby_id={{ case.display_baby.baby_id }}'" class="p-2 hover:bg-secondary/10 rounded-full text-secondary transition-colors cursor-pointer" title="登記出生">
+                                <span class="material-symbols-outlined text-[20px]">child_care</span>
+                            </button>
+                            {% endif %}
+                            <button onclick="window.location.href='/edit_pregnancy_case/?id={{ case.pregnancycase_id }}'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer" title="編輯孕期">
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </button>
                             <button onclick="if(confirm('確定要刪除此胎數紀錄嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ case.pregnancycase_id }}';" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
@@ -76,7 +83,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button onclick="window.location.href='/edit_baby_information/?id={{ baby.baby_id }}'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
+                            <button onclick="window.location.href='{% url 'edit_baby_information' %}?baby_id={{ baby.baby_id }}'" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">
                                 <span class="material-symbols-outlined text-[20px]">edit</span>
                             </button>
                             <button onclick="if(confirm('確定要刪除嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ baby.pregnancycase.pregnancycase_id }}';" class="p-2 hover:bg-primary/10 rounded-full text-primary transition-colors cursor-pointer">

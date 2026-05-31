@@ -8,25 +8,9 @@ import calendar
 from pathlib import Path
 
 from core.models import Feeling, PhysicalCondition, PregnancyRecord, Prenatalrecord, Userfeeling, Userphysicalcondition, PregnancyCase, UserProfile
+from views.pregnancy_records import records_for_case
+from views.pregnancycase import resolve_active_pregnancy_case, url_with_active_selection
 from views.session_utils import get_current_user_profile
-
-def _get_active_pregnancy_case(request):
-    # Only check session (URL parameter handling is done by context processor)
-    active_case_id = request.session.get('active_case_id')
-    if active_case_id:
-        case = PregnancyCase.objects.filter(pregnancycase_id=active_case_id).first()
-        if case:
-            return case
-
-    # Fallback to first case for current user
-    current_user = get_current_user_profile(request)
-    if not current_user:
-        return None
-
-    case = PregnancyCase.objects.filter(user=current_user).order_by('-create_time').first()
-    if case:
-        request.session['active_case_id'] = case.pregnancycase_id
-    return case
 
 
 def _get_unique_record_for_date(pregnancy_case, selected_date):
@@ -34,8 +18,8 @@ def _get_unique_record_for_date(pregnancy_case, selected_date):
         return None
 
     records = list(
-        PregnancyRecord.objects
-        .filter(pregnancycase=pregnancy_case, check_date__date=selected_date)
+        records_for_case(pregnancy_case)
+        .filter(check_date__date=selected_date)
         .order_by('-check_date', '-pregnancyrecord_id')
     )
     if not records:
@@ -136,7 +120,7 @@ def _date_to_safe_datetime(date_value):
     return check_datetime
 
 def pregnancyrecord(request):
-    pregnancy_case = _get_active_pregnancy_case(request)
+    pregnancy_case = resolve_active_pregnancy_case(request, get_current_user_profile(request))
     raw = request.GET.get('date')
     try:
         selected_date = datetime.date.fromisoformat(raw) if raw else datetime.date.today()
@@ -148,8 +132,8 @@ def pregnancyrecord(request):
     year = selected_date.year
     month = selected_date.month
     month_records = list(
-        PregnancyRecord.objects
-        .filter(pregnancycase=pregnancy_case, check_date__year=year, check_date__month=month)
+        records_for_case(pregnancy_case)
+        .filter(check_date__year=year, check_date__month=month)
         .order_by('check_date', 'pregnancyrecord_id')
         .values('pregnancyrecord_id', 'check_date', 'weight')
     )
@@ -234,8 +218,8 @@ def pregnancyrecord(request):
         calendar_weeks.append(empty_week)
 
     selected_day_records = list(
-        PregnancyRecord.objects
-        .filter(pregnancycase=pregnancy_case, check_date__date=selected_date)
+        records_for_case(pregnancy_case)
+        .filter(check_date__date=selected_date)
         .order_by('-check_date', '-pregnancyrecord_id')
     )
     selected_day_record = selected_day_records[0] if selected_day_records else None
@@ -368,7 +352,7 @@ def _build_physical_conditions():
 
 
 def pregnancyrecord_add(request):
-    pregnancy_case = _get_active_pregnancy_case(request)
+    pregnancy_case = resolve_active_pregnancy_case(request, get_current_user_profile(request))
     selected_date = _parse_selected_date(request.GET.get('date') or request.POST.get('check_date'))
 
     # If a specific pregnancyrecord_id is provided (e.g. from the calendar edit link),
@@ -457,7 +441,7 @@ def pregnancyrecord_add(request):
                     check_datetime = _date_to_safe_datetime(selected_date)
 
                     preg = PregnancyRecord.objects.create(
-                        pregnancycase=pregnancy_case,
+                        user=pregnancy_case.user,
                         check_date=check_datetime,
                         record=record,
                         weight=weight_val,
@@ -577,7 +561,9 @@ def pregnancyrecord_add(request):
                 if up_objs:
                     Userphysicalcondition.objects.bulk_create(up_objs)
 
-        return redirect(f'/pregnancyrecord/?date={selected_date.isoformat()}')
+        return redirect(url_with_active_selection(
+            request, '/pregnancyrecord/', {'date': selected_date.isoformat()}
+        ))
 
     selected_day_feeling_ids = []
     selected_day_physical_condition_ids = []

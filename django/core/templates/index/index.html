@@ -16,33 +16,52 @@
         </section>
         <div class="lg:grid lg:grid-cols-2 lg:gap-8 lg:px-6 items-start">
             <!-- Pregnancy Progress Card -->
+            {% if pregnancy_progress.show_card %}
             <div class="px-6 lg:px-0 mb-8 lg:col-span-2">
                 <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm relative overflow-hidden">
-                    <div class="flex items-center gap-6">
+                    <div class="flex items-center justify-between gap-4 mb-1">
+                        <span class="text-primary font-bold text-sm">目前進度</span>
+                        {% if pregnancy_progress.order_name %}
+                        <span class="text-[11px] font-bold text-on-surface-variant bg-primary/5 px-2.5 py-1 rounded-full">
+                            {{ pregnancy_progress.order_name }}{% if pregnancy_progress.baby_name %} · {{ pregnancy_progress.baby_name }}{% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-6 mt-4">
                         <div
                             class="relative w-24 h-24 flex items-center justify-center bg-primary-container rounded-full overflow-hidden shrink-0">
                             <img alt="Embryo illustration" class="w-full h-full object-cover"
                                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrKZf3KG9X7eILhFiWKrV_XnVbNzlNNk53ehHHkkcKKCJERwNP49wVlRn3tR5ZhCszTKBPyEpLefs5YJCM8c-f0xNBc7BGb8IOS_Veq4i-9HM3rUIy8Cm2aUGwM7HseTdogavWToiVWXC8ZwHdyIntscQlw_sHGAJM0EbSIGP1_kRsI5Ly_wfRkCcE2lEEgYemQX1r7B6E_L651x2VN9W-dxJP0Ol8pw9Wo3YJPOmtdm8_bMLA2tWtiEsKOvIEBw2YMf4DrGcl8yKb" />
                         </div>
                         <div class="space-y-0.5">
-                            <span class="text-primary font-bold text-sm">目前進度</span>
+                            {% if pregnancy_progress.is_ongoing and pregnancy_progress.weeks is not None %}
                             <div class="flex items-baseline gap-1">
-                                <span class="text-4xl font-extrabold text-primary tracking-tighter">24</span>
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ pregnancy_progress.weeks }}</span>
                                 <span class="text-lg font-bold text-on-surface-variant">w</span>
-                                <span class="text-4xl font-extrabold text-primary tracking-tighter">4</span>
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ pregnancy_progress.days }}</span>
                                 <span class="text-lg font-bold text-on-surface-variant">d</span>
                             </div>
+                            {% else %}
+                            <p class="text-lg font-bold text-primary">{{ pregnancy_progress.status_note }}</p>
+                            {% endif %}
+                            {% if pregnancy_progress.status_note and pregnancy_progress.is_ongoing and pregnancy_progress.weeks is not None %}
+                            <p class="text-xs text-on-surface-variant">{{ pregnancy_progress.status_note }}</p>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="mt-8 h-2 w-full bg-primary-container rounded-full overflow-hidden">
-                        <div class="h-full w-[60%] bg-primary rounded-full"></div>
+                        <div class="h-full bg-primary rounded-full transition-all duration-300" style="width: {{ pregnancy_progress.progress_percent }}%;"></div>
                     </div>
                     <div class="flex justify-between mt-2">
                         <span class="text-[10px] font-bold text-on-surface-variant/60">第 1 週</span>
+                        {% if pregnancy_progress.is_ongoing and pregnancy_progress.current_week_label %}
+                        <span class="text-[10px] font-bold text-primary">第 {{ pregnancy_progress.current_week_label }} 週</span>
+                        {% endif %}
                         <span class="text-[10px] font-bold text-on-surface-variant/60">第 40 週</span>
                     </div>
                 </div>
             </div>
+            {% endif %}
             <!-- Today's Checklist -->
             <div class="px-6 lg:px-0 mb-8">
                 <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm flex flex-col space-y-4" data-selected-date="{{ selected_date_iso }}" data-today-date="{{ today_iso }}">
@@ -72,7 +91,7 @@
                         <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-surface-container-lowest to-transparent"></div>
                         <div id="care-day-strip" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory">
                             {% for day in care_day_cards %}
-                                <a href="?date={{ day.date_iso }}" class="min-w-[4.5rem] snap-start rounded-2xl border px-3 py-3 text-center transition-all {% if day.is_selected %}bg-primary text-white border-primary shadow-md{% else %}bg-white border-surface-container-high hover:border-primary/30 hover:bg-primary/5{% endif %}">
+                                <a href="?date={{ day.date_iso }}{% if active_case_id %}&case_id={{ active_case_id }}{% elif active_baby_id %}&baby_id={{ active_baby_id }}{% endif %}" class="min-w-[4.5rem] snap-start rounded-2xl border px-3 py-3 text-center transition-all {% if day.is_selected %}bg-primary text-white border-primary shadow-md{% else %}bg-white border-surface-container-high hover:border-primary/30 hover:bg-primary/5{% endif %}">
                                     <div class="text-[10px] font-bold tracking-wide {% if day.is_selected %}text-white/80{% else %}text-on-surface-variant{% endif %}">{{ day.weekday }}</div>
                                     <div class="mt-1 text-xl font-extrabold leading-none {% if day.is_selected %}text-white{% else %}text-on-surface{% endif %}">{{ day.day }}</div>
                                     <div class="mt-1 text-[10px] font-bold {% if day.is_selected %}text-white/80{% else %}text-on-surface-variant{% endif %}">{{ day.month_label }}</div>
@@ -239,7 +258,7 @@
         <!-- Floating Join Code Button -->
         <div class="fixed bottom-32 right-6 z-40 flex items-center gap-1.5 bg-[#65518a] text-white px-4 py-2 rounded-full shadow-[0_8px_25px_rgba(101,81,138,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer md:right-[calc(50vw-24rem)] lg:right-[calc(50vw-28rem)] md:bottom-36 transition-all duration-500">
             <span class="material-symbols-outlined text-base">vpn_key</span>
-            <span class="font-bold text-[10px] tracking-wide">加入碼: ABC-123</span>
+            <span class="font-bold text-[10px] tracking-wide">加入碼: {{ pregnancy_case.code|default:'尚未建立' }}</span>
         </div>
 
 
@@ -408,6 +427,19 @@
 
         renderPregnancyChart();
 
+        const activeCaseId = new URLSearchParams(window.location.search).get('case_id') || '';
+        const activeBabyId = new URLSearchParams(window.location.search).get('baby_id') || '';
+
+        function appendActiveSelection(params) {
+            if (activeCaseId) {
+                params.set('case_id', activeCaseId);
+            }
+            if (activeBabyId) {
+                params.set('baby_id', activeBabyId);
+            }
+            return params;
+        }
+
         const selectedDateText = selectedDateSource.dataset.selectedDate || '';
         const todayText = selectedDateSource.dataset.todayDate || '';
         const selectedDate = selectedDateText ? new Date(`${selectedDateText}T00:00:00`) : new Date();
@@ -433,7 +465,8 @@
                 return;
             }
             const target = `${safeYear}-${String(safeMonth).padStart(2, '0')}-${String(safeDay).padStart(2, '0')}`;
-            window.location.href = `?date=${target}`;
+            const params = appendActiveSelection(new URLSearchParams({ date: target }));
+            window.location.href = `?${params.toString()}`;
         }
 
         function openMonthPicker() {
@@ -574,19 +607,22 @@
             const target = new Date(selectedDate.getTime());
             target.setDate(target.getDate() - 7);
             const dateIso = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`;
-            window.location.href = `?date=${dateIso}`;
+            const params = appendActiveSelection(new URLSearchParams({ date: dateIso }));
+            window.location.href = `?${params.toString()}`;
         });
 
         rangeNextBtn.addEventListener('click', () => {
             const target = new Date(selectedDate.getTime());
             target.setDate(target.getDate() + 7);
             const dateIso = `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, '0')}-${String(target.getDate()).padStart(2, '0')}`;
-            window.location.href = `?date=${dateIso}`;
+            const params = appendActiveSelection(new URLSearchParams({ date: dateIso }));
+            window.location.href = `?${params.toString()}`;
         });
 
         rangeTodayBtn.addEventListener('click', () => {
             const target = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
-            window.location.href = `?date=${target}`;
+            const params = appendActiveSelection(new URLSearchParams({ date: target }));
+            window.location.href = `?${params.toString()}`;
         });
 
         const careDayStrip = document.getElementById('care-day-strip');
