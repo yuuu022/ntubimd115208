@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from zoneinfo import ZoneInfo
 
-from core.models import CareRecord, UserProfile
+from core.models import CareRecord, PregnancyCase, PregnancyRecord, UserProfile
 from views.session_utils import get_current_user_profile
 
 DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
@@ -25,6 +25,41 @@ def _day_bounds_in_taiwan(date_value):
     return start_naive, end_naive
 
 
+def _get_active_pregnancy_case(request):
+    active_case_id = request.session.get('active_case_id')
+    if active_case_id:
+        case = PregnancyCase.objects.filter(pregnancycase_id=active_case_id).first()
+        if case:
+            return case
+
+    current_user = get_current_user_profile(request)
+    if not current_user:
+        return None
+
+    case = PregnancyCase.objects.filter(user=current_user).order_by('-create_time').first()
+    if case:
+        request.session['active_case_id'] = case.pregnancycase_id
+    return case
+
+
+def _build_pregnancy_chart_data(pregnancy_case):
+    if not pregnancy_case:
+        return []
+
+    chart_rows = []
+    records = PregnancyRecord.objects.filter(pregnancycase=pregnancy_case).order_by('check_date', 'pregnancyrecord_id')
+    for record in records:
+        check_date = record.check_date.date() if isinstance(record.check_date, datetime.datetime) else record.check_date
+        if not check_date:
+            continue
+        chart_rows.append({
+            'date_iso': check_date.isoformat(),
+            'label': f'{check_date.month}/{check_date.day}',
+            'weight': float(record.weight) if record.weight is not None else None,
+        })
+    return chart_rows
+
+
 def index(request):
     selected_date = _parse_selected_date(request.GET.get('date'))
     today = datetime.date.today()
@@ -34,6 +69,10 @@ def index(request):
     current_user = get_current_user_profile(request)
     if not current_user:
         return redirect('login')
+
+    pregnancy_case = _get_active_pregnancy_case(request)
+    pregnancy_chart_data = _build_pregnancy_chart_data(pregnancy_case)
+
     care_queryset = CareRecord.objects.select_related('carestatus').order_by('recordtime', 'carerecord_id')
     care_queryset = care_queryset.filter(user=current_user)
 
@@ -101,5 +140,8 @@ def index(request):
         'care_done_count': selected_day_done,
         'care_total_count': selected_day_total,
         'care_progress_percent': int((selected_day_done / selected_day_total) * 100) if selected_day_total else 0,
+        'pregnancy_case': pregnancy_case,
+        'pregnancy_chart_data': pregnancy_chart_data,
+        'pregnancy_chart_has_data': bool(pregnancy_chart_data),
     }
     return render(request, 'index/index.html', context)

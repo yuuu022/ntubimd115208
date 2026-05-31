@@ -101,13 +101,11 @@ def userprofile(request):
     )
 
     latest_weight = latest_record.weight if latest_record and latest_record.weight is not None else '-'
-    latest_height = latest_record.height if latest_record and latest_record.height is not None else '-'
     selected_child_info = _build_selected_child_info(request, current_user)
 
     return render(request, 'user/userprofile.html', {
         'current_user': current_user,
         'latest_weight': latest_weight,
-        'latest_height': latest_height,
         'selected_child_info': selected_child_info,
     })
 
