@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}Goowth AI{% endblock %}
+{% block title %}Growth AI{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/qa_conversation.css' %}" />
 {% endblock %}
@@ -48,7 +48,7 @@
             <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
                 <span class="material-symbols-outlined">menu</span>
             </button>
-            <h1 class="qa-page-title text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">Goowth AI</h1>
+            <h1 class="qa-page-title text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">Growth AI</h1>
         </div>
     </nav>
 
@@ -113,6 +113,7 @@
         const messageList = document.getElementById('qa-message-list');
         const mainScroll = document.getElementById('qa-main-scroll');
         const questionInput = document.getElementById('qa-question-input');
+        const newConversationForm = document.querySelector('#history-sidebar form');
         const botAvatarSrc = "/logo/LOGO 小圖.png";
 
         if (!sidebar || !overlay || !openButton || !closeButton || !chatForm || !messageList || !mainScroll || !questionInput) {
@@ -120,10 +121,121 @@
         }
 
         const submitButton = chatForm.querySelector('button[type="submit"]');
+        const conversationItems = Array.from(document.querySelectorAll('#history-sidebar a[href*="conversation_id="]'));
 
         const scrollMessagesToBottom = () => {
             mainScroll.scrollTo({ top: mainScroll.scrollHeight, behavior: 'smooth' });
         };
+
+        const createEmptyStateNode = () => {
+            const emptyState = document.createElement('div');
+            emptyState.id = 'qa-empty-state';
+            emptyState.className = 'rounded-[2rem] border border-outline-variant/20 bg-white/80 px-6 py-5 shadow-sm';
+
+            const title = document.createElement('div');
+            title.className = 'text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant';
+            title.textContent = '歡迎開始提問';
+
+            const paragraph = document.createElement('p');
+            paragraph.className = 'mt-2 text-sm leading-relaxed text-on-surface-variant';
+            paragraph.textContent = '你可以詢問產檢、孕期不適的注意事項。';
+
+            emptyState.appendChild(title);
+            emptyState.appendChild(paragraph);
+            return emptyState;
+        };
+
+        const clearConversationSelection = () => {
+            conversationItems.forEach((item) => {
+                item.classList.remove('bg-primary/10', 'text-primary');
+                item.classList.add('hover:bg-surface-container-low', 'text-on-surface');
+
+                const icon = item.querySelector('.material-symbols-outlined');
+                if (icon) {
+                    icon.classList.remove('text-primary');
+                    icon.classList.add('text-on-surface-variant', 'group-hover:text-primary');
+                }
+            });
+        };
+
+        const renderEmptyConversation = () => {
+            messageList.innerHTML = '';
+            messageList.appendChild(createEmptyStateNode());
+            scrollMessagesToBottom();
+        };
+
+        const resetConversationView = (redirectUrl) => {
+            const conversationField = chatForm.querySelector('input[name="conversation_id"]');
+            if (conversationField) {
+                conversationField.remove();
+            }
+
+            clearConversationSelection();
+            renderEmptyConversation();
+
+            if (redirectUrl) {
+                window.history.replaceState({}, '', redirectUrl);
+            }
+        };
+
+        const requestNewConversation = async () => {
+            if (!newConversationForm) {
+                return;
+            }
+
+            const formData = new FormData(newConversationForm);
+            const csrfToken = newConversationForm.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        ...(csrfToken ? { 'X-CSRFToken': csrfToken } : {}),
+                    },
+                    body: formData,
+                    credentials: 'same-origin',
+                });
+
+                const rawBody = await response.text();
+                let data = {};
+
+                if (rawBody) {
+                    try {
+                        data = JSON.parse(rawBody);
+                    } catch (parseError) {
+                        data = { ok: response.ok, error: rawBody };
+                    }
+                } else {
+                    data = { ok: response.ok };
+                }
+
+                if (!response.ok || data.ok === false) {
+                    return;
+                }
+
+                resetConversationView(data.redirect_url || '/qa/');
+            } catch (error) {
+                return;
+            }
+        };
+
+        if (newConversationForm) {
+            newConversationForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                void requestNewConversation();
+            });
+        }
+
+        try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('new') === 'true') {
+                void requestNewConversation();
+            }
+        } catch (e) {
+            // ignore
+        }
 
         const buildMessageNode = (text, isUser) => {
             const wrapper = document.createElement('div');
