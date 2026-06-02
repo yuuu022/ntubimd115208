@@ -8,10 +8,6 @@ DEFAULT_DESCRIPTIONS = {
     # ==========================================
     # 1 個月
     # ==========================================
-    '俯臥時骨盆平貼於床面 頭、臉部可抬離床面': {
-        'category': '粗動作',
-        'desc': '寶寶趴臥時骨盆能平貼於床面，且頭部與臉部可以短暫抬起離開床面。'
-    },
     '手會自動張開': {
         'category': '細動作',
         'desc': '新生兒初期常維持握拳，此階段手掌開始會自動自然張開。'
@@ -414,13 +410,12 @@ def baby_growthmap(request):
             item_status = 'completed'
             milestones, note_text = _split_note_and_milestones(matching_record.record)
             achieved_date_str = matching_record.date.strftime('%Y.%m.%d') if hasattr(matching_record.date, 'strftime') else str(matching_record.date)
-            # 優先使用家長自訂的成長筆記內容，若為空則套用對應里程碑的標準說明
             details = DEFAULT_DESCRIPTIONS.get(growth_map.growthrecord)
             if details:
-                description = note_text.strip() or details.get('desc')
+                description = details.get('desc')
                 category = details.get('category')
             else:
-                description = note_text.strip()
+                description = None
                 category = None
             if not description:
                 description = f'恭喜寶寶達成「{growth_map.growthrecord}」里程碑！'

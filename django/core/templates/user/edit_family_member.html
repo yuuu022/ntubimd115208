@@ -1,13 +1,53 @@
-{% extends 'base/base.html' %}
-{% load static %}
-{% block title %}修改協助者權限{% endblock %}
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/user/edit_userprofile.css' %}">
-{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>修改協助者權限 - AuraLink</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#65518a",
+                        "primary-container": "#d6beff",
+                        "secondary": "#65518a",
+                        "secondary-container": "#b2e4fb",
+                        "background": "#f7f6f3",
+                        "surface": "#f7f6f3",
+                        "on-surface": "#2e2f2d",
+                        "on-surface-variant": "#5b5c5a",
+                        "outline": "#767775",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f1f1ee",
+                        "surface-container-high": "#e3e3df",
+                        "surface-container-highest": "#ddddd9",
+                        "error": "#65518a",
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: #f7f6f3; color: #2e2f2d; overflow-x: hidden; }
+        h1, h2, h3, .headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
 <body class="bg-surface text-on-surface min-h-screen pb-32">
     <!-- Header Section -->
-    <header class="sticky top-0 z-50 flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+    <header class="justify-between fixed top-0 w-full z-50 bg-[#f7f6f3]/70 backdrop-blur-md flex items-center px-6 h-16 shadow-sm md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="flex items-center gap-3">
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
@@ -17,24 +57,79 @@
     </header>
 
     <!-- Main Content -->
-    <main class="px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form onsubmit="event.preventDefault(); window.location.href='userprofile.html';" class="space-y-6">
+    <main class="pt-24 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        
+        <!-- 待處理的加入申請 (若有) -->
+        {% if pending_members %}
+        <section class="mb-8">
+            <h2 class="text-xs font-bold text-red-500 uppercase tracking-wider mb-3 pl-1 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">notifications_active</span>
+                待審核的加入申請
+            </h2>
+            <div class="space-y-3">
+                {% for req in pending_members %}
+                <div class="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-red-200/50 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-red-500 text-[20px]">person_pin</span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold text-on-surface truncate">{{ req.user_id.name }}</p>
+                            {% if req.user_id.email %}<p class="text-xs text-on-surface-variant truncate">{{ req.user_id.email }}</p>{% endif %}
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <form method="post" action="{% url 'edit_family_member' %}" class="flex items-center gap-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="approve_request">
+                            <input type="hidden" name="request_user_id" value="{{ req.user_id.user_id }}">
+                            <input type="hidden" name="baby_id" value="{{ selected_baby.baby_id|default:'' }}">
+                            
+                            <select name="role" class="text-sm bg-surface-container-low border-none rounded-xl focus:ring-primary h-10 cursor-pointer text-on-surface">
+                                {% for val, label in role_label.items %}
+                                    <option value="{{ val }}" {% if val == 'viewer' %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                            <button type="submit" class="h-10 px-4 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-colors cursor-pointer shadow-sm">
+                                同意
+                            </button>
+                        </form>
+                        <form method="post" action="{% url 'edit_family_member' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject_request">
+                            <input type="hidden" name="request_user_id" value="{{ req.user_id.user_id }}">
+                            <input type="hidden" name="baby_id" value="{{ selected_baby.baby_id|default:'' }}">
+                            <button type="submit" class="h-10 px-4 bg-surface-container-high text-on-surface-variant text-sm font-bold rounded-xl hover:bg-surface-container-highest transition-colors cursor-pointer shadow-sm">
+                                拒絕
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if family_members %}
+        <form onsubmit="updateRoleInput();" method="post" action="{% url 'edit_family_member' %}" class="space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_role">
+            <input type="hidden" name="baby_id" value="{{ selected_baby.baby_id|default:'' }}">
+            <input type="hidden" name="member_id" id="form-member-id" value="{{ selected_member.familymember_id }}">
+            <input type="hidden" name="role" id="form-role" value="{{ selected_member.role|default:'viewer' }}">
 
             <!-- Target Helper Info -->
-            <button type="button" id="helper-selector-btn" class="w-full text-left bg-primary/5 hover:bg-primary/10 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-3xl p-6 flex items-center gap-4 border border-primary/10 ring-1 ring-transparent hover:ring-primary/20 cursor-pointer group relative overflow-hidden active:scale-[0.99]">
-                <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-xl shrink-0 group-hover:scale-105 transition-transform duration-200">
-                    <span id="current-helper-icon" class="material-symbols-outlined text-[28px]">face</span>
+            <button type="button" id="helper-selector-btn" class="w-full text-left bg-primary/5 hover:bg-primary/10 transition-colors rounded-3xl p-6 flex items-center gap-4 border border-primary/10 cursor-pointer group relative overflow-hidden">
+                <div class="w-14 h-14 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-xl shrink-0 group-hover:scale-105 transition-transform">
+                    <span id="current-helper-icon" class="material-symbols-outlined text-[28px]">{% if selected_member.role == 'mom' %}face_3{% else %}face{% endif %}</span>
                 </div>
                 <div class="flex flex-col flex-1">
                     <span class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">正在設定權限給</span>
                     <span class="text-xl font-bold text-primary flex items-center gap-2">
-                        <span id="current-helper-name">張偉明</span>
-                        <span id="current-helper-role" class="text-sm font-medium text-on-surface-variant">(爸爸)</span>
+                        <span id="current-helper-name">{{ selected_member.user_id.name }}</span> 
+                        <span id="current-helper-role" class="text-sm font-medium text-on-surface-variant">({{ selected_member.role }})</span>
                     </span>
-                </div>
-                <div class="flex items-center gap-1 self-center shrink-0 rounded-full bg-white/90 px-3 py-2 text-primary border border-primary/15 shadow-sm">
-                    <span class="material-symbols-outlined text-[18px]">touch_app</span>
-                    <span class="text-xs font-bold tracking-wider">變更</span>
                 </div>
             </button>
 
@@ -54,11 +149,10 @@
                             <span class="material-symbols-outlined text-on-surface-variant text-[18px]">child_care</span>
                             小孩紀錄
                         </label>
-                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative">
-                            <!-- 3 Segmented buttons -->
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">關閉</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">檢視</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">修改</button>
+                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative perm-group">
+                            <button type="button" data-val="none" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">關閉</button>
+                            <button type="button" data-val="viewer" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">檢視</button>
+                            <button type="button" data-val="caregiver" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">修改</button>
                         </div>
                     </div>
 
@@ -68,10 +162,10 @@
                             <span class="material-symbols-outlined text-on-surface-variant text-[18px]">pregnant_woman</span>
                             媽媽紀錄
                         </label>
-                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative">
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">關閉</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">檢視</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">修改</button>
+                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative perm-group">
+                            <button type="button" data-val="none" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">關閉</button>
+                            <button type="button" data-val="viewer" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">檢視</button>
+                            <button type="button" data-val="caregiver" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">修改</button>
                         </div>
                     </div>
 
@@ -81,10 +175,10 @@
                             <span class="material-symbols-outlined text-on-surface-variant text-[18px]">group</span>
                             協助者清單
                         </label>
-                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative">
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">關閉</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">檢視</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">修改</button>
+                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative perm-group">
+                            <button type="button" data-val="none" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">關閉</button>
+                            <button type="button" data-val="viewer" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">檢視</button>
+                            <button type="button" data-val="caregiver" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">修改</button>
                         </div>
                     </div>
 
@@ -94,10 +188,10 @@
                             <span class="material-symbols-outlined text-on-surface-variant text-[18px]">auto_graph</span>
                             成長趨勢
                         </label>
-                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative">
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">關閉</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">檢視</button>
-                            <button type="button" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">修改</button>
+                        <div class="flex bg-surface-container-low rounded-xl p-1 w-full relative perm-group">
+                            <button type="button" data-val="none" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">關閉</button>
+                            <button type="button" data-val="viewer" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-primary shadow-sm border border-surface-container-highest cursor-pointer">檢視</button>
+                            <button type="button" data-val="caregiver" class="perm-btn flex-1 py-2 text-xs font-bold rounded-lg transition-all text-on-surface-variant hover:bg-surface-container-high/50 cursor-pointer">修改</button>
                         </div>
                     </div>
                 </div>
@@ -109,61 +203,214 @@
                 儲存權限
             </button>
         </form>
+        {% else %}
+        <div class="bg-surface-container-low rounded-2xl px-5 py-5 text-sm text-on-surface-variant text-center">
+            <span class="material-symbols-outlined text-[28px] block mb-2 opacity-40">group_add</span>
+            此胎數尚無其他協助者
+        </div>
+        {% endif %}
     </main>
-
-    </main>
-
+    
     <!-- Helper Selector Modal -->
     <div id="helper-modal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
         <!-- Backdrop -->
         <div id="helper-modal-backdrop" class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm transition-opacity duration-300"></div>
-
+        
         <!-- Modal Content -->
         <div id="helper-modal-content" class="relative w-full max-w-md bg-surface-container-lowest rounded-t-[2rem] sm:rounded-3xl shadow-2xl transform translate-y-full sm:translate-y-4 sm:scale-95 transition-all duration-300 flex flex-col max-h-[85vh]">
             <!-- Handle for mobile -->
             <div class="w-full flex justify-center pt-3 pb-1 sm:hidden">
                 <div class="w-12 h-1.5 bg-outline-variant/30 rounded-full"></div>
             </div>
-
+            
             <div class="p-6 pb-4 border-b border-surface-container-high/50 flex justify-between items-center shrink-0">
                 <h3 class="font-headline font-bold text-lg text-primary">挑選協助者</h3>
                 <button type="button" id="close-helper-modal" class="w-8 h-8 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high flex items-center justify-center transition-colors cursor-pointer">
                     <span class="material-symbols-outlined text-xl">close</span>
                 </button>
             </div>
-
+            
             <div class="p-4 overflow-y-auto hide-scrollbar flex flex-col gap-2">
-                <!-- Helper 1 -->
-                <button type="button" class="helper-option w-full flex items-center justify-between p-4 bg-primary/5 border border-primary/20 rounded-2xl transition-colors cursor-pointer" data-name="張偉明" data-role="(爸爸)" data-icon="face">
+                {% for member in family_members %}
+                <button type="button" class="helper-option w-full flex items-center justify-between p-4 rounded-2xl transition-colors cursor-pointer {% if selected_member.familymember_id == member.familymember_id %}bg-primary/5 border border-primary/20{% else %}bg-surface-container-low/50 hover:bg-surface-container-low border border-transparent{% endif %}" data-id="{{ member.familymember_id }}" data-name="{{ member.user_id.name }}" data-role="{{ member.role }}" data-icon="{% if member.role == 'mom' %}face_3{% else %}face{% endif %}">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-lg">
-                            <span class="material-symbols-outlined text-[22px]">face</span>
+                            <span class="material-symbols-outlined text-[22px]">{% if member.role == 'mom' %}face_3{% else %}face{% endif %}</span>
                         </div>
                         <div class="flex flex-col text-left">
-                            <span class="text-sm font-bold text-primary">張偉明</span>
-                            <span class="text-[10px] font-bold text-primary/70 uppercase tracking-wider mt-0.5">爸爸 (共同管理者)</span>
+                            <span class="text-sm font-bold {% if selected_member.familymember_id == member.familymember_id %}text-primary{% else %}text-on-surface{% endif %} helper-name-span">{{ member.user_id.name }}</span>
+                            <span class="text-[10px] font-bold {% if selected_member.familymember_id == member.familymember_id %}text-primary/70{% else %}text-on-surface-variant{% endif %} uppercase tracking-wider mt-0.5 helper-role-span">{{ member.role }}</span>
                         </div>
                     </div>
-                    <span class="material-symbols-outlined text-primary check-icon">check_circle</span>
+                    <span class="material-symbols-outlined check-icon {% if selected_member.familymember_id == member.familymember_id %}text-primary{% else %}text-transparent{% endif %}">check_circle</span>
                 </button>
-
-                <!-- Helper 2 -->
-                <button type="button" class="helper-option w-full flex items-center justify-between p-4 bg-surface-container-low/50 hover:bg-surface-container-low rounded-2xl transition-colors cursor-pointer" data-name="阿嬤 (淑芬)" data-role="(阿嬤)" data-icon="face_3">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-lg">
-                            <span class="material-symbols-outlined text-[22px]">face_3</span>
-                        </div>
-                        <div class="flex flex-col text-left">
-                            <span class="text-sm font-bold text-on-surface">阿嬤 (淑芬)</span>
-                            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mt-0.5">阿嬤 (僅檢視)</span>
-                        </div>
-                    </div>
-                    <span class="material-symbols-outlined text-transparent check-icon">check_circle</span>
-                </button>
+                {% endfor %}
             </div>
         </div>
     </div>
-{% endblock %}
-{% block extra_js %}
-<script src="{% static 'js/edit_family_member.js' %}"></script>
-{% endblock %}
+
+    <!-- Script for handling segmented control clicks and modal selection -->
+    <script>
+        // --- Segmented Control Logic ---
+        function updateRoleInput() {
+            let isCaregiver = false;
+            document.querySelectorAll('.perm-group').forEach(group => {
+                const activeBtn = group.querySelector('.bg-white');
+                if (activeBtn && activeBtn.dataset.val === 'caregiver') {
+                    isCaregiver = true;
+                }
+            });
+            const roleEl = document.getElementById('form-role');
+            if (roleEl) {
+                // Keep 'mom' role intact, otherwise toggle caregiver/viewer based on selections
+                if (roleEl.value !== 'mom') {
+                    roleEl.value = isCaregiver ? 'caregiver' : 'viewer';
+                }
+            }
+        }
+
+        document.querySelectorAll('.perm-group').forEach(group => {
+            const btns = group.querySelectorAll('.perm-btn');
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Reset all buttons in group
+                    btns.forEach(b => {
+                        b.classList.remove('bg-white', 'text-primary', 'shadow-sm', 'border', 'border-surface-container-highest');
+                        b.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high/50');
+                    });
+                    // Set active state for clicked button
+                    btn.classList.add('bg-white', 'text-primary', 'shadow-sm', 'border', 'border-surface-container-highest');
+                    btn.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high/50');
+                    updateRoleInput();
+                });
+            });
+        });
+
+        // Initialize UI based on current role
+        const formRoleEl = document.getElementById('form-role');
+        if (formRoleEl) {
+            const currentRole = formRoleEl.value;
+            document.querySelectorAll('.perm-group').forEach(group => {
+                const btns = group.querySelectorAll('.perm-btn');
+                btns.forEach(btn => {
+                    if (btn.dataset.val === currentRole || (currentRole === 'mom' && btn.dataset.val === 'caregiver')) {
+                        btn.classList.add('bg-white', 'text-primary', 'shadow-sm', 'border', 'border-surface-container-highest');
+                        btn.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high/50');
+                    } else {
+                        btn.classList.remove('bg-white', 'text-primary', 'shadow-sm', 'border', 'border-surface-container-highest');
+                        btn.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high/50');
+                    }
+                });
+            });
+        }
+
+        // Modal Logic
+        const helperBtn = document.getElementById('helper-selector-btn');
+        const helperModal = document.getElementById('helper-modal');
+        const helperModalBackdrop = document.getElementById('helper-modal-backdrop');
+        const helperModalContent = document.getElementById('helper-modal-content');
+        const closeHelperModal = document.getElementById('close-helper-modal');
+        const helperOptions = document.querySelectorAll('.helper-option');
+        
+        const currentHelperName = document.getElementById('current-helper-name');
+        const currentHelperRole = document.getElementById('current-helper-role');
+        const currentHelperIcon = document.getElementById('current-helper-icon');
+        const formMemberId = document.getElementById('form-member-id');
+
+        if (helperBtn) {
+            function openModal() {
+                helperModal.classList.remove('opacity-0', 'pointer-events-none');
+                helperModal.classList.add('opacity-100', 'pointer-events-auto');
+                
+                // Animation for modal content
+                setTimeout(() => {
+                    helperModalContent.classList.remove('translate-y-full', 'sm:translate-y-4', 'sm:scale-95');
+                    helperModalContent.classList.add('translate-y-0', 'sm:translate-y-0', 'sm:scale-100');
+                }, 10);
+            }
+
+            function closeModal() {
+                helperModalContent.classList.remove('translate-y-0', 'sm:translate-y-0', 'sm:scale-100');
+                helperModalContent.classList.add('translate-y-full', 'sm:translate-y-4', 'sm:scale-95');
+                
+                setTimeout(() => {
+                    helperModal.classList.remove('opacity-100', 'pointer-events-auto');
+                    helperModal.classList.add('opacity-0', 'pointer-events-none');
+                }, 300);
+            }
+
+            helperBtn.addEventListener('click', openModal);
+            closeHelperModal.addEventListener('click', closeModal);
+            helperModalBackdrop.addEventListener('click', closeModal);
+
+            helperOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Update styling for all options
+                    helperOptions.forEach(opt => {
+                        opt.classList.remove('bg-primary/5', 'border-primary/20', 'border');
+                        opt.classList.add('bg-surface-container-low/50', 'hover:bg-surface-container-low', 'border-transparent');
+                        
+                        const nameSpan = opt.querySelector('.helper-name-span');
+                        nameSpan.classList.remove('text-primary');
+                        nameSpan.classList.add('text-on-surface');
+                        
+                        const roleSpan = opt.querySelector('.helper-role-span');
+                        roleSpan.classList.remove('text-primary/70');
+                        roleSpan.classList.add('text-on-surface-variant');
+                        
+                        const checkIcon = opt.querySelector('.check-icon');
+                        checkIcon.classList.remove('text-primary');
+                        checkIcon.classList.add('text-transparent');
+                    });
+
+                    // Set styling for selected option
+                    option.classList.remove('bg-surface-container-low/50', 'hover:bg-surface-container-low', 'border-transparent');
+                    option.classList.add('bg-primary/5', 'border-primary/20', 'border');
+                    
+                    const nameSpan = option.querySelector('.helper-name-span');
+                    nameSpan.classList.remove('text-on-surface');
+                    nameSpan.classList.add('text-primary');
+                    
+                    const roleSpan = option.querySelector('.helper-role-span');
+                    roleSpan.classList.remove('text-on-surface-variant');
+                    roleSpan.classList.add('text-primary/70');
+                    
+                    const checkIcon = option.querySelector('.check-icon');
+                    checkIcon.classList.remove('text-transparent');
+                    checkIcon.classList.add('text-primary');
+
+                    // Update main button display
+                    currentHelperName.textContent = option.dataset.name;
+                    currentHelperRole.textContent = '(' + option.dataset.role + ')';
+                    currentHelperIcon.textContent = option.dataset.icon;
+                    formMemberId.value = option.dataset.id;
+                    
+                    // Auto update UI role buttons based on selected user's role
+                    formRoleEl.value = option.dataset.role;
+                    document.querySelectorAll('.perm-group').forEach(group => {
+                        const btns = group.querySelectorAll('.perm-btn');
+                        btns.forEach(btn => {
+                            if (btn.dataset.val === formRoleEl.value || (formRoleEl.value === 'mom' && btn.dataset.val === 'caregiver')) {
+                                btn.classList.add('bg-white', 'text-primary', 'shadow-sm', 'border', 'border-surface-container-highest');
+                                btn.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high/50');
+                            } else {
+                                btn.classList.remove('bg-white', 'text-primary', 'shadow-sm', 'border', 'border-surface-container-highest');
+                                btn.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high/50');
+                            }
+                        });
+                    });
+
+                    // Provide haptic feedback
+                    if (window.navigator && window.navigator.vibrate) {
+                        window.navigator.vibrate(50);
+                    }
+                    
+                    setTimeout(() => {
+                        closeModal();
+                    }, 150);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

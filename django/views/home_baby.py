@@ -3,11 +3,10 @@ from datetime import timedelta
 from zoneinfo import ZoneInfo
 
 from django.shortcuts import render, redirect
-from core.models import CareRecord, UserProfile, BabyInformation, BabyRecord, PregnancyCase
-from views.pregnancycase import resolve_active_baby, resolve_active_pregnancy_case, sync_active_selection_from_request
+from core.models import CareRecord, BabyInformation, BabyRecord, PregnancyCase
+from views.pregnancycase import resolve_active_pregnancy_case, sync_active_selection_from_request
 from views.session_utils import get_current_user_profile
 
-DEFAULT_USER_ID = 'ab63df64-b61f-480e-a61c-d54b851d2b5e'
 TAIWAN_TZ = ZoneInfo('Asia/Taipei')
 
 
@@ -33,8 +32,14 @@ def home_baby(request):
     current_user = get_current_user_profile(request)
     if not current_user:
         return redirect('login')
-    care_queryset = CareRecord.objects.select_related('carestatus').order_by('recordtime', 'carerecord_id')
-    care_queryset = care_queryset.filter(user=current_user)
+
+    # ── 照顧紀錄（代辦清單） ─────────────────────────────────
+    care_queryset = (
+        CareRecord.objects
+        .select_related('carestatus')
+        .filter(user=current_user)
+        .order_by('recordtime', 'carerecord_id')
+    )
 
     window_start_dt, _ = _day_bounds_in_taiwan(window_start)
     _, window_end_exclusive = _day_bounds_in_taiwan(window_end)
@@ -45,11 +50,7 @@ def home_baby(request):
     record_days = set()
     completion_by_day = {}
     for rec in window_records:
-        rec_time = rec.recordtime
-        if isinstance(rec_time, datetime.datetime):
-            d = rec_time.date()
-        else:
-            d = rec_time
+        d = rec.recordtime.date() if isinstance(rec.recordtime, datetime.datetime) else rec.recordtime
         record_days.add(d)
         completion_by_day.setdefault(d, {'total': 0, 'done': 0})
         completion_by_day[d]['total'] += 1
@@ -79,75 +80,91 @@ def home_baby(request):
 
     selected_start_dt, selected_end_dt = _day_bounds_in_taiwan(selected_date)
     selected_day_records = list(
-        care_queryset.filter(recordtime__gte=selected_start_dt, recordtime__lt=selected_end_dt).order_by('recordtime', 'carerecord_id')
+        care_queryset
+        .filter(recordtime__gte=selected_start_dt, recordtime__lt=selected_end_dt)
+        .order_by('recordtime', 'carerecord_id')
     )
     selected_day_total = len(selected_day_records)
     selected_day_done = sum(1 for r in selected_day_records if r.state)
 
+    # ── 以胎數為主軸取嬰幼兒 ───────────────────────────────────
     sync_active_selection_from_request(request, current_user)
+    case = resolve_active_pregnancy_case(request, current_user)
 
-    baby = None
-    case = None
-    is_pregnancy_view = False
+    # 該胎數下的所有嬰幼兒
+    babies = list(BabyInformation.objects.filter(pregnancycase=case).order_by('baby_id')) if case else []
 
-    if request.session.get('active_baby_id'):
-        baby = resolve_active_baby(request, current_user)
-        case = baby.pregnancycase if baby else None
-    else:
-        case = resolve_active_pregnancy_case(request, current_user)
-        is_pregnancy_view = bool(case)
+    # URL ?baby_id=X 切換；預設選第一筆
+    url_baby_id = request.GET.get('baby_id')
+    selected_baby = None
+    if url_baby_id:
+        selected_baby = next((b for b in babies if str(b.baby_id) == str(url_baby_id)), None)
+    if selected_baby is None and babies:
+        selected_baby = babies[0]
 
-    baby_list = BabyInformation.objects.filter(pregnancycase__user=current_user)
+    # ── 計算進度與圖表資料 ────────────────────────────────────
+    baby_weeks = 0
+    baby_days = 0
+    baby_percent = 0
+    baby_chart_data = []
 
-    # Calculate data based on selection
-    if is_pregnancy_view and case:
-        # Pregnancy case data
-        menstruation_date = case.menstruation
-        if not menstruation_date and case.expecteddate:
-            menstruation_date = case.expecteddate - timedelta(days=280)
+    if selected_baby and selected_baby.birthdaytime:
+        birth_date = (
+            selected_baby.birthdaytime.date()
+            if isinstance(selected_baby.birthdaytime, datetime.datetime)
+            else selected_baby.birthdaytime
+        )
+        days_total = (today - birth_date).days
+        
+        # 計算月齡 (0-3 歲進度)
+        years = today.year - birth_date.year
+        months = today.month - birth_date.month
+        days_remainder = today.day - birth_date.day
+        if days_remainder < 0:
+            months -= 1
+            # 計算上個月的天數
+            prev_month = today.replace(day=1) - timedelta(days=1)
+            days_in_prev_month = prev_month.day
+            days_remainder += days_in_prev_month
+        if months < 0:
+            years -= 1
+            months += 12
+        total_months = years * 12 + months
+        
+        baby_weeks = total_months  # 用月齡代替週數顯示
+        baby_days = max(0, days_remainder)  # 當月剩餘天數
+        baby_percent = min(100, max(0, round(total_months / 36 * 100)))  # 0-36 個月進度
 
-        if menstruation_date:
-            delta = datetime.date.today() - menstruation_date
-            weeks = delta.days // 7
-            days = delta.days % 7
-            baby_weeks = max(0, weeks)
-            baby_days = max(0, days)
-            # Pregnancy progress (40 weeks = 100%)
-            baby_percent = min(100, int((delta.days / 280) * 100)) if delta.days >= 0 else 0
-        else:
-            baby_weeks = 0
-            baby_days = 0
-            baby_percent = 0
-
-        baby_chart_data = []
-    elif baby and baby.birthdaytime:
-        # Born baby data
-        birth_date = baby.birthdaytime.date() if isinstance(baby.birthdaytime, datetime.datetime) else baby.birthdaytime
-        days_total = (datetime.date.today() - birth_date).days
-        baby_weeks = max(0, days_total // 7)
-        baby_days = max(0, days_total % 7)
-        # First year growth rate (364 days = 100%)
-        baby_percent = min(100, int((days_total / 364) * 100)) if days_total >= 0 else 0
-
-        # Baby weight/height history
-        baby_records = BabyRecord.objects.filter(baby=baby).order_by('date')
-        baby_chart_data = []
+        # BabyRecord 根據選中的嬰幼兒（屬於目前胎數）
+        baby_records = (
+            BabyRecord.objects
+            .filter(baby=selected_baby)
+            .order_by('date')
+        )
         for r in baby_records:
             if r.weight is not None or r.height is not None:
                 r_date = r.date.date() if isinstance(r.date, datetime.datetime) else r.date
-                delta_days = (r_date - baby.birthdaytime.date()).days if baby and baby.birthdaytime else 0
+                delta_days = (r_date - birth_date).days
                 week = max(0, delta_days // 7)
                 baby_chart_data.append({
                     'week': week,
                     'weight': float(r.weight) if r.weight is not None else None,
-                    'height': float(r.height) if r.height is not None else None
+                    'height': float(r.height) if r.height is not None else None,
                 })
-    else:
-        # Default fallback
-        baby_weeks = 24
-        baby_days = 4
-        baby_percent = 60
-        baby_chart_data = []
+
+    elif case:
+        # 胎數存在但尚無出生資料 → 顯示懷孕週數
+        menstruation_date = case.menstruation
+        if not menstruation_date and case.expecteddate:
+            menstruation_date = case.expecteddate - timedelta(days=280)
+        if menstruation_date:
+            delta = today - menstruation_date
+            baby_weeks = max(1, delta.days // 7 + 1)  # 懷孕週數從第 1 週開始
+            baby_days = max(0, delta.days % 7)
+            baby_percent = min(100, int((delta.days / 280) * 100)) if delta.days >= 0 else 0
+
+    # 判斷是否為懷孕狀態
+    is_pregnancy_view = selected_baby is None or selected_baby.birthdaytime is None
 
     context = {
         'selected_date': selected_date,
@@ -163,13 +180,13 @@ def home_baby(request):
         'care_total_count': selected_day_total,
         'care_progress_percent': int((selected_day_done / selected_day_total) * 100) if selected_day_total else 0,
 
-        'baby': baby,
         'case': case,
-        'is_pregnancy_view': is_pregnancy_view,
-        'baby_list': baby_list,
+        'babies': babies,               # 該胎數下所有嬰幼兒
+        'baby': selected_baby,          # 目前選中的嬰幼兒
         'baby_weeks': baby_weeks,
         'baby_days': baby_days,
         'baby_percent': baby_percent,
         'baby_chart_data': baby_chart_data,
+        'is_pregnancy_view': is_pregnancy_view,
     }
     return render(request, 'home_baby.html', context)

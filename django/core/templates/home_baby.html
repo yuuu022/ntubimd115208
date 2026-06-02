@@ -1,0 +1,526 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load tz %}
+{% block title %}嬰幼兒首頁{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+{% block content %}
+    <main class="mx-auto pb-12 max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+
+        <!-- Welcome Section -->
+        <section class="px-6 py-6 flex justify-between items-end">
+            <div class="space-y-1">
+                <p class="text-on-surface-variant text-sm font-medium">
+                    {% if baby %}嬰幼兒 {{ baby.name }}{% elif case %}嬰幼兒的到來{% else %}嬰幼兒{% endif %}
+                </p>
+                <h1 class="text-3xl font-extrabold text-primary tracking-tight">今天的旅程</h1>
+            </div>
+        </section>
+
+        <!-- 嬰幼兒選擇（同胎數下多胎） -->
+        {% if babies|length > 1 %}
+        <section class="px-6 mb-4">
+            <div class="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
+                {% for b in babies %}
+                <a href="?baby_id={{ b.baby_id }}{% if selected_date_iso %}&date={{ selected_date_iso }}{% endif %}"
+                   class="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-bold transition-all
+                          {% if baby.baby_id == b.baby_id %}bg-primary text-white border-primary shadow-sm{% else %}bg-surface-container-lowest border-surface-container-high text-on-surface hover:bg-primary/5{% endif %}">
+                    <span class="material-symbols-outlined text-[16px]">face</span>
+                    {{ b.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <div class="lg:grid lg:grid-cols-2 lg:gap-8 lg:px-6 items-start">
+
+            <!-- Baby / Pregnancy Progress Card -->
+            <div class="px-6 lg:px-0 mb-8 lg:col-span-2">
+                {% if not babies %}
+                <!-- 無嬰幼兒空狀態 -->
+                <div class="bg-surface-container-lowest rounded-3xl p-10 shadow-sm text-center">
+                    <span class="material-symbols-outlined text-[48px] text-on-surface-variant/30 block mb-3">child_care</span>
+                    <p class="text-sm font-bold text-on-surface-variant">此胎數尚無嬰幼兒紀錄</p>
+                    <p class="text-xs text-on-surface-variant/60 mt-1">請先新增嬰幼兒資料</p>
+                </div>
+                {% else %}
+                <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between gap-4 mb-1">
+                        <span class="text-primary font-bold text-sm">目前進度</span>
+                        <div class="flex items-center gap-3">
+                            {% if baby %}
+                            <span class="text-[11px] font-bold text-on-surface-variant bg-primary/5 px-2.5 py-1 rounded-full">
+                                {{ baby.name }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6 mt-4">
+                        <div class="relative w-24 h-24 flex items-center justify-center bg-primary-container rounded-full overflow-hidden shrink-0">
+                            <span class="material-symbols-outlined text-primary text-[52px]">child_care</span>
+                        </div>
+                        <div class="space-y-0.5">
+                            {% if is_pregnancy_view and baby_weeks %}
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ baby_weeks }}</span>
+                                <span class="text-lg font-bold text-on-surface-variant">w</span>
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ baby_days }}</span>
+                                <span class="text-lg font-bold text-on-surface-variant">d</span>
+                            </div>
+                            {% elif not is_pregnancy_view and baby_weeks is not None %}
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ baby_weeks }}</span>
+                                <span class="text-lg font-bold text-on-surface-variant">個月</span>
+                            </div>
+                            {% else %}
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ baby_weeks }}</span>
+                                <span class="text-lg font-bold text-on-surface-variant">w</span>
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ baby_days }}</span>
+                                <span class="text-lg font-bold text-on-surface-variant">d</span>
+                            </div>
+                            {% endif %}
+                            <p class="text-xs text-on-surface-variant">
+                                {% if is_pregnancy_view %}懷孕週數{% else %}出生後月齡{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-8 h-2 w-full bg-primary-container rounded-full overflow-hidden">
+                        <div class="h-full bg-primary rounded-full transition-all duration-300" style="width: {{ baby_percent }}%;"></div>
+                    </div>
+                    <div class="flex justify-between mt-2">
+                        {% if is_pregnancy_view %}
+                        <span class="text-[10px] font-bold text-on-surface-variant/60">第 1 週</span>
+                        <span class="text-[10px] font-bold text-on-surface-variant/60">第 40 週</span>
+                        {% else %}
+                        <span class="text-[10px] font-bold text-on-surface-variant/60">0 個月</span>
+                        <span class="text-[10px] font-bold text-on-surface-variant/60">36 個月</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+
+            <!-- Today's Checklist -->
+            <div class="px-6 lg:px-0 mb-8">
+                <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm flex flex-col space-y-4"
+                     data-selected-date="{{ selected_date_iso }}" data-today-date="{{ today_iso }}">
+                    <div class="flex justify-between items-center gap-4 mb-1">
+                        <div class="flex flex-col gap-1">
+                            <h3 class="font-bold text-primary text-lg">代辦清單</h3>
+                        </div>
+                        <button onclick="window.location.href='/add_care_reminder/?date={{ selected_date_iso }}'"
+                            class="bg-primary/10 text-primary w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary/20 active:scale-90 transition-colors cursor-pointer shrink-0">
+                            <span class="material-symbols-outlined text-lg">add</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button id="care-range-prev-btn" type="button" class="w-8 h-8 rounded-full hover:bg-primary/10 text-primary font-bold">&lt;</button>
+                        <button id="care-date-picker-btn" type="button" class="inline-flex items-center cursor-pointer group hover:bg-primary/5 px-3 py-1 rounded-xl transition-colors">
+                            <span id="care-date-picker-text" class="text-primary font-bold text-sm tracking-tight flex items-center gap-1">
+                                {{ selected_month_label }}
+                                <span class="material-symbols-outlined text-primary text-[18px]">keyboard_arrow_down</span>
+                            </span>
+                        </button>
+                        <button id="care-range-next-btn" type="button" class="w-8 h-8 rounded-full hover:bg-primary/10 text-primary font-bold">&gt;</button>
+                        <button id="care-today-btn" type="button" class="ml-1 px-3 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 text-xs font-bold">今天</button>
+                    </div>
+
+                    <div class="relative">
+                        <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-surface-container-lowest to-transparent"></div>
+                        <div id="care-day-strip" class="flex gap-3 overflow-x-auto pb-2 scroll-smooth snap-x snap-mandatory">
+                            {% for day in care_day_cards %}
+                            <a href="?date={{ day.date_iso }}{% if baby %}&baby_id={{ baby.baby_id }}{% endif %}" class="min-w-[4.5rem] snap-start rounded-2xl border px-3 py-3 text-center transition-all {% if day.is_selected %}bg-primary text-white border-primary shadow-md{% else %}bg-white border-surface-container-high hover:border-primary/30 hover:bg-primary/5{% endif %}">
+                                <div class="text-[10px] font-bold tracking-wide {% if day.is_selected %}text-white/80{% else %}text-on-surface-variant{% endif %}">{{ day.weekday }}</div>
+                                <div class="mt-1 text-xl font-extrabold leading-none {% if day.is_selected %}text-white{% else %}text-on-surface{% endif %}">{{ day.day }}</div>
+                                <div class="mt-1 text-[10px] font-bold {% if day.is_selected %}text-white/80{% else %}text-on-surface-variant{% endif %}">{{ day.month_label }}</div>
+                                {% if day.has_record %}
+                                <div class="mt-2 inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[9px] font-bold {% if day.is_selected %}bg-white/15 text-white{% else %}bg-primary/10 text-primary{% endif %}">{{ day.completion }}</div>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-2 mt-1 flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-on-surface">進度</span>
+                            <span class="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">{{ care_done_count }}/{{ care_total_count }}</span>
+                        </div>
+                        <div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full rounded-full transition-all duration-300" style="width: {{ care_progress_percent }}%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 pt-1">
+                        {% if care_records %}
+                            {% for care in care_records %}
+                            <div class="flex items-start gap-3">
+                                <form method="post" action="{% url 'set_care_status' %}" class="shrink-0">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="carerecord_id" value="{{ care.carerecord_id }}">
+                                    <input type="hidden" name="selected_date" value="{{ selected_date_iso }}">
+                                    <input type="hidden" name="state" value="{% if care.state %}0{% else %}1{% endif %}">
+                                    <button type="submit" class="w-6 h-6 rounded-md {% if care.state %}bg-[#d6beff]{% else %}border-2 border-[#d6beff]{% endif %} flex items-center justify-center cursor-pointer">
+                                        {% if care.state %}
+                                        <span class="material-symbols-outlined text-primary text-sm font-bold">check</span>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="text-sm font-bold text-primary shrink-0">{{ care.recordtime|localtime|date:'H:i' }}</span>
+                                        <span class="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-bold shrink-0">{{ care.carestatus.carestatus|default:'提醒' }}</span>
+                                        <span class="text-sm font-semibold {% if care.state %}text-on-surface/50 line-through{% else %}text-on-surface{% endif %} truncate">{{ care.content }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="rounded-2xl bg-surface-container-low py-6 px-4 text-center">
+                                <p class="text-xs font-semibold text-on-surface-variant">這一天沒有照顧提醒</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Baby Growth Chart -->
+            <div class="px-6 lg:px-0 mb-8">
+                <div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(46,47,45,0.06)] space-y-6 h-full">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-primary flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">monitoring</span>
+                            生長趨勢
+                        </h3>
+                        <div class="flex bg-surface-container-low p-1 rounded-full text-[10px] font-bold">
+                            <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='/'" class="px-4 py-1.5 rounded-full text-on-surface-variant">養育者</button>
+                            <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='/home_baby/'" class="px-4 py-1.5 rounded-full bg-white text-primary shadow-sm">嬰幼兒</button>
+                        </div>
+                    </div>
+
+                    <!-- 身高/體重切換 -->
+                    <div class="flex gap-2">
+                        <button id="weight-btn" class="px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold transition-all cursor-pointer">體重</button>
+                        <button id="height-btn" class="px-4 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant text-xs font-bold transition-all cursor-pointer">身高</button>
+                    </div>
+
+                    <!-- Chart Area -->
+                    <div class="relative h-56 w-full flex">
+                        <!-- Y-Axis Labels -->
+                        <div id="y-axis-labels" class="flex flex-col justify-between text-[9px] font-bold text-on-surface-variant/50 pr-2 pb-6"></div>
+
+                        <!-- Chart Canvas -->
+                        <div class="relative flex-1">
+                            <!-- Grid Lines -->
+                            <div class="absolute inset-x-0 top-0 bottom-6 flex flex-col justify-between">
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                                <div class="w-full h-[1px] bg-surface-container-high/60"></div>
+                            </div>
+
+                            <!-- SVG Chart -->
+                            <div class="absolute inset-x-0 top-0 bottom-6">
+                                <svg id="chart-svg" class="h-full w-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                    <defs>
+                                        <linearGradient id="babyGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#65518a" stop-opacity="0.22"></stop>
+                                            <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+
+                            <!-- 空狀態：置中於整個圖表區 -->
+                            <div id="chart-empty-state" class="hidden absolute inset-0 flex flex-col items-center justify-center gap-3 pointer-events-none">
+                                <span class="material-symbols-outlined text-[48px] text-on-surface-variant/30">monitoring</span>
+                                <div class="text-center">
+                                    <div class="rounded-2xl bg-surface-container-low px-6 py-3 text-xs font-semibold text-on-surface-variant shadow-sm">
+                                        <p>尚無嬰幼兒成長紀錄</p>
+                                        <p class="text-[10px] mt-1">請先新增寶寶的身高體重紀錄</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- X-Axis Labels -->
+                            <div id="chart-x-labels" class="absolute bottom-0 left-0 right-0 flex justify-between text-[9px] font-bold text-on-surface-variant/60 translate-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="flex justify-center items-center gap-6 mt-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-1 rounded-full bg-[#65518a]"></div>
+                            <span id="chart-legend-text" class="text-[10px] font-bold text-on-surface-variant">體重 (kg)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {{ baby_chart_data|json_script:"baby-chart-data" }}
+
+    <!-- Month Picker Modal -->
+    <div id="care-month-picker-modal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        <div id="care-month-picker-backdrop" class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm transition-opacity duration-300"></div>
+        <div id="care-month-picker-content" class="relative w-full max-w-md bg-surface-container-lowest rounded-t-[2rem] sm:rounded-3xl shadow-2xl transform translate-y-full sm:translate-y-4 sm:scale-95 transition-all duration-300 flex flex-col sm:mb-4">
+            <div class="w-full flex justify-center pt-3 pb-1 sm:hidden">
+                <div class="w-12 h-1.5 bg-outline-variant/30 rounded-full"></div>
+            </div>
+            <div class="p-4 border-b border-surface-container-high/50 flex justify-between items-center shrink-0">
+                <button type="button" id="care-month-picker-prev-year" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button type="button" id="care-month-picker-year-display" class="font-headline font-bold text-lg text-primary hover:bg-surface-container-low px-3 py-1 rounded-xl transition-colors">{{ selected_date.year }}年</button>
+                <button type="button" id="care-month-picker-next-year" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+            <div class="p-6 grid grid-cols-4 gap-4" id="care-month-picker-grid"></div>
+        </div>
+    </div>
+
+    <!-- Date Picker Modal -->
+    <div id="care-date-picker-modal" class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        <div id="care-date-picker-backdrop" class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm transition-opacity duration-300"></div>
+        <div id="care-date-picker-content" class="relative w-full max-w-md bg-surface-container-lowest rounded-t-[2rem] sm:rounded-3xl shadow-2xl transform translate-y-full sm:translate-y-4 sm:scale-95 transition-all duration-300 flex flex-col sm:mb-4">
+            <div class="w-full flex justify-center pt-3 pb-1 sm:hidden">
+                <div class="w-12 h-1.5 bg-outline-variant/30 rounded-full"></div>
+            </div>
+            <div class="p-4 border-b border-surface-container-high/50 flex justify-between items-center shrink-0">
+                <button type="button" id="care-date-picker-back-btn" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button type="button" id="care-date-picker-month-display" class="font-headline font-bold text-lg text-primary hover:bg-surface-container-low px-3 py-1 rounded-xl transition-colors">{{ selected_date.year }}年{{ selected_date.month }}月</button>
+                <button type="button" id="care-date-picker-next-month" class="p-2 hover:bg-surface-container-low rounded-full transition-colors cursor-pointer text-on-surface-variant">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+            <div class="px-6 pt-4 grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-on-surface-variant/70">
+                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+            </div>
+            <div class="p-6 grid grid-cols-7 gap-2" id="care-date-picker-grid"></div>
+        </div>
+    </div>
+
+    <!-- Floating Join Code Button -->
+    <div class="join">
+        <span class="material-symbols-outlined text-base">vpn_key</span>
+        <span class="font-bold text-[10px] tracking-wide">加入碼: {% if baby %}{{ baby.pregnancycase.code|default:'尚未建立' }}{% elif case %}{{ case.code|default:'尚未建立' }}{% else %}尚未建立{% endif %}</span>
+    </div>
+
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/index.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ── Baby Growth Chart ──────────────────────────────────
+    const babyChartDataEl = document.getElementById('baby-chart-data');
+    let babyData = [];
+    if (babyChartDataEl) {
+        try { babyData = JSON.parse(babyChartDataEl.textContent || '[]'); } catch(e) {}
+    }
+
+    // 無資料時直接交由 renderChart 顯示空白提示
+
+    const chartSvg = document.getElementById('chart-svg');
+    const chartEmpty = document.getElementById('chart-empty-state');
+    const yAxis = document.getElementById('y-axis-labels');
+    const xAxis = document.getElementById('chart-x-labels');
+    const legendText = document.getElementById('chart-legend-text');
+    const weightBtn = document.getElementById('weight-btn');
+    const heightBtn = document.getElementById('height-btn');
+    let currentType = 'weight';
+
+    function renderChart(type) {
+        const values = babyData.map(d => type === 'weight' ? d.weight : d.height).filter(v => v != null && isFinite(v));
+        const weeks  = babyData.map(d => d.week);
+        if (!values.length) {
+            chartSvg.innerHTML = '';
+            if (yAxis) yAxis.innerHTML = '';
+            if (xAxis) xAxis.innerHTML = '';
+            if (chartEmpty) chartEmpty.classList.remove('hidden');
+            return;
+        }
+        if (chartEmpty) chartEmpty.classList.add('hidden');
+
+        let minV = Math.min(...values), maxV = Math.max(...values);
+        if (minV === maxV) { minV -= 1; maxV += 1; }
+        const pad = Math.max((maxV - minV) * 0.12, 0.5);
+        minV -= pad; maxV += pad;
+
+        const topY = 8, bottomY = 88, leftX = 2, rightX = 98;
+        const H = bottomY - topY, W = rightX - leftX;
+        const scaleY = v => bottomY - ((v - minV) / (maxV - minV)) * H;
+
+        const pts = babyData.map((d, i) => ({
+            x: babyData.length === 1 ? 50 : leftX + (i / (babyData.length - 1)) * W,
+            y: scaleY(type === 'weight' ? d.weight : d.height),
+            w: d.week
+        })).filter(p => isFinite(p.y));
+
+        if (!pts.length) return;
+
+        const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ');
+        const areaD = pathD + ` L${pts[pts.length-1].x.toFixed(2)},${bottomY} L${pts[0].x.toFixed(2)},${bottomY} Z`;
+        const dots  = pts.map((p, i) => {
+            const isLast = i === pts.length - 1;
+            return `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="${isLast ? 2.4 : 1.8}" fill="#65518a" stroke="#ffffff" stroke-width="${isLast ? 1.2 : 0.8}"></circle>`;
+        }).join('');
+
+        chartSvg.innerHTML = `
+            <defs>
+                <linearGradient id="babyGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#65518a" stop-opacity="0.22"></stop>
+                    <stop offset="100%" stop-color="#65518a" stop-opacity="0.0"></stop>
+                </linearGradient>
+            </defs>
+            <path d="${areaD}" fill="url(#babyGrad)"></path>
+            <path d="${pathD}" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5" vector-effect="non-scaling-stroke"></path>
+            <g>${dots}</g>`;
+
+        // Y-axis
+        if (yAxis) {
+            yAxis.innerHTML = Array.from({length:5}, (_,i) => {
+                const v = maxV - ((maxV - minV) * i / 4);
+                const label = type === 'weight' ? `${v.toFixed(1)}kg` : `${v.toFixed(0)}cm`;
+                return `<span>${label}</span>`;
+            }).join('');
+        }
+
+        // X-axis
+        if (xAxis) {
+            const maxLabels = Math.min(pts.length, 6);
+            const idxs = new Set(Array.from({length: maxLabels}, (_, i) => Math.round((pts.length - 1) * i / (maxLabels - 1 || 1))));
+            xAxis.innerHTML = pts.map((p, i) => {
+                if (!idxs.has(i)) return '<span></span>';
+                const cls = i === pts.length - 1 ? 'text-primary font-extrabold translate-x-3' : '-translate-x-2';
+                return `<span class="${cls}">第${p.w}週</span>`;
+            }).join('');
+        }
+
+        if (legendText) legendText.textContent = type === 'weight' ? '體重 (kg)' : '身高 (cm)';
+    }
+
+    if (weightBtn && heightBtn) {
+        const activeClass  = ['bg-primary/10', 'text-primary'];
+        const inactiveClass= ['bg-surface-container-low', 'text-on-surface-variant'];
+        weightBtn.addEventListener('click', () => {
+            currentType = 'weight';
+            weightBtn.classList.add(...activeClass); weightBtn.classList.remove(...inactiveClass);
+            heightBtn.classList.add(...inactiveClass); heightBtn.classList.remove(...activeClass);
+            renderChart('weight');
+        });
+        heightBtn.addEventListener('click', () => {
+            currentType = 'height';
+            heightBtn.classList.add(...activeClass); heightBtn.classList.remove(...inactiveClass);
+            weightBtn.classList.add(...inactiveClass); weightBtn.classList.remove(...activeClass);
+            renderChart('height');
+        });
+    }
+
+    renderChart('weight');
+
+    // Scroll restoration
+    const savedPos = sessionStorage.getItem('scrollPos');
+    if (savedPos) { window.scrollTo({top: parseInt(savedPos, 10), behavior: 'instant'}); sessionStorage.removeItem('scrollPos'); }
+
+    // ── Date navigation (reuse index.js logic) ──────────────
+    const monthPickerModal   = document.getElementById('care-month-picker-modal');
+    const monthPickerBackdrop= document.getElementById('care-month-picker-backdrop');
+    const monthPickerContent = document.getElementById('care-month-picker-content');
+    const monthPickerYearDisplay = document.getElementById('care-month-picker-year-display');
+    const monthPickerGrid    = document.getElementById('care-month-picker-grid');
+    const prevYearBtn        = document.getElementById('care-month-picker-prev-year');
+    const nextYearBtn        = document.getElementById('care-month-picker-next-year');
+    const datePickerModal    = document.getElementById('care-date-picker-modal');
+    const datePickerBackdrop = document.getElementById('care-date-picker-backdrop');
+    const datePickerContent  = document.getElementById('care-date-picker-content');
+    const datePickerMonthDisplay = document.getElementById('care-date-picker-month-display');
+    const datePickerGrid     = document.getElementById('care-date-picker-grid');
+    const datePickerBackBtn  = document.getElementById('care-date-picker-back-btn');
+    const datePickerNextMonthBtn = document.getElementById('care-date-picker-next-month');
+    const customDatePickerBtn = document.getElementById('care-date-picker-btn');
+    const rangePrevBtn       = document.getElementById('care-range-prev-btn');
+    const rangeTodayBtn      = document.getElementById('care-today-btn');
+    const rangeNextBtn       = document.getElementById('care-range-next-btn');
+    const selectedDateSource = document.querySelector('[data-selected-date]');
+    if (!monthPickerModal || !customDatePickerBtn || !selectedDateSource) return;
+
+    const selectedDateText = selectedDateSource.dataset.selectedDate || '';
+    const todayText        = selectedDateSource.dataset.todayDate || '';
+    const selectedDate     = selectedDateText ? new Date(`${selectedDateText}T00:00:00`) : new Date();
+    const todayDate        = todayText ? new Date(`${todayText}T00:00:00`) : new Date();
+    let tempYear  = selectedDate.getFullYear();
+    let tempMonth = selectedDate.getMonth() + 1;
+    let tempDay   = selectedDate.getDate();
+    const curY = tempYear, curM = tempMonth, curD = tempDay;
+
+    const clampDay = (y, m, d) => Math.min(Math.max(1, d), new Date(y, m, 0).getDate());
+    const goToDate = (y, m, d) => {
+        const target = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        window.location.href = `?date=${target}`;
+    };
+    const openModal  = (el, c) => { el.classList.replace('opacity-0','opacity-100'); el.classList.replace('pointer-events-none','pointer-events-auto'); setTimeout(()=>{ c.classList.remove('translate-y-full','sm:translate-y-4','sm:scale-95'); c.classList.add('translate-y-0','sm:translate-y-0','sm:scale-100'); },10); };
+    const closeModal = (el, c) => { c.classList.add('translate-y-full','sm:translate-y-4','sm:scale-95'); c.classList.remove('translate-y-0','sm:translate-y-0','sm:scale-100'); setTimeout(()=>{ el.classList.replace('opacity-100','opacity-0'); el.classList.replace('pointer-events-auto','pointer-events-none'); },300); };
+
+    function renderMonthGrid() {
+        monthPickerGrid.innerHTML = '';
+        monthPickerYearDisplay.innerText = `${tempYear}年`;
+        for (let m = 1; m <= 12; m++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'py-3 rounded-xl text-sm font-bold transition-all cursor-pointer border ' + (tempYear===curY && m===curM ? 'bg-primary text-white shadow-md border-primary' : 'bg-surface-container-lowest text-on-surface hover:bg-surface-container-low border-surface-container-high');
+            btn.innerText = `${m}月`;
+            btn.onclick = () => { tempMonth = m; tempDay = clampDay(tempYear, tempMonth, tempDay); renderDateGrid(); closeModal(monthPickerModal, monthPickerContent); openModal(datePickerModal, datePickerContent); };
+            monthPickerGrid.appendChild(btn);
+        }
+    }
+    function renderDateGrid() {
+        datePickerGrid.innerHTML = '';
+        datePickerMonthDisplay.innerText = `${tempYear}年${tempMonth}月`;
+        const firstWeekday = (new Date(tempYear, tempMonth - 1, 1).getDay() + 6) % 7;
+        for (let b = 0; b < firstWeekday; b++) { const ph = document.createElement('div'); ph.className = 'h-11'; datePickerGrid.appendChild(ph); }
+        for (let d = 1; d <= new Date(tempYear, tempMonth, 0).getDate(); d++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            const isSel = tempYear===curY && tempMonth===curM && d===curD;
+            btn.className = 'h-11 rounded-xl text-sm font-bold transition-all cursor-pointer border ' + (isSel ? 'bg-primary text-white shadow-md border-primary' : 'bg-surface-container-lowest text-on-surface hover:bg-surface-container-low border-surface-container-high');
+            btn.innerText = String(d);
+            btn.onclick = () => goToDate(tempYear, tempMonth, d);
+            datePickerGrid.appendChild(btn);
+        }
+    }
+
+    customDatePickerBtn.addEventListener('click', () => { renderMonthGrid(); openModal(monthPickerModal, monthPickerContent); });
+    monthPickerBackdrop.addEventListener('click', () => closeModal(monthPickerModal, monthPickerContent));
+    datePickerBackdrop.addEventListener('click',  () => closeModal(datePickerModal,  datePickerContent));
+    prevYearBtn.addEventListener('click', () => { tempYear--; renderMonthGrid(); });
+    nextYearBtn.addEventListener('click', () => { tempYear++; renderMonthGrid(); });
+    datePickerBackBtn.addEventListener('click', () => { closeModal(datePickerModal, datePickerContent); openModal(monthPickerModal, monthPickerContent); });
+    datePickerNextMonthBtn.addEventListener('click', () => { tempMonth++; if (tempMonth > 12) { tempMonth = 1; tempYear++; } tempDay = clampDay(tempYear, tempMonth, tempDay); renderDateGrid(); });
+
+    const shiftDate = (days) => {
+        const d = new Date(selectedDate.getTime());
+        d.setDate(d.getDate() + days);
+        goToDate(d.getFullYear(), d.getMonth()+1, d.getDate());
+    };
+    rangePrevBtn.addEventListener('click', () => shiftDate(-7));
+    rangeNextBtn.addEventListener('click', () => shiftDate(7));
+    rangeTodayBtn.addEventListener('click', () => goToDate(todayDate.getFullYear(), todayDate.getMonth()+1, todayDate.getDate()));
+
+    const careDayStrip = document.getElementById('care-day-strip');
+    if (careDayStrip) {
+        const sel = careDayStrip.querySelector(`a[href="?date=${selectedDateText}"]`);
+        if (sel) sel.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+});
+</script>
+{% endblock %}
