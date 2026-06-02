@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 ACTIVE_CONVERSATION_SESSION_KEY = "qa_active_conversation_id"
 
-DEFAULT_N8N_RAG_WEBHOOK_URL = "http://localhost:5678/webhook/b2489eda-0b01-425d-be17-3c817fb4cdcd"
+DEFAULT_N8N_RAG_WEBHOOK_URL = "https://cologrowth.app.n8n.cloud/webhook/b2489eda-0b01-425d-be17-3c817fb4cdcd"
 EXPECTED_N8N_RAG_WEBHOOK_PATH = "/webhook/b2489eda-0b01-425d-be17-3c817fb4cdcd"
 
 
@@ -380,6 +380,16 @@ def qa_conversation(request):
         _set_current_conversation_id(request, None)
         request.session["qa_skip_auto_load"] = True
         request.session.modified = True
+        if request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest" or "application/json" in (request.META.get("HTTP_ACCEPT", "") or ""):
+            return JsonResponse(
+                {
+                    "ok": True,
+                    "conversation_id": None,
+                    "redirect_url": reverse("qa_conversation"),
+                    "items": _load_recent_items(),
+                }
+            )
+
         return redirect(reverse("qa_conversation"))
 
     if request.method == "POST":
