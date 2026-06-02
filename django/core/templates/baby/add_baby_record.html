@@ -28,12 +28,12 @@
             <div id="baby-switcher-menu" class="absolute top-full right-0 mt-2 w-40 bg-white rounded-2xl shadow-xl border border-surface-container-high overflow-hidden opacity-0 pointer-events-none transition-all duration-200 z-50 transform origin-top-right scale-95">
                 <div class="max-h-56 overflow-y-auto hide-scrollbar flex flex-col">
                     {% for item in baby_list %}
-                    <button class="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors flex items-center justify-between border-b border-surface-container-highest cursor-pointer">
+                    <a href="?baby_id={{ item.baby_id }}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" class="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors flex items-center justify-between border-b border-surface-container-highest cursor-pointer">
                         <span class="text-sm font-bold text-on-surface">{{ item.name|default:'小寶' }}</span>
                         {% if item == baby %}
                         <span class="material-symbols-outlined text-primary text-[16px]">check</span>
                         {% endif %}
-                    </button>
+                    </a>
                     {% endfor %}
                     <a href="{% url 'add_pregnancy_case' %}" class="w-full text-left px-4 py-3 hover:bg-primary/5 transition-colors flex items-center gap-2">
                         <span class="material-symbols-outlined text-[16px] text-primary">pregnant_woman</span>
@@ -78,19 +78,19 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                         <span class="text-[10px] font-bold text-[#65518a]/80">身高 (CM)</span>
-                        <input name="height" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.height|default:'' }}" />
+                        <input name="height" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.height|default:'' }}" />
                     </div>
                     <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                         <span class="text-[10px] font-bold text-[#65518a]/80">體重 (KG)</span>
-                        <input name="weight" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.weight|default:'' }}" />
+                        <input name="weight" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.weight|default:'' }}" />
                     </div>
                     <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                         <span class="text-[10px] font-bold text-[#65518a]/80">頭圍 (CM)</span>
-                        <input name="headcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.headcircumference|default:'' }}" />
+                        <input name="headcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.headcircumference|default:'' }}" />
                     </div>
                     <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                         <span class="text-[10px] font-bold text-[#65518a]/80">胸圍 (CM)</span>
-                        <input name="chestcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.chestcircumference|default:'' }}" />
+                        <input name="chestcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.chestcircumference|default:'' }}" />
                     </div>
                 </div>
             </div>
@@ -126,6 +126,31 @@
     </main>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Baby Switcher Dropdown Interaction
+            const switcherBtn = document.getElementById('baby-switcher-btn');
+            const switcherMenu = document.getElementById('baby-switcher-menu');
+            
+            if (switcherBtn && switcherMenu) {
+                switcherBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = !switcherMenu.classList.contains('opacity-0');
+                    if (isOpen) {
+                        switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                        switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    } else {
+                        switcherMenu.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+                        switcherMenu.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!switcherBtn.contains(e.target) && !switcherMenu.contains(e.target)) {
+                        switcherMenu.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+                        switcherMenu.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    }
+                });
+            }
+
             const milestonesInput = document.getElementById('milestones');
             const buttons = document.querySelectorAll('.milestone-item');
 

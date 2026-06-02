@@ -143,5 +143,6 @@ def index(request):
         'pregnancy_chart_has_data': bool(pregnancy_chart_data),
         'pregnancy_progress': pregnancy_progress,
         'active_baby': active_baby,
+        'current_user': current_user,
     }
     return render(request, 'index/index.html', context)

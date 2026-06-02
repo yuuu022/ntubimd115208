@@ -18,7 +18,8 @@
 
     <!-- Main Content -->
     <main class="pt-24 px-4 mx-auto max-w-md md:max-w-2xl lg:max-w-3xl w-full">
-        <form onsubmit="event.preventDefault(); window.history.back();" class="space-y-6">
+        <form method="post" action="{% url 'add_baby_information' %}" class="space-y-6">
+            {% csrf_token %}
 
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">

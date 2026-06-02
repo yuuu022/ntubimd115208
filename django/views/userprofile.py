@@ -3,7 +3,8 @@ from datetime import timedelta
 from django.shortcuts import render, redirect
 from django.utils import timezone
 
-from core.models import BabyInformation, BabyRecord, PregnancyCase, PregnancyRecord
+from core.models import BabyInformation, BabyRecord, FamilyMember, PregnancyCase, PregnancyRecord
+from core import join_requests_manager
 from views.pregnancy_records import records_for_case
 from views.pregnancycase import (
     get_lmp_date,
@@ -24,28 +25,15 @@ def _format_number(value):
 
 
 def _latest_weight_for_selection(request, user):
-    has_baby = bool(request.session.get('active_baby_id') or request.GET.get('baby_id'))
-    baby = resolve_active_baby(request, user, fallback=has_baby)
-    if baby and baby.birthdaytime:
-        record = (
-            BabyRecord.objects.filter(baby=baby)
-            .exclude(weight__isnull=True)
-            .order_by('-date', '-babyrecord_id')
-            .first()
-        )
-        if record and record.weight is not None:
-            return record.weight
-
-    case = resolve_active_pregnancy_case(request, user)
-    if case:
-        record = (
-            records_for_case(case)
-            .exclude(weight__isnull=True)
-            .order_by('-check_date', '-pregnancyrecord_id')
-            .first()
-        )
-        if record and record.weight is not None:
-            return record.weight
+    # Always return caregiver's latest weight from PregnancyRecord
+    record = (
+        PregnancyRecord.objects.filter(user=user)
+        .exclude(weight__isnull=True)
+        .order_by('-check_date', '-pregnancyrecord_id')
+        .first()
+    )
+    if record and record.weight is not None:
+        return record.weight
 
     return '-'
 
@@ -68,6 +56,15 @@ def _build_selected_child_info(request, current_user):
                 age_text = f'第 {age_weeks} 週 {age_days_remainder} 天'
                 age_percent = min(100, int((age_days / 364) * 100))
 
+            latest_baby_weight = '-'
+            latest_baby_height = '-'
+            weight_rec = BabyRecord.objects.filter(baby=baby).exclude(weight__isnull=True).order_by('-date', '-babyrecord_id').first()
+            if weight_rec and weight_rec.weight is not None:
+                latest_baby_weight = _format_number(weight_rec.weight)
+            height_rec = BabyRecord.objects.filter(baby=baby).exclude(height__isnull=True).order_by('-date', '-babyrecord_id').first()
+            if height_rec and height_rec.height is not None:
+                latest_baby_height = _format_number(height_rec.height)
+
             return {
                 'type': 'baby',
                 'name': baby.name,
@@ -79,6 +76,8 @@ def _build_selected_child_info(request, current_user):
                 'birth_height': _format_number(baby.baby_height),
                 'birth_weight': _format_number(baby.baby_weight),
                 'birth_head_circumference': _format_number(baby.babyheadcircumference),
+                'latest_weight': latest_baby_weight,
+                'latest_height': latest_baby_height,
             }
 
     case = resolve_active_pregnancy_case(request, current_user)
@@ -111,6 +110,15 @@ def _build_selected_child_info(request, current_user):
     if baby and baby.birthdaytime:
         birth_date = baby.birthdaytime.date()
         age_days = max(0, (today - birth_date).days)
+        latest_baby_weight = '-'
+        latest_baby_height = '-'
+        weight_rec = BabyRecord.objects.filter(baby=baby).exclude(weight__isnull=True).order_by('-date', '-babyrecord_id').first()
+        if weight_rec and weight_rec.weight is not None:
+            latest_baby_weight = _format_number(weight_rec.weight)
+        height_rec = BabyRecord.objects.filter(baby=baby).exclude(height__isnull=True).order_by('-date', '-babyrecord_id').first()
+        if height_rec and height_rec.height is not None:
+            latest_baby_height = _format_number(height_rec.height)
+
         return {
             'type': 'baby',
             'name': baby.name,
@@ -122,6 +130,8 @@ def _build_selected_child_info(request, current_user):
             'birth_height': _format_number(baby.baby_height),
             'birth_weight': _format_number(baby.baby_weight),
             'birth_head_circumference': _format_number(baby.babyheadcircumference),
+            'latest_weight': latest_baby_weight,
+            'latest_height': latest_baby_height,
         }
 
     return None
@@ -135,10 +145,90 @@ def userprofile(request):
     latest_weight = _latest_weight_for_selection(request, current_user)
     selected_child_info = _build_selected_child_info(request, current_user)
 
+    # 取得目前胎數的協助者名單
+    case = resolve_active_pregnancy_case(request, current_user)
+    family_members = []
+    pending_count = 0
+    if case:
+        family_members = list(
+            FamilyMember.objects
+            .filter(pregnancycase_id=case)
+            .select_related('user_id')
+            .order_by('join_time')
+        )
+        if case.user == current_user:
+            pending_count = len(join_requests_manager.get_pending_requests(case.pregnancycase_id))
+
     return render(request, 'user/userprofile.html', {
         'current_user': current_user,
         'latest_weight': latest_weight,
         'selected_child_info': selected_child_info,
+        'family_members': family_members,
+        'pending_count': pending_count,
+    })
+
+
+def join_family(request):
+    """驗證加入碼：確認養育者是否已將此帳號加入該胎數。"""
+    current_user = get_current_user_profile(request)
+    if not current_user:
+        return redirect('login')
+
+    if request.method != 'POST':
+        return redirect('profile')
+
+    join_code = request.POST.get('join_code', '').strip()
+    join_error = None
+    join_success = None
+
+    if not join_code:
+        join_error = '請輸入加入碼'
+    else:
+        case = PregnancyCase.objects.filter(code=join_code).first()
+        if not case:
+            join_error = f'找不到加入碼「{join_code}」，請確認是否正確'
+        else:
+            if case.user == current_user:
+                join_error = '您是此胎數的建立者，無需申請。'
+            else:
+                membership = FamilyMember.objects.filter(
+                    pregnancycase_id=case,
+                    user_id=current_user
+                ).first()
+                if membership:
+                    role_map = {'caregiver': '照顧者', 'viewer': '觀看者', 'mom': '養育者'}
+                    role_label = role_map.get(membership.role, membership.role)
+                    join_success = f'已確認！您以「{role_label}」身份加入此胎數'
+                elif join_requests_manager.has_pending_request(case.pregnancycase_id, current_user.user_id):
+                    join_success = '您已送出加入申請，請等待養育者審核同意。'
+                else:
+                    join_requests_manager.add_request(case.pregnancycase_id, current_user.user_id)
+                    join_success = '已成功送出加入申請，請等待養育者審核同意！'
+
+    # 重新組裝 context
+    latest_weight = _latest_weight_for_selection(request, current_user)
+    selected_child_info = _build_selected_child_info(request, current_user)
+    active_case = resolve_active_pregnancy_case(request, current_user)
+    family_members = []
+    pending_count = 0
+    if active_case:
+        family_members = list(
+            FamilyMember.objects
+            .filter(pregnancycase_id=active_case)
+            .select_related('user_id')
+            .order_by('join_time')
+        )
+        if active_case.user == current_user:
+            pending_count = len(join_requests_manager.get_pending_requests(active_case.pregnancycase_id))
+
+    return render(request, 'user/userprofile.html', {
+        'current_user': current_user,
+        'latest_weight': latest_weight,
+        'selected_child_info': selected_child_info,
+        'family_members': family_members,
+        'join_error': join_error,
+        'join_success': join_success,
+        'pending_count': pending_count,
     })
 
 
@@ -152,5 +242,3 @@ def edit_userprofile(request):
     })
 
 
-def edit_family_member(request):
-    return render(request, 'user/edit_family_member.html')

@@ -67,19 +67,19 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                     <span class="text-[10px] font-bold text-[#65518a]/80">身高 (CM)</span>
-                    <input name="height" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.height|default:record.height }}" />
+                    <input name="height" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.height|default:record.height }}" />
                 </div>
                 <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                     <span class="text-[10px] font-bold text-[#65518a]/80">體重 (KG)</span>
-                    <input name="weight" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.weight|default:record.weight }}" />
+                    <input name="weight" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.weight|default:record.weight }}" />
                 </div>
                 <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                     <span class="text-[10px] font-bold text-[#65518a]/80">頭圍 (CM)</span>
-                    <input name="headcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.headcircumference|default:record.headcircumference }}" />
+                    <input name="headcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.headcircumference|default:record.headcircumference }}" />
                 </div>
                 <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
                     <span class="text-[10px] font-bold text-[#65518a]/80">胸圍 (CM)</span>
-                    <input name="chestcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" placeholder="0.0" value="{{ form_data.chestcircumference|default:record.chestcircumference }}" />
+                    <input name="chestcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0 placeholder:text-[#65518a]/30" type="number" step="0.1" min="0" placeholder="0.0" value="{{ form_data.chestcircumference|default:record.chestcircumference }}" />
                 </div>
             </div>
         </div>
@@ -102,7 +102,7 @@
         <!-- Notes Section -->
         <div class="space-y-4">
             <label class="block text-sm font-medium text-on-surface-variant px-1">成長筆記</label>
-            <textarea name="record" class="w-full bg-surface-container-lowest border-none rounded-[2rem] p-6 h-40 focus:ring-2 focus:ring-primary-container text-on-surface resize-none custom-shadow placeholder:text-on-surface-variant/40 placeholder:font-medium" placeholder="寫下對嬰幼兒的心情或今天發生的趣事...">{{ form_data.record|default:record.record }}</textarea>
+            <textarea name="record" class="w-full bg-surface-container-lowest border-none rounded-[2rem] p-6 h-40 focus:ring-2 focus:ring-primary-container text-on-surface resize-none custom-shadow placeholder:text-on-surface-variant/40 placeholder:font-medium" placeholder="寫下對嬰幼兒的心情或今天發生的趣事...">{{ form_data.record }}</textarea>
         </div>
 
         <!-- Save Button -->

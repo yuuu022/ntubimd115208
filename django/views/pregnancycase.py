@@ -7,15 +7,14 @@ from urllib.parse import urlencode
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
-from core.models import BabyInformation, PregnancyCase
+from core.models import BabyInformation, PregnancyCase, FamilyMember
 from views.session_utils import get_current_user_profile
 
 _CHINESE_NUMS = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"]
 
 
 # --- Pregnancy status (gestation, ongoing vs born) ---
-
-
+#經期推算
 def get_lmp_date(case):
     """Last menstrual period date, or estimated from expected due date."""
     if case.menstruation:
@@ -24,7 +23,7 @@ def get_lmp_date(case):
         return case.expecteddate - timedelta(days=280)
     return None
 
-
+#懷孕進度
 def get_gestation_parts(case, on_date=None):
     """Weeks, days, and 40-week progress percent since LMP."""
     on_date = on_date or timezone.now().date()
@@ -34,7 +33,7 @@ def get_gestation_parts(case, on_date=None):
     delta = on_date - lmp
     if delta.days < 0:
         return None
-    weeks = delta.days // 7
+    weeks = delta.days // 7 + 1  # 懷孕週數從第1週開始
     days = delta.days % 7
     progress_percent = min(100, max(0, round(delta.days / 280 * 100)))
     return {
@@ -73,7 +72,7 @@ def get_case_display_baby(case):
             return baby
     return babies[0]
 
-
+#年齡計算
 def baby_age_text(birthdaytime, on_date=None):
     if not birthdaytime:
         return ""
@@ -157,10 +156,8 @@ def sync_active_selection_from_request(request, user=None):
             baby_qs = BabyInformation.objects.select_related('pregnancycase').filter(
                 baby_id=int(baby_id_param),
             )
-            if user:
-                baby_qs = baby_qs.filter(pregnancycase__user=user)
             baby_obj = baby_qs.first()
-            if baby_obj and baby_obj.pregnancycase_id:
+            if baby_obj and baby_obj.pregnancycase_id and (not user or baby_obj.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby_obj.pregnancycase, user_id=user).exists()):
                 request.session['active_baby_id'] = baby_obj.baby_id
                 request.session['active_case_id'] = baby_obj.pregnancycase_id
                 changed = True
@@ -171,9 +168,8 @@ def sync_active_selection_from_request(request, user=None):
         try:
             case_id = int(case_id_param)
             case_qs = PregnancyCase.objects.filter(pregnancycase_id=case_id)
-            if user:
-                case_qs = case_qs.filter(user=user)
-            if case_qs.exists():
+            case_obj = case_qs.first()
+            if case_obj and (not user or case_obj.user == user or FamilyMember.objects.filter(pregnancycase_id=case_obj, user_id=user).exists()):
                 request.session['active_case_id'] = case_id
                 request.session.pop('active_baby_id', None)
                 changed = True
@@ -193,12 +189,24 @@ def resolve_active_pregnancy_case(request, user):
     if not user:
         return None
 
+    def _get_all_cases():
+        own_cases = list(PregnancyCase.objects.filter(user=user))
+        shared = [m.pregnancycase_id for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase_id') if m.pregnancycase_id]
+        cases_dict = {c.pregnancycase_id: c for c in own_cases + shared}
+        return sorted(cases_dict.values(), key=lambda c: c.create_time)
+
+    def _case_for_user_ext(case_id):
+        case = PregnancyCase.objects.filter(pregnancycase_id=case_id).first()
+        if case and (case.user == user or FamilyMember.objects.filter(pregnancycase_id=case, user_id=user).exists()):
+            return case
+        return None
+
     sync_active_selection_from_request(request, user)
 
     case_id_param = request.GET.get('case_id')
     if case_id_param:
         try:
-            case = _case_for_user(user, int(case_id_param))
+            case = _case_for_user_ext(int(case_id_param))
             if case:
                 return case
         except (ValueError, TypeError):
@@ -209,20 +217,19 @@ def resolve_active_pregnancy_case(request, user):
         try:
             baby = BabyInformation.objects.select_related('pregnancycase').filter(
                 baby_id=int(baby_id_param),
-                pregnancycase__user=user,
             ).first()
-            if baby and baby.pregnancycase:
+            if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby.pregnancycase, user_id=user).exists()):
                 return baby.pregnancycase
         except (ValueError, TypeError):
             pass
 
     active_case_id = request.session.get('active_case_id')
     if active_case_id:
-        case = _case_for_user(user, active_case_id)
+        case = _case_for_user_ext(active_case_id)
         if case:
             return case
 
-    cases = list(PregnancyCase.objects.filter(user=user).order_by('create_time'))
+    cases = _get_all_cases()
     for case in cases:
         if is_pregnancy_ongoing(case):
             request.session['active_case_id'] = case.pregnancycase_id
@@ -250,9 +257,8 @@ def resolve_active_baby(request, user, *, fallback=True):
             try:
                 baby = BabyInformation.objects.select_related('pregnancycase').filter(
                     baby_id=int(raw),
-                    pregnancycase__user=user,
                 ).first()
-                if baby:
+                if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby.pregnancycase, user_id=user).exists()):
                     request.session['active_baby_id'] = baby.baby_id
                     if baby.pregnancycase_id:
                         request.session['active_case_id'] = baby.pregnancycase_id
@@ -265,20 +271,20 @@ def resolve_active_baby(request, user, *, fallback=True):
     if active_baby_id:
         baby = BabyInformation.objects.select_related('pregnancycase').filter(
             baby_id=active_baby_id,
-            pregnancycase__user=user,
         ).first()
-        if baby:
+        if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby.pregnancycase, user_id=user).exists()):
             return baby
 
     if not fallback:
         return None
 
-    baby = (
-        BabyInformation.objects.select_related('pregnancycase')
-        .filter(pregnancycase__user=user)
-        .order_by('baby_id')
-        .first()
-    )
+    case = resolve_active_pregnancy_case(request, user)
+    if case:
+        baby = BabyInformation.objects.select_related('pregnancycase').filter(
+            pregnancycase=case
+        ).order_by('baby_id').first()
+    else:
+        baby = None
     if baby:
         request.session['active_baby_id'] = baby.baby_id
         if baby.pregnancycase_id:
@@ -359,21 +365,45 @@ def build_pregnancy_progress(case, on_date=None):
             'weeks': parts['weeks'],
             'days': parts['days'],
             'progress_percent': parts['progress_percent'],
-            'current_week_label': min(parts['weeks'] + 1, 40),
             'status_note': '',
         }
 
     baby = display_baby
     if baby and baby.birthdaytime:
+        # 計算寶寶月齡相對3歲（36個月）的進度
+        if isinstance(baby.birthdaytime, datetime):
+            bday = baby.birthdaytime.date()
+        else:
+            bday = baby.birthdaytime
+        on_date_val = on_date or timezone.now().date()
+        
+        # 計算月齡
+        years = on_date_val.year - bday.year
+        months = on_date_val.month - bday.month
+        days_remainder = on_date_val.day - bday.day
+        if days_remainder < 0:
+            months -= 1
+            # 計算上個月的天數
+            prev_month = on_date_val.replace(day=1) - timedelta(days=1)
+            days_in_prev_month = (on_date_val.replace(day=1) - timedelta(days=1)).day
+            days_remainder += days_in_prev_month
+        if months < 0:
+            years -= 1
+            months += 12
+        total_months = years * 12 + months
+        
+        # 計算 0-3 歲進度 (36 個月)
+        baby_progress_percent = min(100, max(0, round(total_months / 36 * 100)))
+        
         return {
             'show_card': True,
             'is_ongoing': False,
             'order_name': order_name,
             'baby_name': baby.name,
             'status_note': f'已出生 · {baby_age_text(baby.birthdaytime, on_date)}',
-            'weeks': None,
-            'days': None,
-            'progress_percent': 100,
+            'weeks': total_months,  # 改用月齡顯示
+            'days': max(0, days_remainder),  # 當月剩餘天數
+            'progress_percent': baby_progress_percent,
         }
 
     return {
@@ -396,7 +426,10 @@ def baby_switcher(request):
 
     sync_active_selection_from_request(request, user)
 
-    cases = list(PregnancyCase.objects.filter(user=user).order_by('create_time'))
+    cases_own = list(PregnancyCase.objects.filter(user=user))
+    shared = [m.pregnancycase_id for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase_id') if m.pregnancycase_id]
+    cases_dict = {c.pregnancycase_id: c for c in cases_own + shared}
+    cases = sorted(cases_dict.values(), key=lambda c: c.create_time)
     annotate_case_order_names(cases)
 
     switcher_items = []
@@ -505,7 +538,10 @@ def pregnancy_case(request):
     if not user:
         return redirect('login')
 
-    cases_list = list(PregnancyCase.objects.filter(user=user).order_by('create_time'))
+    cases_own = list(PregnancyCase.objects.filter(user=user))
+    shared = [m.pregnancycase_id for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase_id') if m.pregnancycase_id]
+    cases_dict = {c.pregnancycase_id: c for c in cases_own + shared}
+    cases_list = sorted(cases_dict.values(), key=lambda c: c.create_time)
     annotate_case_order_names(cases_list)
     active_cases, born_babies = partition_pregnancy_cases(cases_list)
 

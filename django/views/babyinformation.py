@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from core.models import BabyInformation, BabyRecord, BabyGrowthMap, BabyStatus
+from core.models import BabyInformation, BabyRecord, BabyGrowthMap, BabyStatus, PregnancyCase, FamilyMember
 from views.pregnancycase import url_with_active_selection
 from django.db.models import Q
 from django.utils import timezone
@@ -271,41 +271,10 @@ def _get_baby_milestones_summary(baby):
     if not baby:
         return []
 
+    from views.baby_growthmap import DEFAULT_DESCRIPTIONS as MAP_DESCRIPTIONS
+
     growth_maps = BabyGrowthMap.objects.all().order_by('timecourse')
     baby_records = list(BabyRecord.objects.filter(baby=baby))
-
-    DEFAULT_DESCRIPTIONS = {
-        # 0-6 個月
-        '對巨大聲音有反應': '聽到突如其來的巨大聲響時，會出現驚嚇、眼睛睜大或哭泣等自然反射動作。',
-        '眼睛注視照顧者的臉': '當大人靠近並溫柔說話時，雙眼能主動追隨注視照顧者的臉龐或面部表情。',
-        '逗弄時會微笑及發出咿呀聲': '在照顾者的引導逗樂下，會展現出甜美的微笑，並嘗試發出簡單的「啊」、「喔」咿呀聲。',
-        '趴臥時頭部能短暫抬起': '趴著時，能嘗試將頭部抬起離地數秒，展示頸部肌肉力量的初步發展。',
-        '抬頭自如': '趴著時能穩定用雙手手肘支撐，將頭部高高抬起並觀察四周，持續時間變長。',
-        '眼睛能追視移動的物體或人': '雙眼能順暢、對焦地隨著左右緩慢移動的人臉或玩具移動，視野開闊度增加。',
-        '第一次翻身': '成功從仰躺翻轉成趴姿，學習控制身體與軀幹的力量。',
-        '會主動伸手抓握玩具': '看到眼前感興趣的玩具或懸掛物時，會主動伸出小手去碰觸或緊緊抓握住。',
-        # 6-12 個月
-        '扶著腋下可以站得很穩': '雙手扶在雙腳著地時，能短暫站直並用雙腿支撐部分身體重量。',
-        '會將玩具從一隻手換到另一隻手': '左右手協調度提升，能順暢地將手中的玩具在雙手之間轉移與把玩。',
-        '獨立坐穩': '不需外力支撐可自己平穩坐立超過 5 分鐘，正在穩健學習平衡中。',
-        '開始爬行': '肚子離地，能用雙手與雙膝支撐身體並協調地往前爬行，探索更大空間。',
-        '扶物站立': '能抓住沙發、家具或欄杆自己站立起來，大腿與腳部力量逐步增強。',
-        '會拍手或揮手表示再見': '能模仿大人的肢體動作，主動做出拍手慶祝或揮手說再見的社交互動。',
-        # 1-2 歲
-        '開口叫媽媽': '嘗試發出有意義的單音或疊字（如媽媽、爸爸、奶奶），開啟語言雙向溝通。',
-        '扶著家具能走幾步路': '能抓著家具邊緣橫向跨步，或牽著大人的雙手向前跨出步伐。',
-        '能獨自站立並平穩行走': '不需任何扶持能自己站穩，並能獨立向前跨步，走得平穩且自然。',
-        '會用手指指出想要的東西': '當想索取某樣物品或看到感興趣的事物時，會主動用食指指向該方向表達意願。',
-        '會自己用湯匙吃東西': '手眼協調能力提升，能嘗試自己用湯匙舀起食物並成功送入口中。',
-        '能指認至少3個身體部位': '當大人詢問時，能正確指認並摸摸自己的眼睛、鼻子、嘴巴或耳朵等身體部位。',
-        # 2-3 歲
-        '雙腳能同時跳離地面': '下肢爆發力與平衡感成熟，能在原地做出雙腳同時跳起離地的可愛動作。',
-        '會說 2-3 個字組成的短句子': '語言表達能力大躍進，能說出如「媽媽抱抱」、「吃大蘋果」等兩個以上詞彙組成的短句。',
-        '會自己脫鞋襪或簡單衣物': '生活自理能力萌芽，能自己動手脫掉小鞋子、襪子或解開簡單的小衣物。',
-        '能清楚說出自己的名字': '自我意識與語言認知成熟，當被問起時能清晰且驕傲地說出自己的小名或完整名字。',
-        '學會騎三輪車': '雙腿交替用力與方向控制能力提升，能用雙腳踩踏板並順暢騎乘三輪玩具車。',
-        '能與大人進行流暢的日常對話': '字彙量與文法結構完整，能主動詢問問題、回答照顧者的對話並清晰表達自己的想法。',
-    }
 
     growth_timeline = []
     found_in_progress = False
@@ -330,11 +299,13 @@ def _get_baby_milestones_summary(baby):
         achieved_date_str = None
         description = ""
 
+        details = MAP_DESCRIPTIONS.get(growth_map.growthrecord)
+        desc_val = details.get('desc') if (details and isinstance(details, dict)) else None
+
         if is_completed and matching_record:
             item_status = 'completed'
-            milestones, note_text = _split_note_and_milestones(matching_record.record)
             achieved_date_str = matching_record.date.strftime('%Y.%m.%d') if hasattr(matching_record.date, 'strftime') else str(matching_record.date)
-            description = note_text.strip() or DEFAULT_DESCRIPTIONS.get(growth_map.growthrecord)
+            description = desc_val
             if not description:
                 description = f'恭喜寶寶達成「{growth_map.growthrecord}」里程碑！'
         else:
@@ -350,7 +321,7 @@ def _get_baby_milestones_summary(baby):
             elif '快速適應' in desc_key:
                 description = '開始追視移動物體與對聲音轉頭，逐漸熟悉外界環境。'
             else:
-                description = DEFAULT_DESCRIPTIONS.get(desc_key)
+                description = desc_val
                 if not description:
                     description = f'引導與觀察寶寶在 {growth_map.timecourse} 個月左右時「{desc_key}」的成長變化。'
 
@@ -367,17 +338,25 @@ def _get_baby_milestones_summary(baby):
     pending_items = [item for item in growth_timeline if item['status'] == 'pending']
 
     summary_list = []
+    
+    # 顯示已達成最後 2 個 + 進行中 + 下一個期待 (保持連貫)
     if completed_items:
-        summary_list.append(completed_items[-1])  # 顯示最後一個已達成的
+        # 取最後 2 個已達成的
+        summary_list.extend(completed_items[-2:])
+    
     if in_progress_items:
-        summary_list.extend(in_progress_items)  # 顯示目前進行中的下一個目標
-    if pending_items:
-        summary_list.append(pending_items[0])  # 顯示後續的第一個期待
+        # 顯示所有進行中的 (通常只有1個)
+        summary_list.extend(in_progress_items)
+    
+    if pending_items and len(summary_list) < 5:
+        # 填補至 5 筆或用前 2 個待做的
+        remaining_slots = 5 - len(summary_list)
+        summary_list.extend(pending_items[:max(1, remaining_slots)])
 
     if not summary_list:
-        summary_list = growth_timeline[:3]
+        summary_list = growth_timeline[:5]
 
-    return summary_list[:3]
+    return summary_list[:5]
 
 
 def baby(request):
@@ -395,11 +374,51 @@ def baby(request):
         selected_date = datetime.date.today()
 
     selected_day_record = None
+    selected_day_records = []
     for rec in records:
         rec_date = rec.date.date() if hasattr(rec.date, 'date') else rec.date
         if rec_date == selected_date:
-            selected_day_record = rec
-            break
+            selected_day_records.append(rec)
+
+    if selected_day_records:
+        # Use the first one as primary (latest due to ordering)
+        primary = selected_day_records[0]
+        
+        merged_height = primary.height
+        merged_weight = primary.weight
+        merged_head = primary.headcircumference
+        merged_chest = primary.chestcircumference
+        
+        all_milestones = []
+        all_notes = []
+        
+        for r in selected_day_records:
+            if merged_height is None and r.height is not None:
+                merged_height = r.height
+            if merged_weight is None and r.weight is not None:
+                merged_weight = r.weight
+            if merged_head is None and r.headcircumference is not None:
+                merged_head = r.headcircumference
+            if merged_chest is None and r.chestcircumference is not None:
+                merged_chest = r.chestcircumference
+                
+            if r.milestones:
+                for ms in r.milestones:
+                    if ms not in all_milestones:
+                        all_milestones.append(ms)
+            if r.note_text and r.note_text.strip():
+                note_stripped = r.note_text.strip()
+                if note_stripped not in all_notes:
+                    all_notes.append(note_stripped)
+                    
+        primary.height = merged_height
+        primary.weight = merged_weight
+        primary.headcircumference = merged_head
+        primary.chestcircumference = merged_chest
+        primary.milestones = all_milestones
+        primary.note_text = '\n'.join(all_notes) if all_notes else ''
+        
+        selected_day_record = primary
 
     summary = _get_baby_summary(baby)
     if records:
@@ -426,10 +445,50 @@ def baby(request):
 
 
 def add_baby_information(request):
-    baby = _get_active_baby(request)
+    from views.session_utils import get_current_user_profile
+    from views.pregnancycase import resolve_active_pregnancy_case
+    user = get_current_user_profile(request)
+    if not user:
+        return redirect('login')
+
+    case = resolve_active_pregnancy_case(request, user)
+    if not case:
+        return redirect('pregnancy_case')
+
+    if request.method == 'POST':
+        baby_name = (request.POST.get('baby_name') or '').strip()
+        birthdaytime_str = (request.POST.get('birthdaytime') or '').strip()
+        birthdaytime = None
+        if birthdaytime_str:
+            try:
+                naive = datetime.datetime.strptime(birthdaytime_str, '%Y-%m-%dT%H:%M')
+                birthdaytime = timezone.make_aware(naive)
+            except Exception:
+                pass
+
+        baby_height = _parse_float(request.POST.get('birth_height'))
+        baby_weight = _parse_float(request.POST.get('birth_weight'))
+        babyheadcircumference = _parse_float(request.POST.get('birth_head'))
+        chestcircumference = _parse_float(request.POST.get('birth_chest'))
+        production_method = (request.POST.get('production_method') or '').strip()
+
+        new_baby = BabyInformation.objects.create(
+            pregnancycase=case,
+            name=baby_name or "小寶",
+            birthdaytime=birthdaytime,
+            baby_height=baby_height,
+            baby_weight=baby_weight,
+            babyheadcircumference=babyheadcircumference,
+            chestcircumference=chestcircumference,
+            production_method=production_method,
+        )
+        request.session['active_baby_id'] = new_baby.baby_id
+        request.session.modified = True
+        return redirect('babyinformation')
+
     return render(request, 'baby/add_baby_information.html', {
-        'baby_form': _get_baby_form_data(baby),
-        'baby': baby,
+        'baby_form': _get_baby_form_data(None),
+        'baby': None,
     })
 
 
@@ -510,7 +569,15 @@ def add_baby_record(request):
                 
         return redirect(url_with_active_selection(request, reverse('babyinformation')))
 
-    baby_list = BabyInformation.objects.all()
+    from views.session_utils import get_current_user_profile
+    user = get_current_user_profile(request)
+    if not user:
+        return redirect('login')
+    cases_own = PregnancyCase.objects.filter(user=user)
+    cases_shared = FamilyMember.objects.filter(user_id=user).values_list('pregnancycase_id', flat=True)
+    baby_list = BabyInformation.objects.filter(
+        Q(pregnancycase__in=cases_own) | Q(pregnancycase_id__in=cases_shared)
+    ).distinct()
     try:
         record_date = datetime.date.fromisoformat(initial_date) if initial_date else datetime.date.today()
     except Exception:
@@ -543,7 +610,20 @@ def add_baby_record(request):
 
 
 def edit_baby_record(request, babyrecord_id):
+    from views.session_utils import get_current_user_profile
+    from django.core.exceptions import PermissionDenied
+
+    user = get_current_user_profile(request)
+    if not user:
+        return redirect('login')
+
     record = get_object_or_404(BabyRecord, babyrecord_id=babyrecord_id)
+    case = record.baby.pregnancycase
+    is_owner = (case.user_id == user.user_id)
+    is_shared = FamilyMember.objects.filter(pregnancycase_id=case, user_id=user).exists()
+    if not (is_owner or is_shared):
+        raise PermissionDenied("您沒有權限編輯此紀錄")
+
     record.milestones, record.note_text = _split_note_and_milestones(record.record)
 
     if request.method == 'POST':
@@ -616,7 +696,20 @@ def edit_baby_record(request, babyrecord_id):
 
 
 def delete_baby_record(request, babyrecord_id):
+    from views.session_utils import get_current_user_profile
+    from django.core.exceptions import PermissionDenied
+
+    user = get_current_user_profile(request)
+    if not user:
+        return redirect('login')
+
     record = get_object_or_404(BabyRecord, babyrecord_id=babyrecord_id)
+    case = record.baby.pregnancycase
+    is_owner = (case.user_id == user.user_id)
+    is_shared = FamilyMember.objects.filter(pregnancycase_id=case, user_id=user).exists()
+    if not (is_owner or is_shared):
+        raise PermissionDenied("您沒有權限刪除此紀錄")
+
     if request.method == 'POST':
         record.delete()
     return redirect(url_with_active_selection(request, reverse('babyinformation')))

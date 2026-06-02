@@ -10,7 +10,7 @@
         <!-- Welcome Section -->
         <section class="px-6 py-6 flex justify-between items-end">
             <div class="space-y-1">
-                <p class="text-on-surface-variant text-sm font-medium">早安，媽媽</p>
+                <p class="text-on-surface-variant text-sm font-medium">早安，{{ current_user }}</p>
                 <h1 class="text-3xl font-extrabold text-primary tracking-tight">今天的旅程</h1>
             </div>
         </section>
@@ -41,6 +41,15 @@
                                 <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ pregnancy_progress.days }}</span>
                                 <span class="text-lg font-bold text-on-surface-variant">d</span>
                             </div>
+                            {% elif not pregnancy_progress.is_ongoing and pregnancy_progress.weeks is not None %}
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ pregnancy_progress.weeks }}</span>
+                                <span class="text-lg font-bold text-on-surface-variant">個月</span>
+                                {% if pregnancy_progress.days %}
+                                <span class="text-4xl font-extrabold text-primary tracking-tighter">{{ pregnancy_progress.days }}</span>
+                                <span class="text-lg font-bold text-on-surface-variant">天</span>
+                                {% endif %}
+                            </div>
                             {% else %}
                             <p class="text-lg font-bold text-primary">{{ pregnancy_progress.status_note }}</p>
                             {% endif %}
@@ -53,11 +62,13 @@
                         <div class="h-full bg-primary rounded-full transition-all duration-300" style="width: {{ pregnancy_progress.progress_percent }}%;"></div>
                     </div>
                     <div class="flex justify-between mt-2">
+                        {% if pregnancy_progress.is_ongoing %}
                         <span class="text-[10px] font-bold text-on-surface-variant/60">第 1 週</span>
-                        {% if pregnancy_progress.is_ongoing and pregnancy_progress.current_week_label %}
-                        <span class="text-[10px] font-bold text-primary">第 {{ pregnancy_progress.current_week_label }} 週</span>
-                        {% endif %}
                         <span class="text-[10px] font-bold text-on-surface-variant/60">第 40 週</span>
+                        {% else %}
+                        <span class="text-[10px] font-bold text-on-surface-variant/60">0 個月</span>
+                        <span class="text-[10px] font-bold text-on-surface-variant/60">36 個月</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -164,7 +175,6 @@
             <div class="relative h-56 w-full mt-4 flex">
                 <!-- Y-Axis Labels -->
                 <div id="y-axis-labels" class="flex flex-col justify-between text-[9px] font-bold text-on-surface-variant/50 pr-2 pb-6"></div>
-                </div>
 
                 <!-- Chart Area -->
                 <div class="relative flex-1">
@@ -198,6 +208,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </main>
 

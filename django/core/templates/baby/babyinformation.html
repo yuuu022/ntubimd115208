@@ -9,7 +9,7 @@
         <!-- Header Text -->
         <section class="space-y-1">
             <h1 class="text-4xl font-extrabold text-primary tracking-tight">嬰幼兒紀錄</h1>
-            <p class="text-on-surface-variant font-medium">陪伴寶貝從出生到三歲的成長點滴</p>
+            <p class="text-on-surface-variant font-medium">陪伴嬰幼兒從出生到三歲的成長點滴</p>
         </section>
         <!-- Component 1: Compact Child Info Summary -->
         <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm relative overflow-hidden">
@@ -151,7 +151,7 @@
 
                         <div class="p-4 bg-primary-container/10 rounded-2xl border border-primary/5">
                             <p class="text-xs font-bold text-on-surface-variant/80 mb-1">成長筆記</p>
-                            <p class="text-sm text-on-surface">{{ selected_day_record.note_text|default:selected_day_record.record|default:'無備註' }}</p>
+                            <p class="text-sm text-on-surface">{{ selected_day_record.note_text|default:'無備註' }}</p>
                         </div>
 
                         {% else %}
@@ -172,70 +172,6 @@
                     </div>
                 </div>
             </div>
-        </section>
-
-        <section class="bg-surface-container-lowest rounded-xl p-6 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <div>
-                    <h2 class="text-xl font-bold text-on-surface">成長紀錄</h2>
-                    <p class="text-sm text-on-surface-variant">查看、編輯或刪除嬰幼兒的成長紀錄</p>
-                </div>
-                <a href="{% url 'add_baby_record' %}"
-                    class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/80 transition-all">
-                    <span class="material-symbols-outlined">add_circle</span>新增紀錄
-                </a>
-            </div>
-
-            {% if records %}
-            <div class="space-y-4">
-                {% for record in records %}
-                <article class="rounded-3xl border border-surface-container-high p-4 bg-white shadow-sm">
-                    {% if record.photo %}
-                    <div class="overflow-hidden rounded-3xl mb-4 h-48">
-                        <img src="{{ record.photo }}" alt="成長照片" class="w-full h-full object-cover" />
-                    </div>
-                    {% endif %}
-                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-on-surface-variant">紀錄日期</p>
-                            <p class="text-lg font-bold text-on-surface">{{ record.date }}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <a href="{% url 'edit_baby_record' record.babyrecord_id %}"
-                                class="inline-flex items-center gap-2 rounded-full border border-primary px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10 transition-all">
-                                <span class="material-symbols-outlined text-sm">edit</span>編輯
-                            </a>
-                            <form method="post" action="{% url 'delete_baby_record' record.babyrecord_id %}" class="inline">
-                                {% csrf_token %}
-                                <button type="submit"
-                                    class="inline-flex items-center gap-2 rounded-full bg-surface-container-high px-3 py-2 text-sm font-bold text-on-surface hover:bg-surface-container-high/80 transition-all">
-                                    <span class="material-symbols-outlined text-sm">delete</span>刪除
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 mt-4 text-sm text-on-surface-variant">
-                        <div>身高：{{ record.height|default:'-' }} cm</div>
-                        <div>體重：{{ record.weight|default:'-' }} kg</div>
-                        <div>頭圍：{{ record.headcircumference|default:'-' }} cm</div>
-                        <div>胸圍：{{ record.chestcircumference|default:'-' }} cm</div>
-                    </div>
-                    {% if record.milestones %}
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        {% for milestone in record.milestones %}
-                        <span class="inline-flex items-center rounded-full bg-primary-container px-3 py-1 text-xs font-semibold text-primary">{{ milestone }}</span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    <p class="mt-4 text-sm text-on-surface-variant">{{ record.note_text|default:record.record|default:'無備註' }}</p>
-                </article>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="rounded-3xl border border-dashed border-primary/30 px-6 py-10 text-center text-on-surface-variant">
-                目前尚未有任何成長紀錄，請點擊「新增紀錄」建立第一筆。
-            </div>
-            {% endif %}
         </section>
 
         <!-- Component 4: Growth Timeline -->
@@ -277,13 +213,12 @@
                         <div class="absolute -left-[30px] top-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white z-10 ring-4 ring-primary-container shadow-sm">
                             <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">stars</span>
                         </div>
-                        <div class="flex flex-col gap-3">
+                        <div class="flex flex-col gap-2">
                             <div class="flex justify-between items-start">
                                 <h4 class="font-bold text-primary text-sm">{{ item.growthrecord }}</h4>
                                 <span class="text-[10px] font-bold text-primary bg-primary-container px-2 py-0.5 rounded-full">{{ item.timecourse }} 個月</span>
                             </div>
                             <p class="text-on-surface-variant text-xs">{{ item.description }}</p>
-                            <button onclick="window.location.href='{% url 'add_baby_record' %}?date={{ selected_date_iso }}'" class="bg-primary text-white py-1 px-3 rounded-full text-[10px] font-bold w-24 hover:scale-105 active:scale-95 transition-all cursor-pointer">點擊紀錄</button>
                         </div>
                     </div>
                     {% else %}
