@@ -26,7 +26,7 @@ def _records_for_scope(pregnancy_case, current_user):
 def _get_unique_record_for_date(pregnancy_case, current_user, selected_date):
     if not current_user:
         return None
-    
+
     records = list(
         _records_for_scope(pregnancy_case, current_user)
         .filter(check_date__date=selected_date)
@@ -53,7 +53,7 @@ FEELING_EMOJI_MAP = {
     '怒': '😡',
     '累': '😫',
     '不安': '😰',
-    '難受': '😭', 
+    '難受': '😭',
     '不舒服': '🤢',
 }
 
@@ -168,8 +168,8 @@ def pregnancyrecord(request):
     if latest_record_ids:
         prenatal_rows = (
             Prenatalrecord.objects
-            .filter(user_id__in=latest_record_ids)
-            .values_list('user_id', 'fetal_heart_rate')
+            .filter(pregnancyrecord_id__in=latest_record_ids)
+            .values_list('pregnancyrecord_id', 'fetal_heart_rate')
         )
         prenatal_values_by_record_id = {}
         for rec_id, fetal_heart_rate in prenatal_rows:
@@ -256,7 +256,7 @@ def pregnancyrecord(request):
     if selected_day_record:
         prenatal_candidates = list(
             Prenatalrecord.objects
-            .filter(user_id=selected_day_record.pregnancyrecord_id)
+            .filter(pregnancyrecord=selected_day_record)
             .order_by('-prenatalrecord_id')
         )
         for prenatal_item in prenatal_candidates:
@@ -400,8 +400,7 @@ def pregnancyrecord_add(request):
 
     selected_day_prenatal = (
         Prenatalrecord.objects
-        .filter(user_id=selected_day_record.pregnancyrecord_id)
-        .order_by('-prenatalrecord_id')
+        .filter(pregnancyrecord=selected_day_record)
         .first()
         if selected_day_record else None
     )
@@ -472,7 +471,7 @@ def pregnancyrecord_add(request):
             edema = MARKER_VALUE_MAP.get(edema_raw, '')
 
             uploaded_photo = request.FILES.get('photo')
-            
+
             def to_int(v):
                 try:
                     return int(v) if v not in (None, '') else None
@@ -480,7 +479,12 @@ def pregnancyrecord_add(request):
                     return None
 
             if official_record_enabled:
-                latest_prenatal = Prenatalrecord.objects.filter(user_id=preg.pregnancyrecord_id).first()
+                latest_prenatal = (
+                    Prenatalrecord.objects
+                    .filter(pregnancyrecord=preg)
+                    .order_by('-prenatalrecord_id')
+                    .first()
+                )
                 existing_photo = latest_prenatal.photo if latest_prenatal else ''
 
                 if latest_prenatal:
@@ -499,7 +503,7 @@ def pregnancyrecord_add(request):
                     latest_prenatal.save()
                 else:
                     latest_prenatal = Prenatalrecord.objects.create(
-                        user_id=preg.pregnancyrecord_id,
+                        pregnancyrecord=preg,
                         sbp=to_int(sbp) or 0,
                         dbp=to_int(dbp) or 0,
                         fetal_heart_rate=to_int(fetal) or 0,
@@ -516,7 +520,7 @@ def pregnancyrecord_add(request):
                         )
                         latest_prenatal.save(update_fields=['photo'])
             else:
-                Prenatalrecord.objects.filter(user_id=preg.pregnancyrecord_id).delete()
+                Prenatalrecord.objects.filter(pregnancyrecord=preg).delete()
 
             # ─── 終極修正：改用原生先刪後蓋（Purge & Re-insert）處理特殊關聯表 ───
             feelings_selected = request.POST.getlist('feelings')
@@ -526,12 +530,11 @@ def pregnancyrecord_add(request):
             # 1. 刪除這筆日記當天的舊心情
             Userfeeling.objects.filter(pregnancyrecord=preg).delete()
 
-            # 2. 用安全的原生插入法寫入，手動指定 userfeeling_id 的外鍵值
+            # 2. 重新建立心情紀錄，由資料庫自動產生主鍵
             for feeling_id in selected_feeling_ids:
                 Userfeeling.objects.create(
-                    userfeeling_id=feeling_id,     # 綁定 feeling 資料表的主鍵代碼 (如 2)
-                    pregnancyrecord=preg,          # 綁定當前日記紀錄
-                    feeling_id=feeling_id          # 雙重安全賦值
+                    pregnancyrecord=preg,
+                    feeling_id=feeling_id,
                 )
 
             # 身體狀態處理
