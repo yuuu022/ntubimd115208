@@ -72,8 +72,7 @@
         <form method="post" action="{% url 'pregnancy_record_add' %}" enctype="multipart/form-data" class="space-y-8">
             {% csrf_token %}
             {% if selected_day_record_id %}
-            <input type="hidden" name="pregnancyrecord_id" id="pregnancyrecord-id-input" value="{{ selected_day_record_id }}" />
-            {% endif %}
+            <input type="hidden" name="record_id" id="pregnancyrecord-id-input" value="{{ selected_day_record_id }}" />            {% endif %}
 
             <section class="flex items-center justify-between p-6 bg-[#d6beff4d] rounded-xl">
                 <div class="space-y-1">

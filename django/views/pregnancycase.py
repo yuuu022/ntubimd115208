@@ -104,7 +104,7 @@ def annotate_case_order_names(cases):
 def get_case_order_name(case):
     if not case:
         return ""
-    cases = list(PregnancyCase.objects.filter(user_id=case.user_id).order_by('create_time'))
+    cases = list(PregnancyCase.objects.filter(user_id=case.user).order_by('create_time'))
     annotate_case_order_names(cases)
     return getattr(case, 'order_name', '') or next(
         (c.order_name for c in cases if c.pregnancycase_id == case.pregnancycase_id),
@@ -191,7 +191,7 @@ def resolve_active_pregnancy_case(request, user):
 
     def _get_all_cases():
         own_cases = list(PregnancyCase.objects.filter(user=user))
-        shared = [m.pregnancycase_id for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase_id') if m.pregnancycase_id]
+        shared = [m.pregnancycase for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase') if m.pregnancycase]
         cases_dict = {c.pregnancycase_id: c for c in own_cases + shared}
         return sorted(cases_dict.values(), key=lambda c: c.create_time)
 
@@ -427,7 +427,7 @@ def baby_switcher(request):
     sync_active_selection_from_request(request, user)
 
     cases_own = list(PregnancyCase.objects.filter(user=user))
-    shared = [m.pregnancycase_id for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase_id') if m.pregnancycase_id]
+    shared = [m.pregnancycase for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase') if m.pregnancycase]
     cases_dict = {c.pregnancycase_id: c for c in cases_own + shared}
     cases = sorted(cases_dict.values(), key=lambda c: c.create_time)
     annotate_case_order_names(cases)
@@ -539,7 +539,7 @@ def pregnancy_case(request):
         return redirect('login')
 
     cases_own = list(PregnancyCase.objects.filter(user=user))
-    shared = [m.pregnancycase_id for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase_id') if m.pregnancycase_id]
+    shared = [m.pregnancycase for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase') if m.pregnancycase]
     cases_dict = {c.pregnancycase_id: c for c in cases_own + shared}
     cases_list = sorted(cases_dict.values(), key=lambda c: c.create_time)
     annotate_case_order_names(cases_list)
@@ -605,7 +605,7 @@ def edit_pregnancy_case(request):
 
     case = get_object_or_404(PregnancyCase, pregnancycase_id=case_id)
     current_user = get_current_user_profile(request)
-    if not current_user or case.user_id != current_user.user_id:
+    if not current_user or case.user != current_user.user_id:
         return redirect('login')
     baby = case.babyinformation_set.first()
 

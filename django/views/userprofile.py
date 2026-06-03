@@ -153,7 +153,7 @@ def userprofile(request):
         family_members = list(
             FamilyMember.objects
             .filter(pregnancycase_id=case)
-            .select_related('user_id')
+            .select_related('user')
             .order_by('join_time')
         )
         if case.user == current_user:
@@ -215,7 +215,7 @@ def join_family(request):
         family_members = list(
             FamilyMember.objects
             .filter(pregnancycase_id=active_case)
-            .select_related('user_id')
+            .select_related('user')
             .order_by('join_time')
         )
         if active_case.user == current_user:
