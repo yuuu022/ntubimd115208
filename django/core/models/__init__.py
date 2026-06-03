@@ -5,6 +5,7 @@ from .BabyStatus import BabyStatus
 from .CareRecord import CareRecord
 from .CareStatus import CareStatus
 from .PregnancyCase import PregnancyCase
+from .FamilyMember import FamilyMember
 from .PregnancyRecord import PregnancyRecord
 from .Feeling import Feeling
 from .Physicalcondition import PhysicalCondition

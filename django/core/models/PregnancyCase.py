@@ -6,8 +6,8 @@ from django.utils import timezone
 class PregnancyCase(models.Model):
     pregnancycase_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    menstruation = models.DateField(null=True, blank=True)
-    expecteddate = models.DateField(null=True, blank=True)
+    menstruation = models.DateField()
+    expecteddate = models.DateField()
     code = models.CharField(max_length=255, unique=True)
     create_time = models.DateTimeField(default=timezone.now)
 

@@ -5,8 +5,8 @@
 <link rel="stylesheet" href="{% static 'css/pregnancy/pregnancyrecord.css' %}">
 {% endblock %}
 {% block content %}
-    <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64 pb-20 mb-10 md:mb-12">
-        <h3 class="mb-2 px-6 text-xl font-headline font-black text-primary flex items-center gap-2">
+    <main class="pt-10 px-4 mx-auto max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64 pb-20 mb-10 md:mb-12">
+        <h3 class="mb-4 px-6 text-xl font-headline font-black text-primary flex items-center gap-2">
             <span class="material-symbols-outlined text-[24px]">edit_note</span>
             養育者紀錄
         </h3>
@@ -50,16 +50,19 @@
                                 {% else %}
                                     <a href="?date={{ cell.date_iso }}" class="aspect-[1/0.9] flex flex-col items-center justify-start p-1.5 rounded-lg hover:bg-surface-container-low cursor-pointer transition-colors {% if cell.is_selected %}bg-primary-container text-on-primary-container{% endif %}">
                                         <span class="text-[11px] leading-none {% if cell.is_selected %}font-bold text-on-primary-container{% else %}text-on-surface{% endif %}">{{ cell.day }}</span>
-                                        {% if cell.has_record %}
-                                        <div class="flex gap-[1px] mt-auto">
-                                            {% if cell.has_weight %}
-                                            <span class="material-symbols-outlined text-[9px] leading-none {% if cell.is_selected %}text-on-primary-container{% else %}text-primary{% endif %}">monitor_weight</span>
-                                            {% endif %}
-                                            {% if cell.has_fetal_heart_rate %}
+                                        {% if cell.has_record or cell.has_feelings or cell.has_physical_conditions or cell.has_record_text or cell.has_prenatalrecord %}
+                                        <div class="flex gap-[1px] mt-auto flex-wrap justify-center">
+                                            {% if cell.has_prenatalrecord %}
                                             <span class="material-symbols-outlined text-[9px] leading-none {% if cell.is_selected %}text-on-primary-container{% else %}text-primary{% endif %}" style="font-variation-settings: 'FILL' 1;">favorite</span>
                                             {% endif %}
                                             {% if cell.has_feelings %}
                                             <span class="material-symbols-outlined text-[9px] leading-none {% if cell.is_selected %}text-on-primary-container{% else %}text-primary{% endif %}">mood</span>
+                                            {% endif %}
+                                            {% if cell.has_physical_conditions %}
+                                            <span class="material-symbols-outlined text-[9px] leading-none {% if cell.is_selected %}text-on-primary-container{% else %}text-primary{% endif %}">exercise</span>
+                                            {% endif %}
+                                            {% if cell.has_record_text %}
+                                            <span class="material-symbols-outlined text-[9px] leading-none {% if cell.is_selected %}text-on-primary-container{% else %}text-primary{% endif %}">edit_note</span>
                                             {% endif %}
                                         </div>
                                         {% endif %}
@@ -75,8 +78,7 @@
                 <div class="flex justify-between items-center px-2 mb-3 mt-4 lg:mt-0">
                     <h4 class="text-on-surface-variant text-xs font-bold uppercase tracking-wider">今日紀錄</h4>
                     {% if has_day_data %}
-                    <button onclick="window.location.href='/pregnancyrecord/add/?date={{ selected_date_iso }}{% if selected_day_record_id %}&pregnancyrecord_id={{ selected_day_record_id }}{% endif %}'"
-                        class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer active:scale-95">
+                    <button onclick="window.location.href='/pregnancyrecord/add/?date={{ selected_date_iso }}{% if selected_day_record_id %}&record_id={{ selected_day_record_id }}{% endif %}'"                        class="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer active:scale-95">
                         <span class="material-symbols-outlined text-[16px]">edit</span>
                         <span class="text-xs font-bold">修改</span>
                     </button>
