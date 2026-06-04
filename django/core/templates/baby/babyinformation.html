@@ -24,8 +24,8 @@
                         <p class="text-lg font-bold text-primary">{{ baby_summary.birth_week }}</p>
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">胎次 / 方式</p>
-                        <p class="text-sm font-bold text-on-surface">{{ baby_summary.birth_order }} / {{ baby_summary.birth_method }}</p>
+                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">生產方式</p>
+                        <p class="text-sm font-bold text-on-surface">{{ baby_summary.birth_method }}</p>
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">出生時間</p>
@@ -163,7 +163,7 @@
                                 <h4 class="text-on-surface font-bold text-base">今日沒有紀錄</h4>
                                 <p class="text-on-surface-variant text-xs mt-1">為這天新增一筆成長紀錄吧！</p>
                             </div>
-                            <button onclick="window.location.href='{% url 'add_baby_record' %}?date={{ selected_date_iso }}'" class="mt-1 bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all" type="button">
+                            <button onclick="navigateToAddRecord('{% url 'add_baby_record' %}?date={{ selected_date_iso }}', '{{ selected_date_iso }}')" class="mt-1 bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all" type="button">
                                 <span class="material-symbols-outlined text-sm">add</span>
                                 新增紀錄
                             </button>
@@ -268,8 +268,49 @@
     </div>
 {% endblock %}
 
+<!-- Future-date Toast -->
+<div id="future-date-toast"
+     role="alert"
+     aria-live="assertive"
+     class="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200]
+            flex items-center gap-3
+            bg-error text-on-error
+            px-5 py-3 rounded-2xl shadow-xl
+            text-sm font-bold
+            opacity-0 pointer-events-none
+            transition-all duration-300 scale-90
+            whitespace-nowrap">
+    <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">event_busy</span>
+    無法新增未來日期的紀錄
+</div>
+
 {% block extra_js %}
 <script>
+    // ── 未來日期防護 ──────────────────────────────────────────
+    function showFutureDateToast() {
+        const toast = document.getElementById('future-date-toast');
+        if (!toast) return;
+        toast.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
+        toast.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+        clearTimeout(toast._hideTimer);
+        toast._hideTimer = setTimeout(() => {
+            toast.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+            toast.classList.add('opacity-0', 'pointer-events-none', 'scale-90');
+        }, 2500);
+    }
+
+    function navigateToAddRecord(url, dateIso) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selected = new Date(dateIso + 'T00:00:00');
+        if (selected > today) {
+            showFutureDateToast();
+            return;
+        }
+        window.location.href = url;
+    }
+    // ─────────────────────────────────────────────────────────
+
     document.addEventListener('DOMContentLoaded', () => {
         const monthPickerModal = document.getElementById('month-picker-modal');
         const monthPickerBackdrop = document.getElementById('month-picker-backdrop');

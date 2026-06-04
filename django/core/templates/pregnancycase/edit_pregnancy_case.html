@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}編輯懷孕胎數{% endblock %}
+{% block title %}編輯懷孕紀錄{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pregnancycase/edit_pregnancy_case.css' %}">
 {% endblock %}
@@ -12,9 +12,9 @@
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
             </button>
-            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">編輯懷孕胎數</h1>
+            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">編輯懷孕紀錄</h1>
         </div>
-        <button onclick="if(confirm('確定要刪除此胎數紀錄嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ case.pregnancycase_id }}';" class="text-primary font-bold text-sm hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1">
+        <button onclick="if(confirm('確定要刪除此懷孕紀錄嗎？此動作無法復原。')) window.location.href='{% url 'pregnancy_case' %}?delete_id={{ case.pregnancycase_id }}';" class="text-primary font-bold text-sm hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors cursor-pointer flex items-center gap-1">
             <span class="material-symbols-outlined text-[18px]">delete</span>
             刪除
         </button>
@@ -22,8 +22,20 @@
 
     <!-- Main Content -->
     <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form method="post" action="{% url 'edit_pregnancy_case' %}?id={{ case.pregnancycase_id }}" class="space-y-6">
+        <form method="post" action="{% url 'edit_pregnancy_case' %}?id={{ case.pregnancycase_id }}" class="space-y-6" id="pregnancy-case-form">
             {% csrf_token %}
+            {% if error %}
+            <div class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl text-sm font-bold mb-4" role="alert">
+                <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">error</span>
+                {{ error }}
+            </div>
+            {% endif %}
+            {% if is_overdue %}
+            <div class="flex items-center gap-3 bg-orange-50 border border-orange-200 text-orange-700 px-5 py-4 rounded-2xl text-sm font-bold mb-4" role="alert">
+                <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">event_busy</span>
+                已超過預產期，請確認是否已出生並更新出生日期。
+            </div>
+            {% endif %}
 
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
@@ -32,9 +44,9 @@
                 </div>
 
                 <div class="space-y-5">
-                    <!-- 胎次名稱 -->
+                    <!-- 寶寶昵稱 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">胎次名稱 (選填)</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">寶寶昵稱 (選填)</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">label</span>
                             <input type="text" name="baby_name" value="{{ baby_name }}" placeholder="例如：大寶、二寶" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
@@ -43,19 +55,19 @@
 
                     <!-- 最後月經日期 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期（至少填一個）</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                            <input type="date" name="menstruation" id="menstruation-input" value="{{ menstruation_str }}" required class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="date" name="menstruation" id="menstruation-input" value="{{ menstruation_str }}" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
                     </div>
 
                     <!-- 預產期 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期 (選擇最後月經日後自動推算，亦可手動修改)</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期（至少填一個，可自動推算）</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">calendar_today</span>
-                            <input type="date" name="expecteddate" id="expecteddate-input" value="{{ expecteddate_str }}" required class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
+                            <input type="date" name="expecteddate" id="expecteddate-input" value="{{ expecteddate_str }}" class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
                         </div>
      
                     </div>
@@ -89,7 +101,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (window.PregnancyDueDate) {
-            PregnancyDueDate.bindDueDateAutoCalc(
+            PregnancyDueDate.bindPregnancyDatePair(
+                document.getElementById('pregnancy-case-form'),
                 document.getElementById('menstruation-input'),
                 document.getElementById('expecteddate-input')
             );

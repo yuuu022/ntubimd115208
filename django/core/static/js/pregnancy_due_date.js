@@ -50,5 +50,27 @@
         menstruationInput.addEventListener('change', syncExpectedDate);
     }
 
-    window.PregnancyDueDate = { dueDateFromLMP, bindDueDateAutoCalc };
+    function bindPregnancyDatePair(form, menstruationInput, expecteddateInput) {
+        bindDueDateAutoCalc(menstruationInput, expecteddateInput);
+        if (!form || !menstruationInput || !expecteddateInput) {
+            return;
+        }
+
+        function validateDatePair() {
+            const hasAnyDate = Boolean(menstruationInput.value || expecteddateInput.value);
+            expecteddateInput.setCustomValidity(hasAnyDate ? '' : '請填寫最後月經日期或預產期其中一個');
+            return hasAnyDate;
+        }
+
+        menstruationInput.addEventListener('input', validateDatePair);
+        expecteddateInput.addEventListener('input', validateDatePair);
+        form.addEventListener('submit', function (event) {
+            if (!validateDatePair()) {
+                event.preventDefault();
+                expecteddateInput.reportValidity();
+            }
+        });
+    }
+
+    window.PregnancyDueDate = { dueDateFromLMP, bindDueDateAutoCalc, bindPregnancyDatePair };
 })();

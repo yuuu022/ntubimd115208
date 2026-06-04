@@ -1,458 +1,51 @@
 from django.shortcuts import render
 from core.models import BabyGrowthMap, BabyStatus, BabyRecord
-from views.babyinformation import _get_active_baby, _split_note_and_milestones
+from views.baby_utils import get_active_baby, split_note_and_milestones
 
-MILESTONE_PREFIX = '里程碑：'
-
-DEFAULT_DESCRIPTIONS = {
-    # ==========================================
-    # 1 個月
-    # ==========================================
-    '手會自動張開': {
-        'category': '細動作',
-        'desc': '新生兒初期常維持握拳，此階段手掌開始會自動自然張開。'
-    },
-    '轉頭偏向音源': {
-        'category': '語言及認知',
-        'desc': '聽到聲音時，會將頭部稍微轉向或偏向聲音來源的方向。'
-    },
-    '逗他會微笑': {
-        'category': '身邊處理及社會性',
-        'desc': '大人逗弄、微笑或發出聲音引導時，寶寶會展現出回應式的微笑。'
-    },
-
-    # ==========================================
-    # 2 個月
-    # ==========================================
-    '拉扶坐起,只有 輕微的頭部落後': {
-        'category': '粗動作',
-        'desc': '由仰臥拉著寶寶雙手扶坐起來時，脖子已有初步支撐力，頭部僅有輕微落後。'
-    },
-    '有人向他說話, 會咿呀作聲': {
-        'category': '語言及認知',
-        'desc': '當照顧者向寶寶說話時，寶寶會嘗試發出「咿呀」的簡單聲音來回應。'
-    },
-    '會對照顧者親切露出微笑': {
-        'category': '身邊處理及社會性',
-        'desc': '看到熟悉的照顧者靠近或微笑時，會主動露出親切、開心的笑容。'
-    },
-
-    # ==========================================
-    # 3 個月
-    # ==========================================
-    '俯臥時,能 抬頭至45度': {
-        'category': '粗動作',
-        'desc': '趴臥時，脖子與背部肌肉更有力，能將頭部主動抬高至與床面呈 45 度角。'
-    },
-    '常舉手作 “凝視手部”': {
-        'category': '細動作',
-        'desc': '寶寶開始發現自己的雙手，常會把手舉在眼前專注地凝視。'
-    },
-    '雙眼可凝視人物 並追尋移動之物': {
-        'category': '身邊處理及社會性',
-        'desc': '雙眼視覺聚焦變好，能凝視身邊的人，並隨著緩慢移動的物體或人臉追視。'
-    },
-
-    # ==========================================
-    # 4 個月
-    # ==========================================
-    '頭保持在中央': {
-        'category': '粗動作',
-        'desc': '抱直或仰臥時，寶寶的頭部開始能穩定保持在身體的中線上。'
-    },
-    '坐姿扶持,頭部抱直時,脖子豎直俯臥時,會用兩隻前 臂將頭抬高至90度 幾乎一直抬起': {
-        'category': '粗動作',
-        'desc': '扶坐或直抱時脖子能豎直；趴臥時，能用兩側前臂支撐並將頭部高高抬起。'
-    },
-    '當搖鈴放到手中 會握住約1分鐘': {
-        'category': '細動作',
-        'desc': '主動抓握能力萌芽，把搖鈴等小玩具放到寶寶手中時，能持續握住約 1 分鐘。'
-    },
-    '哭鬧時,會自己因 照顧者的安撫聲而停哭': {
-        'category': '語言及認知',
-        'desc': '聽覺連結建立，哭鬧時聽到照顧者溫柔安撫的聲音，能逐漸安靜下來。'
-    },
-    '看他時,會 回看你的眼睛': {
-        'category': '語言及認知',
-        'desc': '展現眼神互動，當大人注視寶寶時，他也會定眼回看大人的眼睛。'
-    },
-
-    # ==========================================
-    # 5 個月
-    # ==========================================
-    '會自己翻身 (由俯臥成仰臥)': {
-        'category': '粗動作',
-        'desc': '軀幹力量成熟，趴著時能透過身體扭轉，自己翻身變成仰躺姿勢。'
-    },
-    '雙手互握在一起': {
-        'category': '細動作',
-        'desc': '身體中線發展成熟，兩隻小手可以主動在胸前互握、把玩。'
-    },
-    '手能伸向物體': {
-        'category': '細動作',
-        'desc': '看到感興趣的物品時，會嘗試將手伸過去，展現手眼協調的初步動作。'
-    },
-    '餵他吃時,會張口 或用其他的動作表示要吃': {
-        'category': '身邊處理及社會性',
-        'desc': '對食物產生興趣，看到湯匙或奶瓶靠近時，會主動張嘴或動身體表達想吃。'
-    },
-
-    # ==========================================
-    # 6 個月
-    # ==========================================
-    '可以自己坐在有 靠背的椅子上': {
-        'category': '粗動作',
-        'desc': '在有靠背支撐的椅子或沙發上，寶寶已經可以自己維持坐姿不傾倒。'
-    },
-    '自己會拉開 在他臉上的手帕': {
-        'category': '細動作',
-        'desc': '手部與空間認知提升，如果拿手帕輕蓋在寶寶臉上，他能自己動手拉開。'
-    },
-    '轉向聲源': {
-        'category': '語言及認知',
-        'desc': '聽力與動作整合，聽到後方或側邊有聲音時，能精準將頭轉向聲源。'
-    },
-
-    # ==========================================
-    # 7 個月
-    # ==========================================
-    '不需扶持 可以坐穩': {
-        'category': '粗動作',
-        'desc': '發展的重要里程碑！不需要外力或靠背支撐，寶寶自己就能在地上坐得很穩。'
-    },
-    '將東西由一手 换到另一手': {
-        'category': '細動作',
-        'desc': '雙手協調性增加，能順暢地將拿在左手的玩具交調換到右手。'
-    },
-    '會發出單音': {
-        'category': '語言及認知',
-        'desc': '發聲練習進階，開始會發出不具特定意義的單音或疊音（如ma、ba）。'
-    },
-    '自己能拿餅乾吃': {
-        'category': '身邊處理及社會性',
-        'desc': '手口協調進步，拿小餅乾給寶寶時，他能自己拿著並精準放入嘴裡吃。'
-    },
-
-    # ==========================================
-    # 8 個月
-    # ==========================================
-    '獨立自己爬 (腹部貼地、匍匐前進)': {
-        'category': '粗動作',
-        'desc': '移動能力開啟！寶寶能以腹部貼著地面、四肢划動的匍匐方式自己向前爬行。'
-    },
-    '用兩手拿小杯子': {
-        'category': '細動作',
-        'desc': '雙手並用能力提升，可以用兩隻手一起握住或捧住兒童小杯子。'
-    },
-    '會怕陌生人': {
-        'category': '身邊處理及社會性',
-        'desc': '社會性認知成熟的表現，開始能明確分辨熟人與生人，見到陌生人會害羞或哭鬧。'
-    },
-
-    # ==========================================
-    # 9 個月
-    # ==========================================
-    '坐時,會移動身體 挪向所要的物體': {
-        'category': '粗動作',
-        'desc': '坐姿動態平衡變好，坐著時能透過扭動或挪動身體，去拿旁邊想要的玩具。'
-    },
-    '自己會抓住東西 往嘴裡送': {
-        'category': '細動作',
-        'desc': '抓握反射完全轉為意識控制，抓到任何物品都會反射性地往嘴巴裡送去探索。'
-    },
-    '以揮手表示 “再見”': {
-        'category': '語言及認知',
-        'desc': '肢體語言萌芽，看到大人說再見時，能模仿並主動做出揮手說再見的社交動作。'
-    },
-
-    # ==========================================
-    # 10 個月
-    # ==========================================
-    '拉着物體 自己站起來': {
-        'category': '粗動作',
-        'desc': '下肢力量大突破，能拉著嬰兒床欄杆、沙發或大人雙手，自己撐著站立起來。'
-    },
-    '拍手': {
-        'category': '細動作',
-        'desc': '手部雙側協調動作，高興或模仿大人時，雙手會在胸前對拍發出聲音。'
-    },
-    '會模仿簡單的聲音': {
-        'category': '語言及認知',
-        'desc': '模仿能力提升，大人發出簡單的聲音時，寶寶會嘗試學著發聲。'
-    },
-    '叫他,他會來': {
-        'category': '身邊處理及社會性',
-        'desc': '對名字與指令有反應，叫寶寶的名字時，他會朝著照顧者的方向移過去。'
-    },
-
-    # ==========================================
-    # 11 個月
-    # ==========================================
-    '雙手拉署 會移幾步': {
-        'category': '粗動作',
-        'desc': '走路的先兆，牽著寶寶的雙手時，他能順著大人的力量向前踩踏移動幾步。'
-    },
-
-    # ==========================================
-    # 1 歲（12 個月）
-    # ==========================================
-    '雙手扶著傢俱 會走幾步': {
-        'category': '粗動作',
-        'desc': '巡航期（Cruising），寶寶能雙手扶著沙發、床沿，沿著家具邊緣橫向走動。'
-    },
-    '會用拇指和食 指捏起小東西': {
-        'category': '細動作',
-        'desc': '精細動作指標，不再用整隻手抓，而能用大拇指與食指的指尖捏起小東西。'
-    },
-    '會把一些小東西 放入杯子': {
-        'category': '細動作',
-        'desc': '具備「放開」與「投入」的控制力，能玩把積木放入容器內的遊戲。'
-    },
-    '有意義的叫爸爸、媽媽': {
-        'category': '語言及認知',
-        'desc': '語言里程碑！此時叫「爸爸」、「媽媽」不再只是發音練習，而是真正指代父母。'
-    },
-    '會脫帽子': {
-        'category': '身邊處理及社會性',
-        'desc': '生活自理萌芽，頭上有帽子時，能自己伸手抓著把帽子拉下來。'
-    },
-
-    # ==========================================
-    # 1 歲 6 個月（18 個月）
-    # ==========================================
-    '走的很穩可以走的快': {
-        'category': '粗動作',
-        'desc': '放手走路已經非常成熟，步伐穩健，甚至可以小跑步或走得非常快。'
-    },
-    '牽著他或扶著欄杆 可以走上樓梯': {
-        'category': '粗動作',
-        'desc': '下肢獨立跨步能力進步，牽著大人的單手或扶著樓梯欄杆，能一步一階走上樓。'
-    },
-    '會自己上下樓梯': {
-        'category': '粗動作',
-        'desc': '雙腿力量增加，能自己（或用爬行、抓握方式）上下家中的階梯。'
-    },
-    '會自己由椅子上爬下': {
-        'category': '粗動作',
-        'desc': '空間感與倒退動作熟練，能安全地將屁股朝後、自己從沙發或椅子上退下來。'
-    },
-    '會撕紙': {
-        'category': '細動作',
-        'desc': '兩手反向施力的雙側協調能力發展，會用指尖抓住紙張並兩手反向撕開。'
-    },
-    '會用筆亂塗': {
-        'category': '細動作',
-        'desc': '拿著彩色筆或蠟筆時，會在紙上自發性地進行無規則的塗鴉與線條揮灑。'
-    },
-    '會跟著或主動 說出一個單字': {
-        'category': '語言及認知',
-        'desc': '口語詞彙量增加，能主動或跟著大人仿說如「車」、「球」、「汪」等單字。'
-    },
-    '會雙手端著杯子喝水': {
-        'category': '身邊處理及社會性',
-        'desc': '控制力更佳，可以用雙手平衡地端住小水杯，並把杯口對準嘴巴喝水。'
-    },
-    '幫他穿衣服會自動 的伸出胳臂或腿': {
-        'category': '身邊處理及社會性',
-        'desc': '展現穿衣配合度，當大人拿袖子或褲管時，會自動伸直手臂或抬腳配合穿衣。'
-    },
-
-    # ==========================================
-    # 2 歲（24 個月）
-    # ==========================================
-    '會踢球 (一腳站立另一腳踢)': {
-        'category': '粗動作',
-        'desc': '展現單腳短暫站立的動態平衡力，能做出用一隻腳站穩、另一隻腳往前踢球的動作。'
-    },
-    '會手心朝下丟球或東西': {
-        'category': '粗動作',
-        'desc': '上肢揮臂力量發展，丟東西時手臂能由後往前揮，且手心朝下把物品擲出。'
-    },
-    '重疊兩塊積木': {
-        'category': '細動作',
-        'desc': '空間堆疊認知，能把一塊積木精準對齊、疊在另一塊積木的上方而不倒塌。'
-    },
-    '會一頁一頁的翻圖畫書': {
-        'category': '細動作',
-        'desc': '手部微調控制力進步，看繪本時能用手指配合，一次僅翻動一頁。'
-    },
-    '會將杯子的水 倒到另一個杯子': {
-        'category': '細動作',
-        'desc': '手眼協調與動態傾倒力，可以把杯子裡的水嘗試傾倒流入另一個杯子中。'
-    },
-    '會照著樣式 或模仿畫出垂直線': {
-        'category': '細動作',
-        'desc': '視覺動作整合，看著大人畫直線的樣式，能拿彩色筆畫出由上到下的垂直線。'
-    },
-    '會把瓶子 的蓋子打開': {
-        'category': '細動作',
-        'desc': '手掌與手指扭轉力成熟，能夠用轉動的方式嘗試將瓶蓋扭開。'
-    },
-    '能指出身體的一部分': {
-        'category': '語言及認知',
-        'desc': '身體意象認知，當大人詢問「肚子/眼睛在哪裡？」時，能用手指正確指出部位。'
-    },
-    '至少會講10個單字': {
-        'category': '語言及認知',
-        'desc': '詞彙大爆炸前期，口語已經可以主動說出至少 10 個以上不同字義的單字。'
-    },
-    '能正確地說出 身體六個部位名稱': {
-        'category': '語言及認知',
-        'desc': '認知與詞彙結合，能主動說出「頭、眼、耳、鼻、口、手、腳」等六個以上的名稱。'
-    },
-    '幼兒說話 半數讓人聽得懂': {
-        'category': '語言及認知',
-        'desc': '構音與構詞成熟，幼兒表達出的日常句子，不只是父母、連旁人也能聽懂至少一半。'
-    },
-    '自己會脫去衣服': {
-        'category': '身邊處理及社會性',
-        'desc': '生活自理能力，在衣服解開鈕扣的前提下，能自己將衣服或外套脫下來。'
-    },
-    '會打開糖果紙': {
-        'category': '身邊處理及社會性',
-        'desc': '小肌肉力量展現，拿糖果時能用雙手手指將包裝紙扭開或撕開。'
-    },
-
-    # ==========================================
-    # 3 歲（36 個月）
-    # ==========================================
-    '不扶東西, 能雙腳同時離地跳': {
-        'category': '粗動作',
-        'desc': '爆發力與雙側彈跳成熟，不需牽著大人或扶牆，即可在原地雙腳同時跳起離地。'
-    },
-    '不用牽著他或扶著欄杆 可以自己上下樓梯': {
-        'category': '粗動作',
-        'desc': '下肢與平衡感高度發達，可以不依賴任何扶持，像大人一樣交替腳步上下樓梯。'
-    },
-    '能模仿別人做摺紙的動作': {
-        'category': '細動作',
-        'desc': '看著大人對摺紙張的過程，能模仿做出壓平、摺疊紙張的精細操作。'
-    },
-    '能主動告知 想上廁所': {
-        'category': '語言及認知',
-        'desc': '括約肌控制與內省認知成熟，在尿出來或大便前，能提前用口語主動向大人告之。'
-    },
-    '會講自己的 姓和名': {
-        'category': '語言及認知',
-        'desc': '自我認同與語言發展，被問起名字時，能完整、清楚地說出自己的姓氏與名字。'
-    },
-    '能正確的說出兩種 常見物品的用途': {
-        'category': '語言及認知',
-        'desc': '功能性認知成熟，能說出如「杯子是用來喝水的」、「筆是用來畫畫的」。'
-    },
-    '能正確表達 “你的”、“我的”': {
-        'category': '語言及認知',
-        'desc': '代名詞與所有格概念建立，能清楚分出玩具或物品是「我的」還是「你的」。'
-    },
-    '會自己穿脫 沒有鞋帶的鞋子': {
-        'category': '身邊處理及社會性',
-        'desc': '不需大人幫忙，就能自己把魔鬼氈鞋、布鞋或懶人鞋穿好或脫下。'
-    },
-    '能用湯匙喝東西': {
-        'category': '身邊處理及社會性',
-        'desc': '吃飯工具掌握熟練，能穩定地用湯匙舀起湯汁或食物，平穩送入口中。'
-    },
-    '會自己洗手並擦乾': {
-        'category': '身邊處理及社會性',
-        'desc': '日常衛生習慣建立，能在洗手台前自己搓洗雙手、沖水，並在結束後用毛巾擦乾。'
-    },
-    '會自己穿衣服': {
-        'category': '身邊處理及社會性',
-        'desc': '生活自理大進步，在大人協助套入大孔洞後，能自己把衣服拉好穿上。'
-    },
-    '能和同伴們 一起玩遊戲': {
-        'category': '身邊處理及社會性',
-        'desc': '同儕社交萌芽，開始脫離獨自玩耍階段，能融入團體並跟其他小朋友一起玩耍互動。'
-    },
-}
-
-
-# 成長地圖畫面
+#成長地圖
 def baby_growthmap(request):
-    """成長地圖畫面 - 顯示寶寶的成長進度"""
-    baby = _get_active_baby(request)
 
+    baby = get_active_baby(request)
     growth_maps = BabyGrowthMap.objects.all().order_by('timecourse')
-
     growth_timeline = []
-    found_in_progress = False
 
-    # 預先讀取此寶寶的所有紀錄以進行文字比對優化
-    baby_records = list(BabyRecord.objects.filter(baby=baby)) if baby else []
+    if not baby:
+        return render(request, "baby/baby_growthmap.html", {
+            "growth_timeline": [],
+            "growth_owner_name": "寶寶"
+        })
 
+    # 已完成里程碑
+    completed_map_ids = set(
+        BabyStatus.objects
+        .filter(babyrecord__baby=baby)
+        .values_list('babygrowthmap_id', flat=True)
+    )
+
+    # fallback：從紀錄解析 milestone（避免舊資料缺關聯）
+    baby_records = list(BabyRecord.objects.filter(baby=baby))
+    milestone_set = set()
+
+    for rec in baby_records:
+        milestones, _ = split_note_and_milestones(rec)
+        milestone_set.update(milestones)
+
+    # 組裝時間軸
     for growth_map in growth_maps:
-        # 取得此寶寶在此里程碑的狀態關聯
-        baby_statuses = []
-        if baby:
-            baby_statuses = list(BabyStatus.objects.filter(babygrowthmap=growth_map, babyrecord__baby=baby))
 
-        is_completed = len(baby_statuses) > 0
-        matching_record = None
+        is_completed = (
+            growth_map.babygrowthmap_id in completed_map_ids
+            or growth_map.growthrecord in milestone_set
+        )
 
-        if is_completed:
-            matching_record = baby_statuses[0].babyrecord
-        else:
-            # 備用文字比對，提升沒能及時建立關聯資料的容錯率
-            for rec in baby_records:
-                milestones, note_text = _split_note_and_milestones(rec.record)
-                if growth_map.growthrecord in milestones:
-                    is_completed = True
-                    matching_record = rec
-                    break
+        growth_timeline.append({
+            "map_id": growth_map.babygrowthmap_id,
+            "timecourse": growth_map.timecourse,
+            "growthrecord": growth_map.growthrecord,
+            "status": "completed" if is_completed else "pending",
+        })
 
-        item_status = 'pending'
-        achieved_date_str = None
-        description = ""
-        category = None
-        photo = None
-
-        if is_completed and matching_record:
-            item_status = 'completed'
-            milestones, note_text = _split_note_and_milestones(matching_record.record)
-            achieved_date_str = matching_record.date.strftime('%Y.%m.%d') if hasattr(matching_record.date, 'strftime') else str(matching_record.date)
-            details = DEFAULT_DESCRIPTIONS.get(growth_map.growthrecord)
-            if details:
-                description = details.get('desc')
-                category = details.get('category')
-            else:
-                description = None
-                category = None
-            if not description:
-                description = f'恭喜寶寶達成「{growth_map.growthrecord}」里程碑！'
-            photo = matching_record.photo
-        else:
-            if not found_in_progress:
-                item_status = 'in_progress'
-                found_in_progress = True
-            else:
-                item_status = 'pending'
-
-            desc_key = growth_map.growthrecord
-            details = DEFAULT_DESCRIPTIONS.get(desc_key)
-            if details:
-                description = details.get('desc')
-                category = details.get('category')
-            else:
-                # 溫馨且專屬的動態 fallback 文字
-                description = f'引導與觀察寶寶在 {growth_map.timecourse} 個月左右時「{desc_key}」的成長變化。'
-                category = None
-
-        timeline_item = {
-            'map_id': growth_map.babygrowthmap_id,
-            'timecourse': growth_map.timecourse,
-            'growthrecord': growth_map.growthrecord,
-            'status': item_status,
-            'achieved_date': achieved_date_str,
-            'description': description,
-            'category': category,
-            'photo': photo,
-        }
-        growth_timeline.append(timeline_item)
-
-    growth_owner_name = baby.name if baby else '寶寶'
-
-    context = {
-        'growth_timeline': growth_timeline,
-        'growth_owner_name': growth_owner_name,
-    }
-    return render(request, 'baby/baby_growthmap.html', context)
+    return render(request, "baby/baby_growthmap.html", {
+        "growth_timeline": growth_timeline,
+        "growth_owner_name": baby.name,
+    })
