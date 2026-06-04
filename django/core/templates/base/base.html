@@ -31,7 +31,7 @@
             <div id="baby-switcher-menu" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-surface-container-high overflow-hidden opacity-0 pointer-events-none transition-all duration-200 z-[110] transform origin-top-right scale-95">
                 <div class="max-h-[28rem] overflow-y-auto hide-scrollbar flex flex-col">
                     <div class="px-4 py-2 bg-surface-container-low/50 border-b border-surface-container-highest">
-                        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">切換小孩 / 胎數</span>
+                        <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">切換嬰幼兒</span>
                     </div>
                     {% if switcher_items %}
                         {% for item in switcher_items %}
@@ -49,17 +49,17 @@
                         {% endfor %}
                     {% else %}
                         <div class="px-4 py-4 text-center text-xs text-on-surface-variant border-b border-surface-container-highest">
-                            目前無胎數或寶寶紀錄
+                            目前無懷孕或嬰幼兒紀錄
                         </div>
                     {% endif %}
                     <div class="p-2 bg-surface-container-low/30">
                         <button onclick="window.location.href='/pregnancycase/'" class="w-full text-left px-3 py-2.5 hover:bg-primary/5 transition-colors flex items-center gap-3 rounded-xl cursor-pointer" type="button">
                             <span class="material-symbols-outlined text-[18px] text-primary">settings</span>
-                            <span class="text-[13px] font-bold text-primary">管理所有胎數與寶寶</span>
+                            <span class="text-[13px] font-bold text-primary">管理懷孕紀錄</span>
                         </button>
                         <button onclick="window.location.href='/add_pregnancy_baby/'" class="w-full text-left px-3 py-2.5 hover:bg-primary/5 transition-colors flex items-center gap-3 rounded-xl cursor-pointer" type="button">
                             <span class="material-symbols-outlined text-[18px] text-primary">add_circle</span>
-                            <span class="text-[13px] font-bold text-primary">新增胎數或小孩</span>
+                            <span class="text-[13px] font-bold text-primary">新增懷孕紀錄</span>
                         </button>
                     </div>
                 </div>

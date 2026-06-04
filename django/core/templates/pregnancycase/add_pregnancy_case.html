@@ -1,7 +1,6 @@
-
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}新增懷孕胎數{% endblock %}
+{% block title %}新增懷孕紀錄{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pregnancycase/add_pregnancy_case.css' %}">
 {% endblock %}
@@ -13,47 +12,50 @@
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
             </button>
-            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">新增懷孕胎數</h1>
+            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">新增懷孕紀錄</h1>
         </div>
     </div>
 
     <!-- Main Content -->
     <main class="pt-4 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form method="post" action="{% url 'add_pregnancy_case' %}" class="space-y-6">
+        <form method="post" action="{% url 'add_pregnancy_case' %}" class="space-y-6" id="pregnancy-case-form">
             {% csrf_token %}
+            {% if error %}
+            <div class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-2xl text-sm font-bold" role="alert">
+                <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">error</span>
+                {{ error }}
+            </div>
+            {% endif %}
 
+            <!-- Section 1: 懷孕資訊 -->
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
                     <span class="material-symbols-outlined text-primary">pregnant_woman</span>
                     <h2 class="font-headline font-bold text-lg">懷孕資訊</h2>
                 </div>
-
                 <div class="space-y-5">
-                    <!-- 最後月經日期 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期（與預產期至少填一個）</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                            <input type="date" required name="menstruation" id="menstruation-input" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                            <input type="date" name="menstruation" id="menstruation-input"
+                                class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
                     </div>
-
-                    <!-- 預產期 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期 (選擇最後月經日後自動推算，亦可手動修改)</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期（與最後月經日期至少填一個，選擇月經日後可自動推算）</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">calendar_today</span>
-                            <input type="date" required name="expecteddate" id="expecteddate-input" class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
+                            <input type="date" name="expecteddate" id="expecteddate-input"
+                                class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
                         </div>
-            
                     </div>
-
-                    <!-- 加入碼 -->
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">加入碼 (供其他家人綁定)</label>
                         <div class="relative flex items-center">
                             <span class="material-symbols-outlined absolute left-4 text-on-surface-variant/50">qr_code</span>
-                            <input type="text" name="code" value="{{ generated_code }}" readonly class="w-full bg-surface-container-low/50 border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface text-sm outline-none font-bold tracking-widest" />
+                            <input type="text" name="code" value="{{ generated_code }}" readonly
+                                class="w-full bg-surface-container-low/50 border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface text-sm outline-none font-bold tracking-widest" />
                             <button type="button" class="absolute right-3 p-1.5 text-primary hover:bg-primary/10 rounded-full transition-colors cursor-pointer" onclick="alert('已複製加入碼！')">
                                 <span class="material-symbols-outlined text-[18px]">content_copy</span>
                             </button>
@@ -61,7 +63,8 @@
                     </div>
                 </div>
             </section>
-            <!-- Section 2: Baby Info -->
+
+            <!-- Section 2: 嬰幼兒基本資料 -->
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
                     <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
@@ -71,98 +74,39 @@
                 </div>
 
                 <div class="space-y-5">
-                    <!-- 嬰兒暱稱 -->
+                    <!-- 本次胎兒數 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">嬰兒暱稱</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">本次胎兒數</label>
                         <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">face</span>
-                            <input type="text" required name="baby_name" placeholder="例如：小寶、球球" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 pointer-events-none">family_restroom</span>
+                            <select id="baby-count-select" name="baby_count"
+                                class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-10 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none cursor-pointer">
+                                <option value="1">單胞胎（1 個嬰幼兒）</option>
+                                <option value="2">雙胞胎（2 個嬰幼兒）</option>
+                                <option value="3+">三胞胎或以上</option>
+                            </select>
+                            <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
                         </div>
                     </div>
 
-                    <!-- 出生時間與週數 -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2" id="birthdaytime-container">
-                            <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時間</label>
-                            <div class="relative">
-                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
-                                <input type="datetime-local" id="birthdaytime-input" name="birthdaytime" class="w-full bg-surface-container-low border-none rounded-xl pl-11 pr-3 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
-                            </div>
-                        </div>
-                        <div class="space-y-2 hidden" id="birth-week-container">
-                            <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時週數</label>
-                            <div class="relative">
-                                <input type="number" min="20" max="45" placeholder="週數" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
-                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">週</span>
-                            </div>
+                    <!-- 三胞胎以上：數量輸入 -->
+                    <div id="triplet-count-row" class="space-y-2 hidden">
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">請填寫嬰幼兒人數</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">tag</span>
+                            <input type="number" id="triplet-count-input" name="triplet_count" min="3" max="8" value="3"
+                                class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
                     </div>
+
+                    <!-- 每位嬰幼兒的完整資訊卡片（JS 動態渲染） -->
+                    <div id="baby-cards-container" class="space-y-4"></div>
                 </div>
             </section>
 
-            <!-- Section 3: Birth Vitals -->
-            <section id="birth-vitals-section" class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high hidden">
-                <div class="flex items-center gap-2 mb-6">
-                    <div class="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center">
-                        <span class="material-symbols-outlined text-secondary text-[20px]">monitor_weight</span>
-                    </div>
-                    <h2 class="font-headline font-bold text-lg text-secondary">出生體徵紀錄</h2>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 gap-y-5">
-                    <!-- 出生體重 -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生體重</label>
-                        <div class="relative">
-                            <input type="number" step="0.1" name="baby_weight" placeholder="如 3200" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">g</span>
-                        </div>
-                    </div>
-
-                    <!-- 出生身高 -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生身高</label>
-                        <div class="relative">
-                            <input type="number" step="0.1" name="baby_height" placeholder="如 50.5" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
-                        </div>
-                    </div>
-
-                    <!-- 出生頭圍 -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生頭圍</label>
-                        <div class="relative">
-                            <input type="number" step="0.1" name="baby_head" placeholder="如 34" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
-                        </div>
-                    </div>
-
-                    <!-- 出生胸圍 -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生胸圍</label>
-                        <div class="relative">
-                            <input type="number" step="0.1" name="baby_chest" placeholder="如 32" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium" />
-                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-on-surface-variant">cm</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-5 space-y-2">
-                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">生產方式</label>
-                    <div class="relative">
-                        <select name="production_method" class="w-full bg-surface-container-low border-none rounded-xl px-4 py-3.5 text-on-surface focus:ring-2 focus:ring-secondary-container transition-all text-sm outline-none font-medium appearance-none">
-                            <option value="" disabled selected>請選擇生產方式</option>
-                            <option value="自然產">自然產</option>
-                            <option value="剖腹產">剖腹產</option>
-                            <option value="無痛分娩">無痛分娩自然產</option>
-                            <option value="水中生產">水中生產</option>
-                        </select>
-                        <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
-                    </div>
-                </div>
-            </section>
             <!-- Submit Button -->
-            <button type="submit" class="w-full py-4 bg-primary text-white rounded-2xl font-headline font-bold text-base shadow-[0_10px_20px_rgba(101,81,138,0.2)] hover:scale-[1.02] active:scale-95 transition-all mt-6 cursor-pointer flex items-center justify-center gap-2">
+            <button type="submit"
+                class="w-full py-4 bg-primary text-white rounded-2xl font-headline font-bold text-base shadow-[0_10px_20px_rgba(101,81,138,0.2)] hover:scale-[1.02] active:scale-95 transition-all mt-6 cursor-pointer flex items-center justify-center gap-2">
                 <span class="material-symbols-outlined text-xl">save</span>
                 儲存並建立
             </button>
@@ -174,42 +118,158 @@
 {% block extra_js %}
 <script src="{% static 'js/pregnancy_due_date.js' %}"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.PregnancyDueDate) {
-            PregnancyDueDate.bindDueDateAutoCalc(
-                document.getElementById('menstruation-input'),
-                document.getElementById('expecteddate-input')
-            );
+document.addEventListener('DOMContentLoaded', function () {
+    // ── 預產期自動推算 ──────────────────────────────────────────
+    if (window.PregnancyDueDate) {
+        PregnancyDueDate.bindPregnancyDatePair(
+            document.getElementById('pregnancy-case-form'),
+            document.getElementById('menstruation-input'),
+            document.getElementById('expecteddate-input')
+        );
+    }
+
+    // ── 多胎：動態渲染每位嬰幼兒的完整資訊卡片 ─────────────────
+    const countSelect    = document.getElementById('baby-count-select');
+    const tripletRow     = document.getElementById('triplet-count-row');
+    const tripletInput   = document.getElementById('triplet-count-input');
+    const cardsContainer = document.getElementById('baby-cards-container');
+
+    // 每位嬰幼兒使用不同色調，讓使用者能快速區分多胎欄位
+    const CARD_STYLES = [
+        { headerBg: 'bg-primary/10',   border: 'border-primary/20',   accent: 'text-primary',   inputRing: 'focus:ring-primary-container' },
+        { headerBg: 'bg-secondary/10', border: 'border-secondary/20', accent: 'text-secondary', inputRing: 'focus:ring-secondary-container' },
+        { headerBg: 'bg-tertiary/10',  border: 'border-tertiary/20',  accent: 'text-tertiary',  inputRing: 'focus:ring-tertiary-container' },
+    ];
+    const LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+    function buildBabyCard(index) {
+        const s   = CARD_STYLES[index % CARD_STYLES.length];
+        const num = index + 1;
+        const lbl = `嬰幼兒 ${LABELS[index] || num}`;
+        const inputBase = `w-full bg-surface-container-low border-none rounded-xl text-on-surface transition-all text-sm outline-none font-medium ${s.inputRing} focus:ring-2`;
+
+        return `
+<div class="rounded-2xl border ${s.border} overflow-hidden" id="baby-card-${num}">
+    <!-- 卡片標題列 -->
+    <div class="${s.headerBg} px-4 py-3 flex items-center gap-2">
+        <span class="material-symbols-outlined ${s.accent} text-[18px]">face</span>
+        <span class="font-bold text-sm ${s.accent}">${lbl}</span>
+    </div>
+
+    <div class="p-4 space-y-4">
+        <!-- 暱稱 -->
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">暱稱</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">badge</span>
+                <input type="text" name="baby_name_${num}" placeholder="例如：大寶、小寶"
+                    class="${inputBase} pl-12 pr-4 py-3 placeholder:text-on-surface-variant/40" />
+            </div>
+        </div>
+
+        <!-- 出生時間 -->
+        <div class="space-y-2">
+            <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生時間（選填）</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
+                <input type="datetime-local" name="birthdaytime_${num}" id="birthdaytime-${num}"
+                    class="${inputBase} pl-11 pr-3 py-3"
+                    onchange="toggleVitals(${num})" oninput="toggleVitals(${num})" />
+            </div>
+        </div>
+
+        <!-- 出生體徵（填出生時間後展開） -->
+        <div id="vitals-${num}" class="space-y-4 hidden">
+            <div class="h-px bg-surface-container-high"></div>
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">出生體徵</p>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1.5">
+                    <label class="text-xs text-on-surface-variant pl-1">體重</label>
+                    <div class="relative">
+                        <input type="number" step="0.1" name="baby_weight_${num}" placeholder="如 3200"
+                            class="${inputBase} px-4 py-3" />
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant">g</span>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs text-on-surface-variant pl-1">身高</label>
+                    <div class="relative">
+                        <input type="number" step="0.1" name="baby_height_${num}" placeholder="如 50.5"
+                            class="${inputBase} px-4 py-3" />
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant">cm</span>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs text-on-surface-variant pl-1">頭圍</label>
+                    <div class="relative">
+                        <input type="number" step="0.1" name="baby_head_${num}" placeholder="如 34"
+                            class="${inputBase} px-4 py-3" />
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant">cm</span>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-xs text-on-surface-variant pl-1">胸圍</label>
+                    <div class="relative">
+                        <input type="number" step="0.1" name="baby_chest_${num}" placeholder="如 32"
+                            class="${inputBase} px-4 py-3" />
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant">cm</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 生產方式 -->
+            <div class="space-y-1.5">
+                <label class="text-xs text-on-surface-variant pl-1">生產方式</label>
+                <div class="relative">
+                    <select name="production_method_${num}" class="${inputBase} px-4 py-3 appearance-none">
+                        <option value="" disabled selected>請選擇</option>
+                        <option value="自然產">自然產</option>
+                        <option value="剖腹產">剖腹產</option>
+                        <option value="無痛分娩">無痛分娩自然產</option>
+                        <option value="水中生產">水中生產</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+    }
+
+    // 出生體徵依各嬰幼兒的出生時間欄位獨立切換
+    window.toggleVitals = function (num) {
+        const dtInput = document.getElementById(`birthdaytime-${num}`);
+        const vitals  = document.getElementById(`vitals-${num}`);
+        if (!dtInput || !vitals) return;
+        vitals.classList.toggle('hidden', !dtInput.value);
+    };
+
+    function getCount() {
+        if (countSelect.value === '3+') {
+            return Math.max(3, Math.min(8, parseInt(tripletInput.value) || 3));
         }
+        return parseInt(countSelect.value) || 1;
+    }
 
-        const birthdaytimeInput = document.getElementById('birthdaytime-input');
-        const birthdaytimeContainer = document.getElementById('birthdaytime-container');
-        const birthWeekContainer = document.getElementById('birth-week-container');
-        const birthVitalsSection = document.getElementById('birth-vitals-section');
-
-        if (!birthdaytimeInput || !birthdaytimeContainer || !birthWeekContainer || !birthVitalsSection) {
-            return;
+    function renderCards() {
+        cardsContainer.innerHTML = '';
+        const n = getCount();
+        for (let i = 0; i < n; i++) {
+            cardsContainer.insertAdjacentHTML('beforeend', buildBabyCard(i));
         }
+    }
 
-        function toggleBirthInfo() {
-            const hasValue = !!birthdaytimeInput.value;
-            if (hasValue) {
-                birthWeekContainer.classList.remove('hidden');
-                birthVitalsSection.classList.remove('hidden');
-                birthdaytimeContainer.classList.remove('col-span-2');
-            } else {
-                birthWeekContainer.classList.add('hidden');
-                birthVitalsSection.classList.add('hidden');
-                birthdaytimeContainer.classList.add('col-span-2');
-            }
-        }
+    function onCountChange() {
+        tripletRow.classList.toggle('hidden', countSelect.value !== '3+');
+        renderCards();
+    }
 
-        // Bind event listeners
-        birthdaytimeInput.addEventListener('input', toggleBirthInfo);
-        birthdaytimeInput.addEventListener('change', toggleBirthInfo);
-
-        // Run on initial load
-        toggleBirthInfo();
+    countSelect.addEventListener('change', onCountChange);
+    tripletInput.addEventListener('input', function () {
+        if (countSelect.value === '3+') renderCards();
     });
+
+    // 初始渲染
+    onCountChange();
+});
 </script>
 {% endblock %}
