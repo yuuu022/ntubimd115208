@@ -13,7 +13,7 @@ from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from django.utils import timezone
 from django.urls import reverse
-
+from views.session_utils import get_current_user_profile
 from core.models import QAConversation, QAMessage, UserProfile
 
 DEFAULT_USER_ID = None
@@ -339,15 +339,15 @@ def _build_conversation_item(conversation, active_conversation_id=None):
     }
 
 
-def _load_recent_items(limit=20):
+def _load_recent_items(limit=20, user=None):
     items = []
 
     try:
-        conversations = list(
-            QAConversation.objects.annotate(latest_message_time=Max("messages__create_time")).order_by(
-                "-latest_message_time", "-create_time"
-            )[:limit]
-        )
+        qs = QAConversation.objects.annotate(latest_message_time=Max("messages__create_time"))
+        if user is not None:
+            qs = qs.filter(user_id=user)
+
+        conversations = list(qs.order_by("-latest_message_time", "-create_time")[:limit])
     except Exception:
         return items
 
@@ -375,6 +375,9 @@ def _normalize_answer_text(answer_text, sources=None):
 def qa_conversation(request):
     error_message = ""
     sources = []
+    current_user = get_current_user_profile(request)
+    if not current_user:
+        return redirect('login')
 
     if request.method == "POST" and request.POST.get("action") == "new_conversation":
         _set_current_conversation_id(request, None)
@@ -386,7 +389,7 @@ def qa_conversation(request):
                     "ok": True,
                     "conversation_id": None,
                     "redirect_url": reverse("qa_conversation"),
-                    "items": _load_recent_items(),
+                    "items": _load_recent_items(user=current_user),
                 }
             )
 
@@ -457,6 +460,7 @@ def qa_conversation(request):
         try:
             current_conversation = (
                 QAConversation.objects.annotate(latest_message_time=Max("messages__create_time"))
+                .filter(user_id=current_user)
                 .order_by("-latest_message_time", "-create_time")
                 .first()
             )
@@ -467,7 +471,7 @@ def qa_conversation(request):
         _set_current_conversation_id(request, current_conversation.qaconversation_id)
 
     active_conversation_id = request.session.get(ACTIVE_CONVERSATION_SESSION_KEY)
-    recent_items = _load_recent_items()
+    recent_items = _load_recent_items(user=current_user)
     for item in recent_items:
         item["is_active"] = str(item["id"]) == str(active_conversation_id)
 
@@ -486,6 +490,7 @@ def qa_conversation(request):
         "current_messages": current_messages,
         "current_webhook_url": current_webhook_url,
         "current_debug": current_debug,
+        'current_user': current_user
     }
     return render(request, "base/qa_conversation.html", context)
 

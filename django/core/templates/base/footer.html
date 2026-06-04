@@ -30,11 +30,36 @@
         }
 
         const navMatchers = {
-            home: (location) => location.pathname === '/',
-            record: (location) => location.pathname.startsWith('/pregnancyrecord/'),
-            growth: (location) => location.pathname.startsWith('/babyinformation/'),
+            home: (location) => (
+                location.pathname === '/' ||
+                location.pathname.startsWith('/add_care_reminder') ||
+                location.pathname.startsWith('/set_care_status')
+            ),
+            record: (location) => (
+                location.pathname.startsWith('/pregnancyrecord/')||
+                location.pathname.startsWith('/pregnancyrecord/add/') ||
+                location.pathname.startsWith('/pregnancyrecord_new/')||
+                location.pathname.startsWith('/pregnancycase/')||
+                location.pathname.startsWith('/add_pregnancy_baby/')||
+                location.pathname.startsWith('/edit_pregnancy_case/')
+
+            ),
+            growth: (location) => (
+                location.pathname.startsWith('/babyinformation/')|
+                location.pathname.startsWith('/add_baby_information/') ||
+                location.pathname.startsWith('/add_baby_record/')||
+                location.pathname.startsWith('/babyrecord/<int:babyrecord_id>/edit/')||
+                location.pathname.startsWith('/babyrecord/<int:babyrecord_id>/delete/')||
+                location.pathname.startsWith('/edit_baby_information/')||
+                location.pathname.startsWith('/babygrowthmap/')
+        ),
             knowledge: (location) => location.pathname.startsWith('/qa/'),
-            profile: (location) => location.pathname.startsWith('/userprofile/'),
+            profile: (location) => (
+                location.pathname.startsWith('/userprofile/')||
+                location.pathname.startsWith('/edit_userprofile/')||
+                location.pathname.startsWith('/edit_family_member/')||
+                location.pathname.startsWith('/join_family/')
+        ),
         };
 
         const setActiveLink = (activeLink) => {
