@@ -18,7 +18,8 @@
 
     <!-- Main Content -->
     <main class="pt-24 px-4 mx-auto max-w-md md:max-w-none w-full md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <form onsubmit="event.preventDefault(); window.location.href='/userprofile/';" class="space-y-6">
+        <form method="post" action="/userprofile/update_profile/" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
 
             <section class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-surface-container-high">
                 <div class="flex items-center gap-2 mb-6">
@@ -31,19 +32,20 @@
                 <div class="space-y-5">
                     <!-- 頭像編輯 -->
                     <div class="flex flex-col items-center gap-3 pb-2">
-                        <div class="relative group cursor-pointer">
-                            <div class="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-4 border-surface-container-lowest shadow-sm">
+                        <div class="relative group">
+                            <div id="avatar-preview" class="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border-4 border-surface-container-lowest shadow-sm cursor-pointer">
                                 {% if current_user.avatar %}
-                                <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}" class="w-full h-full object-cover">
+                                <img id="avatar-preview-img" src="{{ current_user.avatar }}" alt="{{ current_user.name }}" class="w-full h-full object-cover">
                                 {% else %}
-                                <span class="material-symbols-outlined text-primary text-4xl">face_3</span>
+                                <span id="avatar-preview-icon" class="material-symbols-outlined text-primary text-4xl">face_3</span>
                                 {% endif %}
                             </div>
                             <div class="absolute bottom-0 right-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center shadow-md border-2 border-surface-container-lowest group-hover:scale-110 transition-transform">
                                 <span class="material-symbols-outlined text-[16px]">photo_camera</span>
                             </div>
                         </div>
-                        <span class="text-xs font-bold text-primary cursor-pointer hover:underline">更換大頭貼</span>
+                        <span id="change-avatar-text" class="text-xs font-bold text-primary cursor-pointer hover:underline">更換大頭貼</span>
+                        <input type="file" name="avatar_file" id="avatar-file-input" accept="image/*" class="hidden" />
                     </div>
 
                     <!-- 姓名 -->
@@ -51,7 +53,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">養育者姓名 / 暱稱</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">badge</span>
-                            <input type="text" required value="{{ current_user.name }}" placeholder="請輸入姓名或暱稱" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <input type="text" name="name" required value="{{ current_user.name }}" placeholder="請輸入姓名或暱稱" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                         </div>
                     </div>
 
@@ -60,7 +62,7 @@
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">電子郵件 (Email)</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">mail</span>
-                            <input type="email" required value="{{ current_user.email }}" placeholder="請輸入電子郵件" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
+                            <input type="email" name="email" required value="{{ current_user.email }}" placeholder="請輸入電子郵件" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium placeholder:text-on-surface-variant/40" />
                         </div>
                     </div>
                 </div>
@@ -80,6 +82,37 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // avatar file picker & preview
+        const avatarPreview = document.getElementById('avatar-preview');
+        const avatarFileInput = document.getElementById('avatar-file-input');
+        const avatarImg = document.getElementById('avatar-preview-img');
+        const avatarIcon = document.getElementById('avatar-preview-icon');
+        const changeAvatarText = document.getElementById('change-avatar-text');
+
+        const triggerFilePicker = () => {
+            if (avatarFileInput) avatarFileInput.click();
+        };
+
+        if (avatarPreview) avatarPreview.addEventListener('click', triggerFilePicker);
+        if (changeAvatarText) changeAvatarText.addEventListener('click', triggerFilePicker);
+
+        if (avatarFileInput) {
+            avatarFileInput.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const src = ev.target.result;
+                    if (avatarImg) {
+                        avatarImg.src = src;
+                        avatarImg.classList.remove('hidden');
+                    }
+                    if (avatarIcon) avatarIcon.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
         const header = document.getElementById('edit-profile-header');
         if (!header) {
             return;

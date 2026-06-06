@@ -1,7 +1,7 @@
 """Core URL routes."""
 
 from django.urls import path
-from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, home_baby, login, edit_family_member, baby_growthmap
+from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, login, edit_family_member, baby_growthmap
 
 urlpatterns = [
 	# 首頁
@@ -41,8 +41,7 @@ urlpatterns = [
     # 個人資料
     path('userprofile/', userprofile.userprofile, name='profile'),
     path('edit_userprofile/', userprofile.edit_userprofile, name='edit_userprofile'),
+    path('userprofile/update_profile/', userprofile.update_profile, name='update_profile'),
 	path('edit_family_member/', edit_family_member.edit_family_member, name='edit_family_member'),
     path('join_family/', userprofile.join_family, name='join_family'),
-
-
 ]

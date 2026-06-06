@@ -14,6 +14,12 @@ from views.pregnancycase import (
     sync_active_selection_from_request,
 )
 from views.session_utils import get_current_user_profile
+from django.core.files.storage import default_storage
+from django.conf import settings
+import time
+import os
+from django.contrib import messages
+from django.db import IntegrityError
 
 
 def _format_number(value):
@@ -242,3 +248,45 @@ def edit_userprofile(request):
     })
 
 
+def update_profile(request):
+    current_user = get_current_user_profile(request)
+    if not current_user:
+        return redirect('login')
+
+    if request.method != 'POST':
+        return redirect('edit_userprofile')
+
+    name = request.POST.get('name', '').strip()
+    email = request.POST.get('email', '').strip()
+    avatar = request.POST.get('avatar', '').strip()
+    avatar_file = request.FILES.get('avatar_file')
+
+    if name:
+        current_user.name = name
+    current_user.email = email or ''
+
+    # handle uploaded avatar file if provided
+    if avatar_file:
+        try:
+            ext = os.path.splitext(avatar_file.name)[1] or ''
+            filename = f'avatars/user_{current_user.user_id}_{int(time.time())}{ext}'
+            saved_path = default_storage.save(filename, avatar_file)
+            try:
+                avatar_url = default_storage.url(saved_path)
+            except Exception:
+                avatar_url = settings.MEDIA_URL + saved_path
+            current_user.avatar = avatar_url
+        except Exception as e:
+            messages.error(request, f'上傳頭像失敗：{e}')
+    elif avatar:
+        current_user.avatar = avatar
+
+    try:
+        current_user.save()
+        messages.success(request, '個人資料已儲存')
+    except IntegrityError as ie:
+        messages.error(request, f'儲存失敗：{ie}')
+    except Exception as e:
+        messages.error(request, f'儲存發生錯誤：{e}')
+
+    return redirect('profile')
