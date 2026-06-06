@@ -63,9 +63,9 @@
                         <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden {% if message.is_user %}bg-surface-container-high{% else %}bg-white border border-outline-variant/20{% endif %}">
                             {% if message.is_user %}
                                 {% if current_user.avatar %}
-                                <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}" class="material-symbols-outlined qa-message-icon text-sm text-on-surface-variant">
+                                <img src="{{ current_user.avatar }}" alt="{{ current_user.name }}" class="w-full h-full object-cover qa-message-icon text-on-surface-variant" />
                                 {% else %}
-                                <span class="material-symbols-outlined text-primary text-3xl">face_3</span>
+                                <img src="https://lh3.googleusercontent.com/a/ACg8ocKFsd9dOR3Oc1l9OJsr6rZVtxZaZoMtt8Bzp8JW42ZJ1VGmHg=s96-c" alt="CoLoGrowth" class="w-full h-full object-cover qa-message-icon text-on-surface-variant" />
                                 {% endif %}
                             {% else %}
                             <img src="/logo/LOGO 小圖.png" alt="LOGO" class="w-full h-full object-contain p-0.5" />
@@ -83,8 +83,7 @@
                     {% else %}
                     <div id="qa-empty-state" class="rounded-[2rem] border border-outline-variant/20 bg-white/80 px-6 py-5 shadow-sm">
                         <div class="text-xs font-semibold uppercase tracking-[0.2em] text-on-surface-variant">歡迎開始提問</div>
-                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問產檢、孕期不適的注意事項。</p>
-                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">資料來源：衛生福利部國民健康署 孕產兒關懷網站</p>
+                        <p class="mt-2 text-sm leading-relaxed text-on-surface-variant">你可以詢問產檢、孕期不適的注意事項。 資料來源：衛生福利部國民健康署 孕產兒關懷網站</p>
                     </div>
                     {% endif %}
                 </div>
@@ -109,6 +108,9 @@
 {% endblock %}
 {% block extra_js %}
 <script>
+    const currentUserAvatarSrc = "{{ current_user.avatar|default:''|escapejs }}";
+    const currentUserName = "{{ current_user.name|default:'使用者'|escapejs }}";
+
     (function () {
         const sidebar = document.getElementById('history-sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -143,7 +145,8 @@
 
             const paragraph = document.createElement('p');
             paragraph.className = 'mt-2 text-sm leading-relaxed text-on-surface-variant';
-            paragraph.textContent = '你可以詢問產檢、孕期不適的注意事項。';
+            paragraph.textContent = '你可以詢問產檢、孕期不適的注意事項。 資料來源：衛生福利部國民健康署 孕產兒關懷網站';
+
 
             emptyState.appendChild(title);
             emptyState.appendChild(paragraph);
@@ -244,21 +247,29 @@
 
         const buildMessageNode = (text, isUser) => {
             const wrapper = document.createElement('div');
-            wrapper.className = `flex items-start gap-3 max-w-[90%] ${isUser ? 'self-end flex-row-reverse max-w-[85%]' : ''}`;
+            wrapper.className = `flex items-start gap-1 max-w-[90%] ${isUser ? 'self-end flex-row-reverse max-w-[85%]' : ''}`;
 
             const avatar = document.createElement('div');
-            avatar.className = `w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden ${isUser ? 'bg-surface-container-high' : 'bg-white border border-outline-variant/20'}`;
+            avatar.className = 'w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-white border border-outline-variant/20';
 
             if (isUser) {
-                const icon = document.createElement('span');
-                icon.className = 'material-symbols-outlined qa-message-icon text-sm text-on-surface-variant';
-                icon.textContent = 'person';
-                avatar.appendChild(icon);
+                if (currentUserAvatarSrc) {
+                    const avatarImage = document.createElement('img');
+                    avatarImage.src = currentUserAvatarSrc;
+                    avatarImage.alt = currentUserName;
+                    avatarImage.className = 'w-full h-full object-cover qa-message-icon';
+                    avatar.appendChild(avatarImage);
+                } else {
+                    const icon = document.createElement('span');
+                    icon.className = 'material-symbols-outlined text-primary text-3xl';
+                    icon.textContent = 'face_3';
+                    avatar.appendChild(icon);
+                }
             } else {
                 const avatarImage = document.createElement('img');
                 avatarImage.src = botAvatarSrc;
                 avatarImage.alt = 'LOGO';
-                avatarImage.className = 'w-full h-full object-contain p-0.5';
+                avatarImage.className = 'w-full h-full object-cover p-0.5';
                 avatar.appendChild(avatarImage);
             }
 
@@ -280,12 +291,12 @@
             wrapper.className = 'flex items-start gap-3 max-w-[90%]';
 
             const avatar = document.createElement('div');
-            avatar.className = 'w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-white border border-outline-variant/20';
+            avatar.className = 'w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-white border border-outline-variant/20';
 
             const avatarImage = document.createElement('img');
             avatarImage.src = botAvatarSrc;
             avatarImage.alt = 'LOGO';
-            avatarImage.className = 'w-full h-full object-contain p-0.5';
+            avatarImage.className = 'w-full h-full object-cover p-0.5';
             avatar.appendChild(avatarImage);
 
             const bubble = document.createElement('div');
