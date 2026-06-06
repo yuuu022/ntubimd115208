@@ -21,7 +21,6 @@ from views.baby_utils import (
     get_relevant_timecourses,
     parse_float,
     split_note_and_milestones,
-    build_record_text,
     save_uploaded_image,
 )
 
