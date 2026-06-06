@@ -11,7 +11,7 @@ class Userphysicalcondition(models.Model):
 
     class Meta:
         db_table = 'userphysicalcondition'
-        managed = False
+        managed = True
 
     def __str__(self):
         try:

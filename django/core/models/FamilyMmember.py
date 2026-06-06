@@ -12,7 +12,7 @@ class FamilyMember(models.Model):
 
     class Meta:
         db_table = 'familymember'
-        managed = False 
+        managed = True 
 
     def __str__(self):
         return self.role

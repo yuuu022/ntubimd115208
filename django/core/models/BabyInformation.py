@@ -15,6 +15,6 @@ class BabyInformation(models.Model):
 
     class Meta:
         db_table = 'babyinformation'
-        managed = False
+        managed = True
     def __str__(self):
         return self.name

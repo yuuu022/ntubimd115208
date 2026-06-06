@@ -17,7 +17,7 @@ class BabyRecord(models.Model):
 
     class Meta:
         db_table = 'babyrecord'
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.date

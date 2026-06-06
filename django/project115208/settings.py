@@ -77,15 +77,23 @@ WSGI_APPLICATION = 'project115208.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres.phxlwzxabxeqjuaianpn',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '115-208',
+        'USER': '115208',
         'PASSWORD': 'Ntu8!mD11520B',
-        'HOST': 'aws-1-ap-southeast-2.pooler.supabase.com',
-        'PORT': '5432',
+        'HOST': '140.131.114.242',
+        'PORT': '3306',
+    },
+    'second_db': { 
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': 'postgres',
+    'USER': 'postgres.kkohdveprxlwakydjxge',
+    'PASSWORD': 'Ntu8!mD11520B',
+    'HOST': 'aws-1-ap-southeast-2.pooler.supabase.com',
+    'PORT': '5432',
+    'CONN_MAX_AGE': 60, 
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -115,7 +123,7 @@ TIME_ZONE = 'Asia/Taipei'
 
 USE_I18N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

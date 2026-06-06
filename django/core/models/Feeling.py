@@ -7,7 +7,7 @@ class Feeling(models.Model):
 
     class Meta:
         db_table = 'feeling'
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.feeling_name

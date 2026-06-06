@@ -12,7 +12,7 @@ class UserProfile(models.Model):
 
     class Meta:
         db_table = 'userprofile'
-        managed = False  # 保持你原本的設定（由你手動管理資料庫表結構）
+        managed = True
 
     def __str__(self):
         return self.name

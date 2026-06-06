@@ -10,7 +10,7 @@ class BabyStatus(models.Model):
 
     class Meta:
         db_table = 'babystatus'
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.babystatus_id

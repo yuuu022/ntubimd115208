@@ -11,7 +11,7 @@ class PregnancyRecord(models.Model):
 
     class Meta:
         db_table = 'pregnancyrecord'
-        managed = False
+        managed = True
 
     def __str__(self):
         return f"Pregnancy Record: {self.check_date}"

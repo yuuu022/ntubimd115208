@@ -15,7 +15,7 @@ class CareRecord(models.Model):
 
     class Meta:
         db_table = 'carerecord'
-        managed = False
+        managed = True
 
     def __str__(self):
         status_label = self.carestatus.carestatus if self.carestatus_id else '-'
