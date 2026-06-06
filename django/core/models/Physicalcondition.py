@@ -7,7 +7,7 @@ class PhysicalCondition(models.Model):
 
     class Meta:
         db_table = 'physicalcondition'
-        managed = False
+        managed = True
 
     def __str__(self):
         return self.physicalcondition_name

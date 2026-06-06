@@ -10,14 +10,13 @@
         <!-- Welcome Section -->
         <section class="px-6 py-6 flex justify-between items-end">
             <div class="space-y-1">
-                <p class="text-on-surface-variant text-sm font-medium">早安，{{ current_user }}</p>
-                <h1 class="text-3xl font-extrabold text-primary tracking-tight">今天的旅程</h1>
+                <h1 class="text-3xl font-extrabold text-primary tracking-tight">哈囉{{ current_user }}</h1>
             </div>
         </section>
         <div class="lg:grid lg:grid-cols-2 lg:gap-8 lg:px-6 items-start">
             <!-- Pregnancy Progress Card -->
             {% if pregnancy_progress.show_card %}
-            <div class="px-6 lg:px-0 mb-8 lg:col-span-2">
+            <div class="px-6 lg:px-0 mb-2 lg:col-span-2">
                 <div class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm relative overflow-hidden">
                     <div class="flex items-center justify-between gap-4 mb-1">
                         <span class="text-primary font-bold text-sm">目前進度</span>
@@ -159,20 +158,31 @@
             <!-- Refined Growth Chart -->
             <!-- Third Card: Growth Chart -->
         <div class="px-6 lg:px-0 mb-8">
-            <div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(46,47,45,0.06)] space-y-6 h-full">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-primary flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary" data-icon="monitoring">monitoring</span>
+            <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm flex flex-col space-y-4 h-full">
+                <div class="flex justify-between items-center gap-4 mb-1">
+                    <h3 class="font-bold text-primary text-lg flex items-center gap-2">
                         成長趨勢
                     </h3>
                     <div class="flex bg-surface-container-low p-1 rounded-full text-[10px] font-bold">
                         <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='/'" class="px-4 py-1.5 rounded-full bg-white text-primary shadow-sm">養育者</button>
-                        <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='/home_baby/'" class="px-4 py-1.5 rounded-full text-on-surface-variant">嬰幼兒</button>
+                        <button onclick="sessionStorage.setItem('scrollPos', window.scrollY); window.location.href='/'" class="px-4 py-1.5 rounded-full text-on-surface-variant">嬰幼兒</button>
+                    </div>
+                </div>
+                <!-- Range Filter Buttons -->
+                <div class="flex items-center justify-between">
+                    <div></div>
+                    <div class="flex items-center gap-2">
+                        <div class="text-[10px] font-bold text-on-surface-variant">日期範圍</div>
+                        <div class="flex bg-surface-container-low p-1 rounded-full text-[10px] font-bold">
+                            <button id="chart-range-week" type="button" class="px-3 py-1.5 rounded-full text-on-surface-variant hover:bg-surface-container-low">最近7天</button>
+                            <button id="chart-range-month" type="button" class="px-3 py-1.5 rounded-full text-on-surface-variant hover:bg-surface-container-low">最近30天</button>
+                            <button id="chart-range-all" type="button" class="px-3 py-1.5 rounded-full bg-white text-primary shadow-sm">全部</button>
+                        </div>
                     </div>
                 </div>
 
             <!-- Standard Full Line Chart Graphic -->
-            <div class="relative h-56 w-full mt-4 flex">
+            <div class="relative h-56 w-full flex">
                 <!-- Y-Axis Labels -->
                 <div id="y-axis-labels" class="flex flex-col justify-between text-[9px] font-bold text-on-surface-variant/50 pr-2 pb-6"></div>
 
@@ -201,7 +211,7 @@
             </div>
 
                 <!-- Chart Legend -->
-                <div class="flex justify-center items-center gap-6 mt-6 mb-2">
+                <div class="flex justify-center items-center gap-6 mt-2">
                     <div class="flex items-center gap-2">
                         <div class="w-3 h-1 rounded-full bg-[#65518a]"></div>
                         <span id="chart-legend-text" class="text-[10px] font-bold text-on-surface-variant">體重</span>
@@ -307,6 +317,8 @@
         }
 
         const pregnancyChartData = pregnancyChartDataElement ? JSON.parse(pregnancyChartDataElement.textContent || '[]') : [];
+        const pregnancyChartDataOriginal = Array.isArray(pregnancyChartData) ? pregnancyChartData.slice() : [];
+        let pregnancyChartVisibleData = pregnancyChartDataOriginal.slice();
 
         function formatChartValue(value) {
             if (value === null || value === undefined || Number.isNaN(value)) {
@@ -316,12 +328,12 @@
             return Number.isInteger(numericValue) ? String(numericValue) : numericValue.toFixed(1);
         }
 
-        function renderPregnancyChart() {
+        function renderPregnancyChart(data = pregnancyChartVisibleData) {
             if (!pregnancyChartSvg || !pregnancyChartYAxisLabels || !pregnancyChartXAxisLabels || !pregnancyChartEmptyState) {
                 return;
             }
 
-            const records = Array.isArray(pregnancyChartData) ? pregnancyChartData : [];
+            const records = Array.isArray(data) ? data : [];
             const validRecords = records.filter((item) => Number.isFinite(Number(item.weight)));
 
             if (!validRecords.length) {
@@ -342,16 +354,13 @@
                 return values;
             });
 
-            let minValue = Math.min(...numericValues);
-            let maxValue = Math.max(...numericValues);
-            if (minValue === maxValue) {
-                minValue -= 1;
-                maxValue += 1;
-            }
+            let minValue = Math.floor(Math.min(...numericValues) / 5) * 5;
+            let maxValue = Math.ceil(Math.max(...numericValues) / 5) * 5;
 
-            const padding = Math.max((maxValue - minValue) * 0.12, 1);
-            minValue -= padding;
-            maxValue += padding;
+            if (minValue === maxValue) {
+                minValue -= 5;
+                maxValue += 5;
+            }
 
             const topY = 8;
             const bottomY = 88;
@@ -386,20 +395,42 @@
                 return path.trim();
             }
 
-            function buildDots(seriesKey, fillColor) {
+            function buildPoints(seriesKey) {
                 return validRecords.map((item, index) => {
                     const rawValue = item[seriesKey];
                     if (!Number.isFinite(Number(rawValue))) {
-                        return '';
+                        return null;
                     }
 
                     const x = validRecords.length === 1 ? 50 : leftX + ((index / (validRecords.length - 1)) * chartWidth);
                     const y = scaleY(rawValue);
-                    return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="1.8" fill="${fillColor}" stroke="#ffffff" stroke-width="0.8"></circle>`;
+                    const label = (item.label || item.date || item.date_iso || '').toString().replace(/"/g, '');
+                    const dateVal = (item.date || item.date_iso || item.record_date || '').toString().replace(/"/g, '');
+
+                    return {
+                        x,
+                        y,
+                        label,
+                        dateVal,
+                        weight: Number(rawValue),
+                    };
+                }).filter(Boolean);
+            }
+
+            function buildDots(seriesKey, fillColor) {
+                return buildPoints(seriesKey).map((point) => {
+                    if (!point) {
+                        return '';
+                    }
+
+                    return `<g data-label="${point.label}" data-date="${point.dateVal}" data-weight="${point.weight}" transform="translate(${point.x.toFixed(2)},${point.y.toFixed(2)})">
+                                <circle class="hit-area" cx="0" cy="0" r="8" fill="transparent" pointer-events="all"></circle>
+                            </g>`;
                 }).join('');
             }
 
             const weightPath = buildPath('weight');
+            const weightPoints = buildPoints('weight');
             const weightDots = buildDots('weight', '#65518a');
 
             pregnancyChartSvg.innerHTML = `
@@ -410,8 +441,92 @@
                     </linearGradient>
                 </defs>
                 <path d="${weightPath}" fill="none" stroke="#65518a" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5" vector-effect="non-scaling-stroke"></path>
+                <path class="hover-line" d="${weightPath}" fill="none" stroke="transparent" stroke-width="18" vector-effect="non-scaling-stroke" pointer-events="stroke"></path>
                 <g>${weightDots}</g>
             `;
+
+            let tooltip = document.getElementById('chart-tooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'chart-tooltip';
+                tooltip.style.position = 'fixed';
+                tooltip.style.pointerEvents = 'none';
+                tooltip.style.background = 'rgba(0,0,0,0.85)';
+                tooltip.style.color = '#fff';
+                tooltip.style.padding = '6px 8px';
+                tooltip.style.borderRadius = '6px';
+                tooltip.style.fontSize = '12px';
+                tooltip.style.zIndex = '9999';
+                tooltip.style.display = 'none';
+                document.body.appendChild(tooltip);
+            }
+
+            const showTooltip = (text, clientX, clientY) => {
+                tooltip.textContent = text;
+                tooltip.style.left = `${clientX + 12}px`;
+                tooltip.style.top = `${clientY + 12}px`;
+                tooltip.style.display = 'block';
+            };
+
+            const hideTooltip = () => {
+                tooltip.style.display = 'none';
+            };
+
+            const renderPointText = (point) => `${point.dateVal || point.label || ''} — ${point.weight} kg`;
+
+            const nearestPointByClientX = (clientX) => {
+                if (!weightPoints.length) {
+                    return null;
+                }
+
+                const rect = pregnancyChartSvg.getBoundingClientRect();
+                const ratio = rect.width ? ((clientX - rect.left) / rect.width) : 0;
+                const svgX = 100 * ratio;
+
+                let nearestPoint = weightPoints[0];
+                let nearestDistance = Math.abs(weightPoints[0].x - svgX);
+
+                for (const point of weightPoints) {
+                    const distance = Math.abs(point.x - svgX);
+                    if (distance < nearestDistance) {
+                        nearestPoint = point;
+                        nearestDistance = distance;
+                    }
+                }
+
+                return nearestPoint;
+            };
+
+            const hoverLine = pregnancyChartSvg.querySelector('.hover-line');
+            if (hoverLine) {
+                hoverLine.addEventListener('mouseenter', (ev) => {
+                    const point = nearestPointByClientX(ev.clientX);
+                    if (point) {
+                        showTooltip(renderPointText(point), ev.clientX, ev.clientY);
+                    }
+                });
+                hoverLine.addEventListener('mousemove', (ev) => {
+                    const point = nearestPointByClientX(ev.clientX);
+                    if (point) {
+                        showTooltip(renderPointText(point), ev.clientX, ev.clientY);
+                    }
+                });
+                hoverLine.addEventListener('mouseleave', hideTooltip);
+            }
+
+            const groups = pregnancyChartSvg.querySelectorAll('g[data-weight]');
+            groups.forEach((g) => {
+                const hit = g.querySelector('.hit-area');
+                if (!hit) return;
+
+                const weight = g.getAttribute('data-weight');
+                const date = g.getAttribute('data-date') || g.getAttribute('data-label') || '';
+                const text = `${date} — ${weight} kg`;
+
+                hit.addEventListener('mouseenter', (ev) => showTooltip(text, ev.clientX, ev.clientY));
+                hit.addEventListener('mousemove', (ev) => showTooltip(text, ev.clientX, ev.clientY));
+                hit.addEventListener('mouseleave', hideTooltip);
+            });
 
             const yTickCount = 5;
             const yTicks = Array.from({ length: yTickCount }, (_, index) => {
@@ -436,7 +551,70 @@
             }).join('');
         }
 
+        function getRecordDate(item) {
+            if (!item || typeof item !== 'object') return null;
+            const tryKeys = ['date', 'date_iso', 'record_date', 'recordtime', 'created_at', 'timestamp'];
+            for (const k of tryKeys) {
+                if (item[k]) {
+                    const d = new Date(item[k]);
+                    if (!Number.isNaN(d.getTime())) return d;
+                }
+            }
+            // try label/other fields that might contain date-like strings
+            for (const v of Object.values(item)) {
+                if (typeof v === 'string' && /\d{4}-\d{2}-\d{2}/.test(v)) {
+                    const d = new Date(v);
+                    if (!Number.isNaN(d.getTime())) return d;
+                }
+            }
+            return null;
+        }
+
+        function applyRangeFilter(range) {
+            if (!pregnancyChartDataOriginal.length) return;
+            const now = new Date();
+            let start = null;
+            if (range === 'week') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+            } else if (range === 'month') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+            } else {
+                pregnancyChartVisibleData = pregnancyChartDataOriginal.slice();
+                renderPregnancyChart();
+                return;
+            }
+
+            pregnancyChartVisibleData = pregnancyChartDataOriginal.filter(item => {
+                const d = getRecordDate(item);
+                if (!d) return false;
+                return d >= start && d <= now;
+            });
+
+            renderPregnancyChart();
+        }
+
+        function setActiveRangeBtn(activeId) {
+            const ids = ['chart-range-week','chart-range-month','chart-range-all'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (id === activeId) {
+                    el.classList.add('bg-white','text-primary','shadow-sm');
+                } else {
+                    el.classList.remove('bg-white','text-primary','shadow-sm');
+                }
+            });
+        }
+
         renderPregnancyChart();
+
+        // wire up range buttons
+        const btnWeek = document.getElementById('chart-range-week');
+        const btnMonth = document.getElementById('chart-range-month');
+        const btnAll = document.getElementById('chart-range-all');
+        if (btnWeek) btnWeek.addEventListener('click', () => { setActiveRangeBtn('chart-range-week'); applyRangeFilter('week'); });
+        if (btnMonth) btnMonth.addEventListener('click', () => { setActiveRangeBtn('chart-range-month'); applyRangeFilter('month'); });
+        if (btnAll) btnAll.addEventListener('click', () => { setActiveRangeBtn('chart-range-all'); applyRangeFilter('all'); });
 
         const activeCaseId = new URLSearchParams(window.location.search).get('case_id') || '';
         const activeBabyId = new URLSearchParams(window.location.search).get('baby_id') || '';

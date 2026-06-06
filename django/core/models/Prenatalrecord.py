@@ -15,7 +15,7 @@ class Prenatalrecord(models.Model):
 
     class Meta:
         db_table = 'prenatalrecord'
-        managed = False
+        managed = True
 
     def __str__(self):
         return f'{self.prenatalrecord_id}'

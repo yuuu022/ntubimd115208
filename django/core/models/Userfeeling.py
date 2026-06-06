@@ -11,7 +11,7 @@ class Userfeeling(models.Model):
 
     class Meta:
         db_table = 'userfeeling'
-        managed = False
+        managed = True
 
     def __str__(self):
         try:

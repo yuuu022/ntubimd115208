@@ -16,7 +16,7 @@ class QAMessage(models.Model):
 
     class Meta:
         db_table = 'qamessage'
-        managed = False
+        managed = True
 
     def __str__(self):
         return f'{self.serno} ({self.role})'
