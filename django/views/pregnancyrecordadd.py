@@ -8,7 +8,7 @@ import calendar
 from pathlib import Path
 
 from core.models import Feeling, PhysicalCondition, PregnancyRecord, Prenatalrecord, Userfeeling, Userphysicalcondition, PregnancyCase, UserProfile
-from views.pregnancy_records import records_for_case
+from .pregnancyrecords import records_for_case
 from views.pregnancycase import resolve_active_pregnancy_case, url_with_active_selection
 from views.session_utils import get_current_user_profile
 
@@ -29,7 +29,7 @@ def _get_unique_record_for_date(pregnancy_case, current_user, selected_date):
 
     records = list(
         _records_for_scope(pregnancy_case, current_user)
-        .filter(check_date__date=selected_date)
+        .filter(check_date=selected_date)
         .order_by('-check_date', '-pregnancyrecord_id')
     )
     if not records:
@@ -140,7 +140,7 @@ def pregnancyrecord(request):
     month = selected_date.month
     month_records = list(
         _records_for_scope(pregnancy_case, current_user)
-        .filter(check_date__year=year, check_date__month=month)
+        .filter(check_date__gte=datetime.date(year, month, 1), check_date__lt=datetime.date(year + (month // 12), (month % 12) + 1, 1))
         .order_by('check_date', 'pregnancyrecord_id')
         .values('pregnancyrecord_id', 'user_id', 'check_date', 'weight', 'record')
     )
@@ -240,7 +240,7 @@ def pregnancyrecord(request):
 
     selected_day_records = list(
         _records_for_scope(pregnancy_case, current_user)
-        .filter(check_date__date=selected_date)
+        .filter(check_date=selected_date)
         .order_by('-check_date', '-pregnancyrecord_id')
     )
     selected_day_record = selected_day_records[0] if selected_day_records else None
@@ -312,6 +312,7 @@ def pregnancyrecord(request):
         'selected_date_iso': selected_date.isoformat(),
         'today_iso': today_date.isoformat(),
         'selected_month_label': f'{selected_date.year}年 {selected_date.month}月',
+        'user_name': current_user.name if current_user else '',
         'selected_day': selected_date.day,
         'calendar_weeks': calendar_weeks,
         'selected_day_weight': selected_day_weight,

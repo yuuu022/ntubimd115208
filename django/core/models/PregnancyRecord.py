@@ -5,7 +5,7 @@ from .UserProfile import UserProfile
 class PregnancyRecord(models.Model):
     pregnancyrecord_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    check_date = models.DateTimeField()
+    check_date = models.DateField()
     record = models.TextField()
     weight = models.FloatField(null=True, blank=True)
 

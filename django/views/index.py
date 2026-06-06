@@ -5,8 +5,8 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from zoneinfo import ZoneInfo
 
-from core.models import CareRecord, UserProfile
-from views.pregnancy_records import records_for_case
+from core.models import CareRecord, UserProfile, PregnancyRecord
+from .pregnancyrecords import records_for_case
 from views.pregnancycase import (
     build_pregnancy_progress,
     resolve_active_baby,
@@ -32,20 +32,28 @@ def _day_bounds_in_taiwan(date_value):
     return start_naive, end_naive
 
 
-def _build_pregnancy_chart_data(pregnancy_case):
-    if not pregnancy_case:
+def _build_pregnancy_chart_data(user):
+    if not user:
         return []
 
     chart_rows = []
-    records = records_for_case(pregnancy_case).order_by('check_date', 'pregnancyrecord_id')
+    records = (
+        PregnancyRecord.objects
+        .filter(user=user, weight__isnull=False)
+        .order_by('check_date', 'pregnancyrecord_id')
+    )
     for record in records:
-        check_date = record.check_date.date() if isinstance(record.check_date, datetime.datetime) else record.check_date
+        check_date = (
+            record.check_date.date()
+            if isinstance(record.check_date, datetime.datetime)
+            else record.check_date
+        )
         if not check_date:
             continue
         chart_rows.append({
             'date_iso': check_date.isoformat(),
             'label': f'{check_date.month}/{check_date.day}',
-            'weight': float(record.weight) if record.weight is not None else None,
+            'weight': float(record.weight),
         })
     return chart_rows
 
@@ -53,8 +61,8 @@ def _build_pregnancy_chart_data(pregnancy_case):
 def index(request):
     selected_date = _parse_selected_date(request.GET.get('date'))
     today = datetime.date.today()
-    window_start = selected_date - timedelta(days=7)
-    window_end = selected_date + timedelta(days=7)
+    window_start = selected_date - timedelta(days=1)
+    window_end = selected_date + timedelta(days=1)
 
     current_user = get_current_user_profile(request)
     if not current_user:
@@ -68,7 +76,7 @@ def index(request):
         request, current_user, fallback=has_baby_selection
     )
     pregnancy_case = resolve_active_pregnancy_case(request, current_user)
-    pregnancy_chart_data = _build_pregnancy_chart_data(pregnancy_case)
+    pregnancy_chart_data = _build_pregnancy_chart_data(current_user)  # 改為傳入 current_user
     pregnancy_progress = build_pregnancy_progress(pregnancy_case, today)
 
     care_queryset = CareRecord.objects.select_related('carestatus').order_by('recordtime', 'carerecord_id')
@@ -84,12 +92,9 @@ def index(request):
     completion_by_day = {}
     for rec in window_records:
         rec_time = rec.recordtime
-        # records are stored as naive local datetimes; just take the date()
-        # directly to avoid applying timezone.localtime to naive datetimes.
         if isinstance(rec_time, datetime.datetime):
             d = rec_time.date()
         else:
-            # fallback: treat as date-like
             d = rec_time
         record_days.add(d)
         completion_by_day.setdefault(d, {'total': 0, 'done': 0})
@@ -99,8 +104,8 @@ def index(request):
 
     care_day_cards = []
     weekday_labels = ['一', '二', '三', '四', '五', '六', '日']
-    for offset in range(15):
-        d = window_start + timedelta(days=offset)
+    for offset in range(-3, 4):
+        d = selected_date + timedelta(days=offset)
         day_completion = completion_by_day.get(d)
         total = day_completion['total'] if day_completion else 0
         done = day_completion['done'] if day_completion else 0
