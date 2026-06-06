@@ -236,10 +236,11 @@ def _store_exchange(question_text, answer_text, request=None):
 
     try:
         now = timezone.now()
+        conversation_title = (question_text[:50] or "孕期知識問答")
         with transaction.atomic():
             conversation = QAConversation.objects.create(
                 user_id=user,
-                title=(question_text[:250] or "孕期知識問答"),
+                title=conversation_title,
                 create_time=now,
             )
             QAMessage.objects.create(
@@ -376,7 +377,20 @@ def qa_conversation(request):
     error_message = ""
     sources = []
     current_user = get_current_user_profile(request)
+    accept_header = ""
+    try:
+        accept_header = request.META.get("HTTP_ACCEPT", "") or (request.headers.get("Accept") if hasattr(request, 'headers') else "")
+    except Exception:
+        accept_header = request.META.get("HTTP_ACCEPT", "")
+
+    is_ajax = (
+        request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
+        or "application/json" in (accept_header or "")
+    )
+
     if not current_user:
+        if is_ajax:
+            return JsonResponse({"ok": False, "error": "登入狀態已失效或尚未登入，請重新登入後再送出訊息。"}, status=401)
         return redirect('login')
 
     if request.method == "POST" and request.POST.get("action") == "new_conversation":
@@ -399,16 +413,6 @@ def qa_conversation(request):
         question = request.POST.get("question", "").strip()
         # 更寬容的 AJAX 判斷：同時檢查 HTTP_X_REQUESTED_WITH、HTTP_ACCEPT，
         # 並退回到 request.headers（與 Django 版本相容性保護）。
-        accept_header = ""
-        try:
-            accept_header = request.META.get("HTTP_ACCEPT", "") or (request.headers.get("Accept") if hasattr(request, 'headers') else "")
-        except Exception:
-            accept_header = request.META.get("HTTP_ACCEPT", "")
-
-        is_ajax = (
-            request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
-            or "application/json" in (accept_header or "")
-        )
         if question:
             payload, error_message, debug_info = _post_to_n8n(question)
             if payload:
