@@ -1,27 +1,27 @@
 """Core URL routes."""
 
-from django.urls import path
-from views import qa, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, login, edit_family_member, baby_growthmap, baby_record, baby_information, baby_home
+from django.urls import path, include
+from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, login, edit_family_member, baby_growthmap
 
 urlpatterns = [
-	# 首頁
+    # 首頁
     path('', index.index, name='index'),
-    # path('home_baby/', home_baby.home_baby, name='home_baby'),
-	path('add_care_reminder/', care_record.add_care_reminder, name='add_care_reminder'),
+    path('add_care_reminder/', care_record.add_care_reminder, name='add_care_reminder'),
     path('set_care_status/', care_record.set_care_status, name='set_care_status'),
-	# 登入
+
     path('login/', login.login_page, name='login'),
+    path('accounts/', include('allauth.urls')),
     path('google_auth_login/', login.google_auth_login, name='google_auth_login'),
     path('google_auth_login', login.google_auth_login, name='google_auth_login_no_slash'),
     path('api/auth/google/', login.google_auth_login),
     path('logout/', login.logout_user, name='logout'),
 
-	# 孕期紀錄
+    # 孕期紀錄
     path('pregnancyrecord/add/', pregnancyrecordadd.pregnancyrecord_add, name='pregnancy_record_add'),
-	path('pregnancyrecord/', pregnancyrecordadd.pregnancyrecord, name='pregnancyrecord'),
-	path('pregnancyrecord_new/', pregnancyrecordadd.pregnancyrecord_new, name='pregnancy_record_new'),
+    path('pregnancyrecord/', pregnancyrecordadd.pregnancyrecord, name='pregnancyrecord'),
+    path('pregnancyrecord_new/', pregnancyrecordadd.pregnancyrecord_new, name='pregnancy_record_new'),
 
-    #懷孕胎數
+    # 懷孕胎數
     path('pregnancycase/', pregnancycase.pregnancy_case, name='pregnancy_case'),
     path('add_pregnancy_baby/', pregnancycase.add_pregnancy_case, name='add_pregnancy_case'),
     path('edit_pregnancy_case/', pregnancycase.edit_pregnancy_case, name='edit_pregnancy_case'),
@@ -29,7 +29,7 @@ urlpatterns = [
 
     #嬰幼兒主頁與圖表
     path('babyinformation/', baby_home.baby, name='babyinformation'),
-    path('babygrowthmap/', baby_home.baby_growthmap, name='babygrowthmap'),  
+    path('babygrowthmap/', baby_home.baby_growthmap, name='babygrowthmap'),
 
     #嬰幼兒基本資料
     # 這兩行不需要改，name 已經正確對應
@@ -49,6 +49,6 @@ urlpatterns = [
     path('userprofile/', userprofile.userprofile, name='profile'),
     path('edit_userprofile/', userprofile.edit_userprofile, name='edit_userprofile'),
     path('userprofile/update_profile/', userprofile.update_profile, name='update_profile'),
-	path('edit_family_member/', edit_family_member.edit_family_member, name='edit_family_member'),
+    path('edit_family_member/', edit_family_member.edit_family_member, name='edit_family_member'),
     path('join_family/', userprofile.join_family, name='join_family'),
 ]
