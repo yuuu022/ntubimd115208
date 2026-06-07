@@ -11,8 +11,8 @@
     <!-- Top AppBar -->
     <nav class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-surface-container-highest/20 px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="flex items-center gap-4 max-w-md md:max-w-none w-full mx-auto">
-            <button onclick="window.history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest text-primary hover:bg-primary-container transition-colors shadow-sm cursor-pointer" type="button">
-                <span class="material-symbols-outlined">arrow_back</span>
+            <button onclick="window.history.back()" class="w-10 h-10 flex items-center justify-center rounded-full  text-primary hover:bg-primary-container transition-colors shadow-sm cursor-pointer" type="button">
+                <span class="material-symbols-outlined">返回</span>
             </button>
             <h1 class="text-xl font-bold text-primary tracking-tight font-headline">成長里程碑總覽</h1>
         </div>
@@ -23,7 +23,7 @@
             <div>
                 <h2 class="text-xl font-bold text-on-surface mb-1 flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary">timeline</span>
-                    {{ growth_owner_name|default:'嬰幼兒' }}成長軌跡
+                    {{ growth_owner_name|default:'嬰幼兒' }}的成長軌跡
                 </h2>
                 <p class="text-xs text-on-surface-variant font-medium">紀錄{{ growth_owner_name|default:'嬰幼兒' }}每個珍貴的「第一次」</p>
             </div>
