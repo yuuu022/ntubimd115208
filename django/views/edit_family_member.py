@@ -20,7 +20,7 @@ def edit_family_member(request):
     members = list(
         FamilyMember.objects
         .filter(pregnancycase_id=case)
-        .select_related('user_id')
+        .select_related('user')
         .order_by('join_time')
     ) if case else []
 
@@ -108,7 +108,7 @@ def edit_family_member(request):
                     members = list(
                         FamilyMember.objects
                         .filter(pregnancycase_id=case)
-                        .select_related('user_id')
+                        .select_related('user')
                         .order_by('join_time')
                     )
 
@@ -136,7 +136,7 @@ def edit_family_member(request):
                         members = list(
                             FamilyMember.objects
                             .filter(pregnancycase_id=case)
-                            .select_related('user_id')
+                            .select_related('user')
                             .order_by('join_time')
                         )
                         # 重新讀取申請名單
@@ -169,7 +169,7 @@ def edit_family_member(request):
                     members = list(
                         FamilyMember.objects
                         .filter(pregnancycase_id=case)
-                        .select_related('user_id')
+                        .select_related('user')
                         .order_by('join_time')
                     )
                     # 重新讀取申請名單
