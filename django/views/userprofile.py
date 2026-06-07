@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from core.models import BabyInformation, BabyRecord, FamilyMember, PregnancyCase, PregnancyRecord
 from core import join_requests_manager
-from views.pregnancy_records import records_for_case
+from .pregnancyrecords import records_for_case
 from views.pregnancycase import (
     get_lmp_date,
     is_pregnancy_ongoing,
@@ -14,12 +14,15 @@ from views.pregnancycase import (
     sync_active_selection_from_request,
 )
 from views.session_utils import get_current_user_profile
-from django.core.files.storage import default_storage
 from django.conf import settings
-import time
 import os
 from django.contrib import messages
 from django.db import IntegrityError
+
+
+# 圖片儲存目標目錄（相對於 BASE_DIR）
+AVATAR_SAVE_DIR = os.path.join(settings.BASE_DIR, 'core', 'static', 'media', 'user')
+AVATAR_URL_PREFIX = '/static/media/user/'
 
 
 def _format_number(value):
@@ -31,7 +34,6 @@ def _format_number(value):
 
 
 def _latest_weight_for_selection(request, user):
-    # Always return caregiver's latest weight from PregnancyRecord
     record = (
         PregnancyRecord.objects.filter(user=user)
         .exclude(weight__isnull=True)
@@ -40,7 +42,6 @@ def _latest_weight_for_selection(request, user):
     )
     if record and record.weight is not None:
         return record.weight
-
     return '-'
 
 
@@ -151,7 +152,6 @@ def userprofile(request):
     latest_weight = _latest_weight_for_selection(request, current_user)
     selected_child_info = _build_selected_child_info(request, current_user)
 
-    # 取得目前胎數的協助者名單
     case = resolve_active_pregnancy_case(request, current_user)
     family_members = []
     pending_count = 0
@@ -175,7 +175,6 @@ def userprofile(request):
 
 
 def join_family(request):
-    """驗證加入碼：確認養育者是否已將此帳號加入該胎數。"""
     current_user = get_current_user_profile(request)
     if not current_user:
         return redirect('login')
@@ -211,7 +210,6 @@ def join_family(request):
                     join_requests_manager.add_request(case.pregnancycase_id, current_user.user_id)
                     join_success = '已成功送出加入申請，請等待養育者審核同意！'
 
-    # 重新組裝 context
     latest_weight = _latest_weight_for_selection(request, current_user)
     selected_child_info = _build_selected_child_info(request, current_user)
     active_case = resolve_active_pregnancy_case(request, current_user)
@@ -258,28 +256,30 @@ def update_profile(request):
 
     name = request.POST.get('name', '').strip()
     email = request.POST.get('email', '').strip()
-    avatar = request.POST.get('avatar', '').strip()
     avatar_file = request.FILES.get('avatar_file')
 
     if name:
         current_user.name = name
     current_user.email = email or ''
 
-    # handle uploaded avatar file if provided
     if avatar_file:
         try:
-            ext = os.path.splitext(avatar_file.name)[1] or ''
-            filename = f'avatars/user_{current_user.user_id}_{int(time.time())}{ext}'
-            saved_path = default_storage.save(filename, avatar_file)
-            try:
-                avatar_url = default_storage.url(saved_path)
-            except Exception:
-                avatar_url = settings.MEDIA_URL + saved_path
-            current_user.avatar = avatar_url
+            # 確保目標目錄存在
+            os.makedirs(AVATAR_SAVE_DIR, exist_ok=True)
+
+            # 固定檔名為 user_id.jpg，每次上傳直接覆蓋舊檔
+            filename = f'{current_user.user_id}.jpg'
+            save_path = os.path.join(AVATAR_SAVE_DIR, filename)
+
+            # 寫入檔案
+            with open(save_path, 'wb') as f:
+                for chunk in avatar_file.chunks():
+                    f.write(chunk)
+
+            current_user.avatar = AVATAR_URL_PREFIX + filename
+
         except Exception as e:
             messages.error(request, f'上傳頭像失敗：{e}')
-    elif avatar:
-        current_user.avatar = avatar
 
     try:
         current_user.save()
