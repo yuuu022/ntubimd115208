@@ -45,10 +45,19 @@
     </aside>
     <nav class="header">
         <div class="flex items-center gap-3">
-            <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
-            <h1 class="qa-page-title text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight">Growth AI</h1>
+            <div class="flex flex-col items-center">
+                <button id="hamburger-menu-btn" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer" type="button">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+
+                <button id="new-conversation-btn" type="button" class="w-10 h-10 flex items-center justify-center text-[#65518a] hover:bg-primary/10 rounded-full transition-colors cursor-pointer">
+                    <span class="material-symbols-outlined" data-icon="edit">add</span>
+                </button>
+            </div>
+
+            <h1 class="qa-page-title text-lg md:text-xl font-bold text-[#65518a] font-['Plus_Jakarta_Sans'] tracking-tight self-start mt-2">
+                Growth AI
+            </h1>
         </div>
     </nav>
 
@@ -231,6 +240,14 @@
 
         if (newConversationForm) {
             newConversationForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                void requestNewConversation();
+            });
+        }
+
+        const newConversationBtn = document.getElementById('new-conversation-btn');
+        if (newConversationBtn) {
+            newConversationBtn.addEventListener('click', (event) => {
                 event.preventDefault();
                 void requestNewConversation();
             });
