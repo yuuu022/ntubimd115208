@@ -1,11 +1,13 @@
 import datetime
 from datetime import timedelta
+from urllib import request
 
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from zoneinfo import ZoneInfo
 
-from core.models import CareRecord, UserProfile, PregnancyRecord
+from core.models import CareRecord, UserProfile, PregnancyRecord, BabyRecord
 from .pregnancyrecords import records_for_case
 from views.pregnancycase import (
     build_pregnancy_progress,
@@ -58,11 +60,35 @@ def _build_pregnancy_chart_data(user):
     return chart_rows
 
 
+def _build_baby_chart_data(baby):
+    if not baby:
+        return []
+
+    chart_rows = []
+    records = (
+        BabyRecord.objects
+        .filter(baby=baby)
+        .filter(Q(weight__isnull=False) | Q(height__isnull=False))
+        .order_by('date', 'babyrecord_id')
+    )
+    for record in records:
+        row = {
+            'date_iso': record.date.isoformat(),
+            'label': f'{record.date.month}/{record.date.day}',
+        }
+        if record.weight is not None:
+            row['weight'] = float(record.weight)
+        if record.height is not None:
+            row['height'] = float(record.height)
+        chart_rows.append(row)
+    return chart_rows
+
+
 def index(request):
     selected_date = _parse_selected_date(request.GET.get('date'))
     today = datetime.date.today()
-    window_start = selected_date - timedelta(days=1)
-    window_end = selected_date + timedelta(days=1)
+    window_start = selected_date - timedelta(days=3)
+    window_end = selected_date + timedelta(days=3)
 
     current_user = get_current_user_profile(request)
     if not current_user:
@@ -76,7 +102,8 @@ def index(request):
         request, current_user, fallback=has_baby_selection
     )
     pregnancy_case = resolve_active_pregnancy_case(request, current_user)
-    pregnancy_chart_data = _build_pregnancy_chart_data(current_user)  # 改為傳入 current_user
+    pregnancy_chart_data = _build_pregnancy_chart_data(current_user)
+    baby_chart_data = _build_baby_chart_data(active_baby)
     pregnancy_progress = build_pregnancy_progress(pregnancy_case, today)
 
     care_queryset = CareRecord.objects.select_related('carestatus').order_by('recordtime', 'carerecord_id')
@@ -146,6 +173,7 @@ def index(request):
         'pregnancy_case': pregnancy_case,
         'pregnancy_chart_data': pregnancy_chart_data,
         'pregnancy_chart_has_data': bool(pregnancy_chart_data),
+        'baby_chart_data': baby_chart_data,
         'pregnancy_progress': pregnancy_progress,
         'active_baby': active_baby,
         'current_user': current_user,
