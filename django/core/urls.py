@@ -1,7 +1,7 @@
 """Core URL routes."""
 
 from django.urls import path
-from views import qa, babyinformation, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, login, edit_family_member, baby_growthmap
+from views import qa, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, login, edit_family_member, baby_growthmap, baby_record, baby_information, baby_home
 
 urlpatterns = [
 	# 首頁
@@ -26,14 +26,21 @@ urlpatterns = [
     path('add_pregnancy_baby/', pregnancycase.add_pregnancy_case, name='add_pregnancy_case'),
     path('edit_pregnancy_case/', pregnancycase.edit_pregnancy_case, name='edit_pregnancy_case'),
 
-    # 小孩記錄
-    path('babyinformation/', babyinformation.baby, name='babyinformation'),
-    path('add_baby_information/', babyinformation.add_baby_information, name='add_baby_information'),
-    path('add_baby_record/', babyinformation.add_baby_record, name='add_baby_record'),
-    path('babyrecord/<int:babyrecord_id>/edit/', babyinformation.edit_baby_record, name='edit_baby_record'),
-    path('babyrecord/<int:babyrecord_id>/delete/', babyinformation.delete_baby_record, name='delete_baby_record'),
-    path('edit_baby_information/', babyinformation.edit_baby_information, name='edit_baby_information'),
-    path('babygrowthmap/', baby_growthmap.baby_growthmap, name='babygrowthmap'),
+
+    #嬰幼兒主頁與圖表
+    path('babyinformation/', baby_home.baby, name='babyinformation'),
+    path('babygrowthmap/', baby_home.baby_growthmap, name='babygrowthmap'),  
+
+    #嬰幼兒基本資料
+    # 這兩行不需要改，name 已經正確對應
+    path('add_baby_information/', baby_information.add_baby_information, name='add_baby_information'),
+    path('edit_baby_information/', baby_information.edit_baby_information, name='edit_baby_information'),
+
+    # 嬰幼兒生長紀錄
+    path('babyrecord/add/', baby_record.add_baby_record, name='add_baby_record'),
+    path('babyrecord/edit/<int:babyrecord_id>/', baby_record.edit_baby_record, name='edit_baby_record'),
+    path('babyrecord/<int:babyrecord_id>/delete/', baby_record.delete_baby_record, name='delete_baby_record'),
+
 
     # 知識問答
     path('qa/', qa.qa_conversation, name='qa_conversation'),

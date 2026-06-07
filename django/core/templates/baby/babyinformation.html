@@ -89,14 +89,19 @@
                                 {% if cell.empty %}
                                     <div class="aspect-square"></div>
                                 {% else %}
-                                    <a href="?date={{ cell.date_iso }}" class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl hover:bg-surface-container-low cursor-pointer transition-colors {% if cell.is_selected %}bg-primary-container text-on-primary-container{% endif %}">
-                                        <span class="text-sm {% if cell.is_selected %}font-bold text-on-primary-container{% else %}text-on-surface{% endif %}">{{ cell.day }}</span>
-                                        {% if cell.has_record %}
-                                        <div class="mt-auto">
-                                            <div class="w-2 h-2 rounded-full {% if cell.is_selected %}bg-on-primary-container{% else %}bg-primary{% endif %}"></div>
+                                    {% if cell.is_future %}
+                                        <div class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl
+                                                    bg-surface-container-low text-on-surface/30 cursor-not-allowed">
+                                            <span class="text-sm">{{ cell.day }}</span>
                                         </div>
-                                        {% endif %}
-                                    </a>
+                                    {% else %}
+                                        <a href="?date={{ cell.date_iso }}"
+                                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl
+                                                hover:bg-surface-container-low cursor-pointer transition-colors
+                                                {% if cell.is_selected %}bg-primary-container text-on-primary-container{% endif %}">
+                                            <span class="text-sm">{{ cell.day }}</span>
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
                         {% endfor %}
@@ -160,7 +165,7 @@
                                 <span class="material-symbols-outlined text-2xl">child_care</span>
                             </div>
                             <div>
-                                <h4 class="text-on-surface font-bold text-base">今日沒有紀錄</h4>
+                                <h4 class="text-on-surface font-bold text-base">這一天沒有紀錄</h4>
                                 <p class="text-on-surface-variant text-xs mt-1">為這天新增一筆成長紀錄吧！</p>
                             </div>
                             <button onclick="navigateToAddRecord('{% url 'add_baby_record' %}?date={{ selected_date_iso }}', '{{ selected_date_iso }}')" class="mt-1 bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all" type="button">
