@@ -1,23 +1,22 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}新增照顧者提醒{% endblock %}
+{% block title %}新增待辦清單{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/index/add_care_reminder.css' %}">
 {% endblock %}
 {% block content %}
-<body class="bg-surface text-on-surface min-h-screen pb-20">
-    <!-- Header Section -->
-    <header class="justify-between fixed top-0 w-full z-50 bg-[#f7f6f3]/70 backdrop-blur-md flex items-center px-6 h-16 w-full shadow-sm">
-        <div class="flex items-center gap-3">
-            <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
-                <span class="material-symbols-outlined text-primary">arrow_back</span>
-            </button>
-            <h1 class="font-headline font-semibold tracking-tight text-lg text-primary">新增照顧者提醒</h1>
+<div class="bg-surface text-on-surface min-h-screen">
+    <header class="bg-surface/70 backdrop-blur-md px-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
+        <div class="flex flex-col items-start gap-2">
+            <a href="javascript:history.back()" class="inline-flex items-center gap-2 rounded-full p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200" aria-label="返回待辦清單">
+                <span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;">arrow_back</span>
+                <span class="text-lg font-bold text-primary">新增待辦清單</span>
+            </a>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="pt-2 px-4 mx-auto max-w-md md:max-w-2xl lg:max-w-3xl w-full pb-20 md:pb-16">
+    <main class="pt-0 px-4 mx-auto max-w-md md:max-w-2xl lg:max-w-3xl w-full pb-20 md:pb-16 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <form method="post" class="space-y-3">
             {% csrf_token %}
 
@@ -26,7 +25,7 @@
                     <div class="w-10 h-10 transition-all/10 rounded-full flex items-center justify-center">
                         <span class="material-symbols-outlined text-primary text-[20px]">notifications_active</span>
                     </div>
-                    <h2 class="font-headline font-bold text-lg text-primary">提醒內容設定</h2>
+                    <h2 class="font-headline font-bold text-lg text-primary">待辦內容設定</h2>
                 </div>
 
                 <div class="space-y-2">
@@ -65,9 +64,9 @@
 
                     <!-- 詳細內容 -->
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">提醒內容說明 (100字以內)</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">待辦內容說明 (100字以內)</label>
                         <div class="relative">
-                            <textarea name="content" maxlength="100" placeholder="例如：記得帶寶寶手冊和健保卡" rows="3" class="w-full bg-surface-container-low border-none rounded-xl p-4 text-on-surface focus:ring-2 focus:ring-tertiary/30 transition-all text-sm outline-none font-medium resize-none placeholder:text-on-surface-variant/40">{{ form_data.content|default:"" }}</textarea>
+                            <textarea name="content" maxlength="100" placeholder="例如：記得帶寶寶手冊和健保卡" rows="3" class="w-full bg-surface-container-low border-none rounded-xl text-on-surface focus:ring-2 focus:ring-tertiary/30 transition-all text-sm outline-none font-medium resize-none placeholder:text-on-surface-variant/40">{{ form_data.content|default:"" }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -84,4 +83,5 @@
             </button>
         </form>
     </main>
+</div>
 {% endblock %}

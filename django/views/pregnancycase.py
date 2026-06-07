@@ -453,6 +453,7 @@ def baby_switcher(request):
             item['url'] = build_switcher_target_url(request, item)
             switcher_items.append(item)
         else:
+            
             for baby in case.babyinformation_set.all():
                 if baby.birthdaytime:
                     item = {
@@ -470,8 +471,10 @@ def baby_switcher(request):
     active_case_id = request.session.get('active_case_id')
 
     if '/pregnancyrecord' in request.path:
-        switcher_items = [item for item in switcher_items if not item['is_baby']]
-
+        ongoing_items = [item for item in switcher_items if not item['is_baby']]
+        if ongoing_items:
+            switcher_items = ongoing_items
+            
     active_item = None
     if active_baby_id:
         active_item = next(
