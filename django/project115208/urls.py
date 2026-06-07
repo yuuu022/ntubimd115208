@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('favicon.ico', RedirectView.as_view(url='/logo/LOGO.png', permanent=False)),
     path('', include('core.urls')),
+
 ]
 
 if settings.DEBUG:
