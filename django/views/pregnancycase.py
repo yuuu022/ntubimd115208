@@ -474,6 +474,10 @@ def baby_switcher(request):
         ongoing_items = [item for item in switcher_items if not item['is_baby']]
         if ongoing_items:
             switcher_items = ongoing_items
+
+
+    if '/babyinformation' in request.path or '/babyrecord' in request.path or '/babygrowthmap' in request.path:
+        switcher_items = [item for item in switcher_items if item.get('is_baby')]
             
     active_item = None
     if active_baby_id:

@@ -5,8 +5,32 @@
 <link rel="stylesheet" href="{% static 'css/baby/babyinformation.css' %}">
 {% endblock %}
 {% block content %}
-    <main class="mx-auto px-4 pt-8 space-y-8 max-w-md md:max-w-2xl lg:max-w-3xl mx-auto w-full transition-all duration-500 ease-in-out">
+    <main class="pt-10 px-4 mx-auto max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64 pb-20 mb-10 md:mb-12 space-y-8">
         <!-- Header Text -->
+         {% if not baby_is_born %}
+        <!-- 未填出生日期提示 -->
+        <section class="rounded-2xl p-5 border {% if is_overdue %}bg-red-50 border-red-200{% else %}bg-primary/5 border-primary/20{% endif %}">
+            {% if is_overdue %}
+            <div class="flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-red-500">warning</span>
+                <p class="text-sm font-bold text-red-600">已超過預產期</p>
+            </div>
+            <p class="text-xs text-red-500 font-medium mb-4">請確認出生狀態，並填寫出生日期以繼續記錄成長。</p>
+            {% else %}
+            <div class="flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-primary">info</span>
+                <p class="text-sm font-bold text-primary">尚未填寫出生日期</p>
+            </div>
+            <p class="text-xs text-on-surface-variant font-medium mb-4">填寫出生日期後才能新增成長紀錄。</p>
+            {% endif %}
+            <a href="{% url 'edit_baby_information' %}"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full {% if is_overdue %}bg-red-500 text-white{% else %}bg-primary text-white{% endif %} text-sm font-bold transition-all hover:scale-105 active:scale-95">
+                <span class="material-symbols-outlined text-[16px]">edit_calendar</span>
+                填寫出生日期
+            </a>
+        </section>
+        {% endif %}
+                
         <section class="space-y-1">
             <h1 class="text-4xl font-extrabold text-primary tracking-tight">嬰幼兒紀錄</h1>
             <p class="text-on-surface-variant font-medium">陪伴嬰幼兒從出生到三歲的成長點滴</p>
@@ -91,7 +115,7 @@
                                 {% else %}
                                     {% if cell.is_future %}
                                         <div class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl
-                                                    bg-surface-container-low text-on-surface/30 cursor-not-allowed">
+                                                    text-on-surface/30 cursor-not-allowed">
                                             <span class="text-sm">{{ cell.day }}</span>
                                         </div>
                                     {% else %}
@@ -100,6 +124,11 @@
                                                 hover:bg-surface-container-low cursor-pointer transition-colors
                                                 {% if cell.is_selected %}bg-primary-container text-on-primary-container{% endif %}">
                                             <span class="text-sm">{{ cell.day }}</span>
+                                            {% if cell.has_record %}
+                                            <div class="mt-auto">
+                                                <div class="w-1.5 h-1.5 rounded-full {% if cell.is_selected %}bg-on-primary-container{% else %}bg-primary{% endif %}"></div>
+                                            </div>
+                                            {% endif %}
                                         </a>
                                     {% endif %}
                                 {% endif %}
@@ -111,7 +140,7 @@
                 <div>
                     <!-- Data Summary List Header -->
                     <div class="flex justify-between items-center px-2 mb-4 mt-8 lg:mt-0">
-                        <h4 class="text-on-surface-variant text-sm font-bold uppercase tracking-wider">今日紀錄 ({{ selected_date|date:"Y-m-d" }})</h4>
+                        <h4 class="text-on-surface-variant text-sm font-bold uppercase tracking-wider">今日紀錄</h4>
                         {% if has_day_data %}
                         <button onclick="window.location.href='{% url 'edit_baby_record' selected_day_record.babyrecord_id %}'"
                             class="flex items-center gap-1.5 px-5 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer active:scale-95">
