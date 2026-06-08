@@ -1,0 +1,120 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}修改成長記錄{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/baby/add_babyrecord.css' %}">
+{% endblock %}
+{% block content %}
+     <header id="edit-profile-header" class="sticky top-0 z-50 bg-[#f7f6f3]/70 backdrop-blur-md flex justify-between items-center px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64 shadow-sm">
+        <div class="flex items-center gap-3">
+            <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer flex items-center justify-center">
+                <span class="material-symbols-outlined text-[#65518a]">arrow_back</span>
+            </button>
+            <h1 class="font-headline font-semibold tracking-tight text-lg text-[#65518a]">修改成長紀錄</h1>
+        </div>
+
+    </header>
+
+    <main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-8">
+        <form method="post" action="{% url 'edit_baby_record' babyrecord_id=record.babyrecord_id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if error %}
+            <div class="rounded-3xl bg-red-50 border border-red-200 text-red-700 p-4">{{ error }}</div>
+            {% endif %}
+
+            <div class="bg-surface-container-lowest border-2 border-dashed border-primary-container rounded-[2rem] p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-primary/5 transition-all aspect-[4/3] shadow-sm">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined text-2xl">photo_camera</span>
+                </div>
+                <p class="text-sm font-bold text-on-surface-variant">
+                    {% if record.photo %}已附帶現有相片（點擊可重選修改）{% else %}點擊上傳成長照片{% endif %}
+                </p>
+                <input name="photo" type="file" accept="image/*" class="mt-4 w-full rounded-2xl border-none bg-surface-container-low px-4 py-3 text-on-surface" />
+            </div>
+            
+            <div class="h-8"></div>
+
+            <div>
+                <div class="bg-surface-container-lowest rounded-3xl p-6 flex items-center gap-4 shadow-sm border">
+                    <div class="w-12 h-12 bg-[#d6beff4d] rounded-lg flex flex-col items-center justify-center text-on-primary-container">
+                        <span class="text-[10px] font-bold">{{ selected_month_abbr }}</span>
+                        <span class="text-xl font-headline font-black">{{ selected_day }}</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold mb-1">紀錄日期</p>
+                        <input name="date" class="text-xs text-on-surface-variant bg-transparent border-none p-0 w-full cursor-pointer" type="date" value="{{ record.date|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+            </div>
+                   
+            <div class="h-8"></div>
+
+            <div class="space-y-3">
+                <label class="block text-sm font-medium text-on-surface-variant px-1">成長指標</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                        <span class="text-[10px] font-bold text-[#65518a]/80">身高 (CM)</span>
+                        <input name="height" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0" type="number" step="0.1" value="{{ record.height|default:'' }}" />
+                    </div>
+                    <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                        <span class="text-[10px] font-bold text-[#65518a]/80">體重 (KG)</span>
+                        <input name="weight" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0" type="number" step="0.1" value="{{ record.weight|default:'' }}" />
+                    </div>
+                    <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                        <span class="text-[10px] font-bold text-[#65518a]/80">頭圍 (CM)</span>
+                        <input name="headcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0" type="number" step="0.1" value="{{ record.headcircumference|default:'' }}" />
+                    </div>
+                    <div class="bg-[#d6beff4d] p-5 rounded-3xl relative flex flex-col justify-center items-center gap-2 h-24">
+                        <span class="text-[10px] font-bold text-[#65518a]/80">胸圍 (CM)</span>
+                        <input name="chestcircumference" class="bg-transparent text-center border-none p-0 text-3xl font-headline font-bold text-[#65518a] w-full focus:ring-0" type="number" step="0.1" value="{{ record.chestcircumference|default:'' }}" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <label class="block text-sm font-medium text-on-surface-variant px-1">重要里程碑</label>
+                <input id="milestones" type="hidden" name="milestones" value="{{ selected_milestones }}" />
+                <div class="flex flex-wrap gap-3 milestone-buttons">
+                    {% for ms in all_milestones %}
+                    <button type="button" class="milestone-item px-6 py-3 rounded-full text-sm font-medium transition-all cursor-pointer 
+                        {% if ms.growthrecord in record.milestones %}bg-[#d6beff80] text-[#65518a]{% else %}bg-surface-container-low text-on-surface-variant{% endif %}">
+                        {{ ms.growthrecord }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <label class="block text-sm font-medium text-on-surface-variant px-1">成長筆記</label>
+                <textarea name="record" class="w-full bg-surface-container-lowest border-none rounded-[2rem] p-6 h-40 text-on-surface resize-none">{{ record.note_text|default:'' }}</textarea>
+            </div>
+
+            <div class="pt-8 pb-12">
+                <button type="submit" class="w-full py-4 bg-[#65518a] text-white rounded-full font-headline font-bold text-lg">
+                    確認儲存修改
+                </button>
+            </div>
+        </form>
+    </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // 里程碑按鈕點擊
+        const milestonesInput = document.getElementById('milestones');
+        const buttons = document.querySelectorAll('.milestone-item');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('bg-[#d6beff80]');
+                button.classList.toggle('text-[#65518a]');
+                button.classList.toggle('bg-surface-container-low');
+                button.classList.toggle('text-on-surface-variant');
+                
+                const selected = Array.from(buttons)
+                    .filter(btn => btn.classList.contains('bg-[#d6beff80]'))
+                    .map(btn => btn.textContent.trim());
+                milestonesInput.value = selected.join('|');
+            });
+        });
+    });
+</script>
+{% endblock %}

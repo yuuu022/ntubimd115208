@@ -8,16 +8,8 @@
 {% endblock %}
 {% block content %}
 <div class="bg-surface text-on-surface min-h-screen">
-    <!-- Top AppBar -->
-    <nav class="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-surface-container-highest/20 px-6 py-4 w-full transition-all duration-500 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
-        <div class="flex items-center gap-4 max-w-md md:max-w-none w-full mx-auto">
-            <button onclick="window.history.back()" class="w-10 h-10 flex items-center justify-center rounded-full  text-primary hover:bg-primary-container transition-colors shadow-sm cursor-pointer" type="button">
-                <span class="material-symbols-outlined">返回</span>
-            </button>
-            <h1 class="text-xl font-bold text-primary tracking-tight font-headline">成長里程碑總覽</h1>
-        </div>
-    </nav>
     
+babyinformation
     <main class="pt-8 px-4 max-w-md md:max-w-none mx-auto w-full pb-32 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="mb-6">
             <div>
@@ -46,7 +38,7 @@
                                         {% if item.category %}
                                         <span class="text-[10px] font-bold text-[#65518a] bg-[#d6beff4d] px-2 py-0.5 rounded-md">{{ item.category }}</span>
                                         {% endif %}
-                                        <span class="text-[10px] font-bold text-primary bg-primary-container px-2.5 py-1 rounded-full">{% if item.timecourse >= 12 %}{% if item.timecourse == 12 %}1 歲{% elif item.timecourse == 18 %}1 歲 6 個月{% elif item.timecourse == 24 %}2 歲{% elif item.timecourse == 36 %}3 歲{% else %}{{ item.timecourse }} 個月{% endif %}{% else %}{{ item.timecourse }} 個月{% endif %}</span>
+                                        <span class="text-[10px] font-bold text-primary bg-primary-container px-2.5 py-1 rounded-full">{{ item.timecourse }} 個月</span>
                                     </div>
                                 </div>
                                 <p class="text-on-surface-variant text-sm">{{ item.description }}</p>
@@ -78,7 +70,7 @@
                                         {% if item.category %}
                                         <span class="text-[10px] font-bold text-[#65518a] bg-[#d6beff4d] px-2 py-0.5 rounded-md">{{ item.category }}</span>
                                         {% endif %}
-                                        <span class="text-[10px] font-bold text-primary bg-primary-container px-2.5 py-1 rounded-full">{% if item.timecourse >= 12 %}{% if item.timecourse == 12 %}1 歲{% elif item.timecourse == 18 %}1 歲 6 個月{% elif item.timecourse == 24 %}2 歲{% elif item.timecourse == 36 %}3 歲{% else %}{{ item.timecourse }} 個月{% endif %}{% else %}{{ item.timecourse }} 個月{% endif %}</span>
+                                        <span class="text-[10px] font-bold text-primary bg-primary-container px-2.5 py-1 rounded-full">{{ item.timecourse }} 個月</span>
                                     </div>
                                 </div>
                                 <p class="text-on-surface-variant text-sm border-l-2 border-primary-container pl-3 py-1 bg-primary/5 rounded-r-xl pr-3">{{ item.description }}</p>
@@ -97,7 +89,7 @@
                                         {% if item.category %}
                                         <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-md">{{ item.category }}</span>
                                         {% endif %}
-                                        <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">預計 {% if item.timecourse >= 12 %}{% if item.timecourse == 12 %}1 歲{% elif item.timecourse == 18 %}1 歲 6 個月{% elif item.timecourse == 24 %}2 歲{% elif item.timecourse == 36 %}3 歲{% else %}{{ item.timecourse }} 個月{% endif %}{% else %}{{ item.timecourse }} 個月{% endif %}</span>
+                                        <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">預計{{ item.timecourse }} 個月</span>
                                     </div>
                                 </div>
                                 <p class="text-on-surface-variant text-sm">{{ item.description }}</p>

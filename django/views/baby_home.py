@@ -3,6 +3,8 @@ import calendar
 from django.shortcuts import render
 from core.models import BabyRecord, BabyGrowthMap, BabyStatus
 from views import baby_utils
+from datetime import timedelta
+from views.pregnancycase import get_lmp_date
 
 
 
@@ -95,7 +97,7 @@ def _get_baby_milestones_summary(baby):
                 milestones, _ = baby_utils.split_note_and_milestones(rec)
                 if growth_map.growthrecord in milestones: is_completed, matching_record = True, rec; break
         if is_completed and matching_record:
-            completed_list.append({'growthrecord': growth_map.growthrecord, 'timecourse': growth_map.timecourse, 'status': 'completed', 'achieved_date': matching_record.date.strftime('%Y.%m.%d') if hasattr(matching_record.date, 'strftime') else str(matching_record.date), 'description': growth_map.growthrecord, 'sort_order': idx})
+            completed_list.append({'growthrecord': growth_map.growthrecord, 'timecourse': growth_map.timecourse, 'status': 'completed', 'achieved_date': matching_record.date.strftime('%Y.%m.%d') if hasattr(matching_record.date, 'strftime') else str(matching_record.date), 'description': '', 'sort_order': idx})
     return sorted(completed_list, key=lambda x: x['sort_order'])
 
 def baby(request):
@@ -142,6 +144,20 @@ def baby(request):
     for r in records:
         if r.photo: summary['photo_url'] = r.photo; break
 
+    
+    
+    is_overdue = False
+    if active_baby and not active_baby.birthdaytime and active_baby.pregnancycase:
+        case = active_baby.pregnancycase
+        due = case.expecteddate or (
+            get_lmp_date(case) + timedelta(days=280) if get_lmp_date(case) else None
+        )
+        if due:
+            is_overdue = datetime.date.today() > due + timedelta(days=14)
+
+
+
+
     context = {'baby': active_baby, 'baby_is_born': bool(active_baby and active_baby.birthdaytime), 'records': records, 'chart_records': filled_records, 'baby_summary': summary, 'baby_form': baby_form, 'selected_date': selected_date, 'selected_day_record': selected_day_record, 'has_day_data': bool(selected_day_record), 'milestones_summary': _get_baby_milestones_summary(active_baby)}
     context.update(_get_calendar_data(records, selected_date))
     return render(request, 'baby/babyinformation.html', context)
@@ -157,5 +173,9 @@ def baby_growthmap(request):
         m, _ = baby_utils.split_note_and_milestones(rec); m_set.update(m)
     for g_map in growth_maps:
         is_completed = (g_map.babygrowthmap_id in completed_ids or g_map.growthrecord in m_set)
-        growth_timeline.append({"map_id": g_map.babygrowthmap_id, "timecourse": g_map.timecourse, "growthrecord": g_map.growthrecord, "status": "completed" if is_completed else "pending"})
+        growth_timeline.append({
+            "map_id": g_map.babygrowthmap_id, 
+            "timecourse": g_map.timecourse, 
+            "growthrecord": g_map.growthrecord, 
+            "status": "completed" if is_completed else "pending"})
     return render(request, "baby/baby_growthmap.html", {"growth_timeline": growth_timeline, "growth_owner_name": baby.name})

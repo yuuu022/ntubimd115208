@@ -6,6 +6,9 @@ from django.http import HttpResponseNotAllowed
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
+from views import baby_utils
+
+MONTH_ABBR = ['', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 
 from core.models import (
     BabyInformation,
@@ -87,12 +90,17 @@ def add_baby_record(request):
     active_baby = baby_utils.get_active_baby(request)
     if active_baby is None:
         return render(request, 'baby/add_babyrecord.html', {
-            'error': '請先建立嬰幼兒資料',
+            'baby':           active_baby,
+            'baby_list':      baby_list,
+            'all_milestones': all_milestones,
+            'form_data':      {'date': record_date.isoformat()},
+            'milestones':     '',
+            'today_iso':      today_iso,
+            'selected_month_abbr': MONTH_ABBR[record_date.month],  
+            'selected_day':        record_date.day,
         })
 
     case = active_baby.pregnancycase
-    if not active_baby.birthdaytime:
-        return redirect(url_with_active_selection(request, reverse('babyinformation')))
 
     # 權限：只有 caregiver 以上才能新增
     if not _check_baby_permission(user, case, required='caregiver'):
@@ -107,11 +115,13 @@ def add_baby_record(request):
     if request.method == 'POST':
         date_str = request.POST.get('date')
         if not date_str:
-            return render(request, 'baby/add_babyrecord.html', {
-                'baby':      active_baby,
-                'error':     '請填寫紀錄日期',
-                'form_data': request.POST,
-                'today_iso': today_iso,
+            return render(request, 'baby/edit_babyrecord.html', {
+                'record':              record,
+                'baby':                baby,
+                'baby_list':           _get_accessible_babies(user),
+                'all_milestones':      _get_milestones_for_edit(baby, record),
+                'error':               '請填寫紀錄日期',
+                'form_data':           request.POST,
             })
 
         # 後端二次驗證日期格式與未來日期
@@ -124,11 +134,19 @@ def add_baby_record(request):
                 'form_data': request.POST,
                 'today_iso': today_iso,
             })
-
+        #不能計超過今天日期
         if record_date_post > datetime.date.today():
             return render(request, 'baby/add_babyrecord.html', {
                 'baby':      active_baby,
                 'error':     '無法新增未來日期的紀錄',
+                'form_data': request.POST,
+                'today_iso': today_iso,
+            })
+        #未出生不能紀錄
+        if active_baby.birthdaytime and record_date_post < active_baby.birthdaytime.date():
+            return render(request, 'baby/add_babyrecord.html', {
+                'baby':      active_baby,
+                'error':     '尚未出生，無法新增成長紀錄',
                 'form_data': request.POST,
                 'today_iso': today_iso,
             })
@@ -165,8 +183,13 @@ def add_baby_record(request):
     # ── GET：準備表單資料 ────────────────────────────────────────
     try:
         record_date = datetime.date.fromisoformat(initial_date) if initial_date else datetime.date.today()
+        
     except Exception:
         record_date = datetime.date.today()
+
+    if active_baby.birthdaytime and record_date < active_baby.birthdaytime.date():
+        record_date = active_baby.birthdaytime.date()
+
 
     age_in_months    = baby_utils.calculate_age_in_months(active_baby.birthdaytime, record_date)
     relevant_courses = baby_utils.get_relevant_timecourses(age_in_months)
@@ -193,12 +216,15 @@ def add_baby_record(request):
         'form_data':      {'date': record_date.isoformat()},
         'milestones':     '',
         'today_iso':      today_iso,
+        'selected_month_abbr': MONTH_ABBR[record_date.month],  
+        'selected_day':        record_date.day, 
     })
 
 
 # ── 編輯生長紀錄 ─────────────────────────────────────────────────
 
 def edit_baby_record(request, babyrecord_id):
+    
     """
     編輯特定生長紀錄。
     安全防護：水平越權（只有案例擁有者或 perm_baby=caregiver 的家庭成員可修改）。
@@ -209,6 +235,7 @@ def edit_baby_record(request, babyrecord_id):
         return redirect('login')
 
     record = get_object_or_404(BabyRecord, babyrecord_id=babyrecord_id)
+    
     baby   = record.baby
     case   = baby.pregnancycase
 
@@ -258,9 +285,8 @@ def edit_baby_record(request, babyrecord_id):
 
         return redirect(url_with_active_selection(request, reverse('babyinformation')))
 
-    # ── GET：準備表單資料 ────────────────────────────────────────
-    return render(request, 'baby/add_babyrecord.html', {
-        'is_edit':             True,
+    # 最底部的 GET 回傳，改指向 edit_babyrecord.html
+    return render(request, 'baby/edit_babyrecord.html', {
         'record':              record,
         'baby':                baby,
         'baby_list':           _get_accessible_babies(user),
@@ -274,6 +300,8 @@ def edit_baby_record(request, babyrecord_id):
             'record':             record.note_text,
         },
         'selected_milestones': '|'.join(record.milestones),
+        'selected_month_abbr': MONTH_ABBR[record.date.month],
+        'selected_day':        record.date.day,             
     })
 
 
@@ -320,3 +348,4 @@ def delete_baby_record(request, babyrecord_id):
 
     record.delete()
     return redirect(url_with_active_selection(request, reverse('babyinformation')))
+
