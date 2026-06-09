@@ -44,11 +44,13 @@
                             <input type="hidden" name="request_user_id" value="{{ req.user_id.user_id }}">
                             <input type="hidden" name="baby_id" value="{{ selected_baby.baby_id|default:'' }}">
 
-                            <select name="role" class="text-sm bg-surface-container-low border-none rounded-xl focus:ring-primary h-10 cursor-pointer text-on-surface">
-                                {% for val, label in role_label.items %}
-                                    <option value="{{ val }}" {% if val == 'viewer' %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="relative">
+                                <select name="role" class="text-sm bg-surface-container-low border-none rounded-xl focus:ring-primary h-10 cursor-pointer text-on-surface appearance-none pr-8 pl-3 w-full" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%2365518a\'><path d=\'M7 10l5 5 5-5z\'/></svg>'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.5em 1.5em;">
+                                    {% for val, label in role_label.items %}
+                                        <option value="{{ val }}" {% if val == 'viewer' %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
                             <button type="submit" class="h-10 px-4 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-colors cursor-pointer shadow-sm">
                                 同意
@@ -86,8 +88,8 @@
                 <div class="flex flex-col flex-1">
                     <span class="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-1">正在設定權限給</span>
                     <span class="text-xl font-bold text-primary flex items-center gap-2">
-                        <span id="current-helper-name">{{ selected_member.user_id.name }}</span>
-                        <span id="current-helper-role" class="text-sm font-medium text-on-surface-variant">({{ selected_member.role }})</span>
+                        <span id="current-helper-name">{{ selected_member.user.name }} ({{ selected_member.role_label }})</span>
+                        <span class="material-symbols-outlined text-primary text-[24px] ml-auto">keyboard_arrow_down</span>
                     </span>
                 </div>
             </button>
@@ -191,14 +193,13 @@
 
             <div class="p-4 overflow-y-auto hide-scrollbar flex flex-col gap-2">
                 {% for member in family_members %}
-                <button type="button" class="helper-option w-full flex items-center justify-between p-4 rounded-2xl transition-colors cursor-pointer {% if selected_member.familymember_id == member.familymember_id %}bg-primary/5 border border-primary/20{% else %}bg-surface-container-low/50 hover:bg-surface-container-low border border-transparent{% endif %}" data-id="{{ member.familymember_id }}" data-name="{{ member.user_id.name }}" data-role="{{ member.role }}" data-icon="{% if member.role == 'mom' %}face_3{% else %}face{% endif %}">
+                <button type="button" class="helper-option w-full flex items-center justify-between p-4 rounded-2xl transition-colors cursor-pointer {% if selected_member.familymember_id == member.familymember_id %}bg-primary/5 border border-primary/20{% else %}bg-surface-container-low/50 hover:bg-surface-container-low border border-transparent{% endif %}" data-id="{{ member.familymember_id }}" data-name="{{ member.user.name }}" data-role="{{ member.role }}" data-role-label="{{ member.role_label }}" data-icon="{% if member.role == 'mom' %}face_3{% else %}face{% endif %}">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-lg">
                             <span class="material-symbols-outlined text-[22px]">{% if member.role == 'mom' %}face_3{% else %}face{% endif %}</span>
                         </div>
                         <div class="flex flex-col text-left">
-                            <span class="text-sm font-bold {% if selected_member.familymember_id == member.familymember_id %}text-primary{% else %}text-on-surface{% endif %} helper-name-span">{{ member.user_id.name }}</span>
-                            <span class="text-[10px] font-bold {% if selected_member.familymember_id == member.familymember_id %}text-primary/70{% else %}text-on-surface-variant{% endif %} uppercase tracking-wider mt-0.5 helper-role-span">{{ member.role }}</span>
+                            <span class="text-sm font-bold {% if selected_member.familymember_id == member.familymember_id %}text-primary{% else %}text-on-surface{% endif %} helper-name-span">{{ member.user.name }} ({{ member.role_label }})</span>
                         </div>
                     </div>
                     <span class="material-symbols-outlined check-icon {% if selected_member.familymember_id == member.familymember_id %}text-primary{% else %}text-transparent{% endif %}">check_circle</span>

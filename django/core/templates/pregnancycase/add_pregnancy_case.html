@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %}新增懷孕紀錄{% endblock %}
+{% block title %}新增胎數{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pregnancycase/add_pregnancy_case.css' %}">
 {% endblock %}
@@ -12,7 +12,7 @@
             <button onclick="window.history.back()" class="p-2 hover:bg-surface-container-low transition-colors active:scale-95 duration-200 rounded-full cursor-pointer">
                 <span class="material-symbols-outlined text-primary">arrow_back</span>
             </button>
-            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">新增懷孕紀錄</h1>
+            <h1 class="font-headline font-extrabold text-2xl text-primary tracking-tight">新增胎數</h1>
         </div>
     </div>
 
@@ -80,7 +80,7 @@
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 pointer-events-none">family_restroom</span>
                             <select id="baby-count-select" name="baby_count"
-                                class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-10 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none cursor-pointer">
+                                class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-10 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium appearance-none bg-none cursor-pointer">
                                 <option value="1">單胞胎（1 個嬰幼兒）</option>
                                 <option value="2">雙胞胎（2 個嬰幼兒）</option>
                                 <option value="3+">三胞胎或以上</option>
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="space-y-1.5">
                 <label class="text-xs text-on-surface-variant pl-1">生產方式</label>
                 <div class="relative">
-                    <select name="production_method_${num}" class="${inputBase} px-4 py-3 appearance-none">
+                    <select name="production_method_${num}" class="${inputBase} px-4 py-3 appearance-none bg-none">
                         <option value="" disabled selected>請選擇</option>
                         <option value="自然產">自然產</option>
                         <option value="剖腹產">剖腹產</option>
