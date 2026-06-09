@@ -2,3 +2,6 @@
             min-height: max(884px, 100dvh);
         }
 
+label{
+    margin-top: 10px;
+}

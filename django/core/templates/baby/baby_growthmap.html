@@ -8,8 +8,7 @@
 {% endblock %}
 {% block content %}
 <div class="bg-surface text-on-surface min-h-screen">
-    
-babyinformation
+
     <main class="pt-8 px-4 max-w-md md:max-w-none mx-auto w-full pb-32 md:px-8 lg:px-16 xl:px-32 2xl:px-64">
         <div class="mb-6">
             <div>
@@ -23,7 +22,7 @@ babyinformation
 
         <section class="bg-surface-container-lowest rounded-[2rem] p-6 shadow-sm border border-surface-container-low mb-8">
             <div class="relative pl-8 space-y-10 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-surface-container-high">
-                
+
                 {% for item in growth_timeline %}
                     {% if item.status == 'completed' %}
                         <!-- Milestone 1: Done -->
@@ -46,7 +45,7 @@ babyinformation
                                     <span class="material-symbols-outlined text-xs">verified</span>
                                     <span>{{ item.achieved_date }} 達成</span>
                                 </div>
-                                
+
                                 {% if item.photo %}
                                     <!-- Attached Media Highlight -->
                                     <div class="flex gap-2">

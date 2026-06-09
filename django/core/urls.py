@@ -1,6 +1,6 @@
 """Core URL routes."""
 
-from django.urls import path
+from django.urls import path, include
 from views import qa, index, pregnancyrecordadd, userprofile, care_record, pregnancycase, login, edit_family_member, baby_home, baby_information, baby_record, baby_growthmap
 urlpatterns = [
 	# 首頁
@@ -9,6 +9,7 @@ urlpatterns = [
     path('set_care_status/', care_record.set_care_status, name='set_care_status'),
 	# 登入
     path('login/', login.login_page, name='login'),
+    path('accounts/', include('allauth.urls')),
     path('google_auth_login/', login.google_auth_login, name='google_auth_login'),
     path('google_auth_login', login.google_auth_login, name='google_auth_login_no_slash'),
     path('api/auth/google/', login.google_auth_login),
@@ -26,7 +27,7 @@ urlpatterns = [
 
     #嬰幼兒主頁與圖表
     path('babyinformation/', baby_home.baby, name='babyinformation'),
-    path('babygrowthmap/', baby_growthmap.baby_growthmap, name='babygrowthmap'),  
+    path('babygrowthmap/', baby_growthmap.baby_growthmap, name='babygrowthmap'),
 
     #嬰幼兒基本資料
     path('add_baby_information/', baby_information.add_baby_information, name='add_baby_information'),

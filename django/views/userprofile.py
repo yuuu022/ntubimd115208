@@ -49,6 +49,8 @@ def _build_selected_child_info(request, current_user):
     sync_active_selection_from_request(request, current_user)
     today = timezone.now().date()
     active_baby_id = request.session.get('active_baby_id')
+    case = resolve_active_pregnancy_case(request, current_user)
+
 
     if active_baby_id:
         baby = resolve_active_baby(request, current_user, fallback=True)
@@ -74,7 +76,7 @@ def _build_selected_child_info(request, current_user):
 
             return {
                 'type': 'baby',
-                'name': baby.name,
+                'name': getattr(case, 'order_name', case.code),
                 'icon': 'face',
                 'subtitle': baby.pregnancycase.code if baby.pregnancycase else '嬰兒資訊',
                 'age_text': age_text,
@@ -87,7 +89,6 @@ def _build_selected_child_info(request, current_user):
                 'latest_height': latest_baby_height,
             }
 
-    case = resolve_active_pregnancy_case(request, current_user)
     if case and is_pregnancy_ongoing(case):
         menstruation_date = get_lmp_date(case)
         pregnancy_month_text = '-'
