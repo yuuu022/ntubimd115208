@@ -27,9 +27,6 @@ def _next_user_id():
     max_user_id = UserProfile.objects.aggregate(max_user_id=Max('user_id')).get('max_user_id')
     return (max_user_id or 0) + 1
 
-# ==========================================
-# 🎯 核心修正：完美應對 OIDC 格式與 Provider ID 差異
-# ==========================================
 @receiver(user_logged_in)
 def handle_allauth_login_success(request, user, **kwargs):
     social_account = SocialAccount.objects.filter(user=user).first()

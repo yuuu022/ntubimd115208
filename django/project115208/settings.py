@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-s13l_%e^2&i)6zd0mjb5a4v$*=c1=kptystzdd85t=q*a5eb6i
 DEBUG = True
 
 # 🚀 修正：請依據您測試或上線的環境，將實際的 IP 或網域加入此處
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -57,6 +57,11 @@ ACCOUNT_UNIQUE_EMAIL = False
 SOCIALACCOUNT_PROVIDERS = {
     'line': {
         'SCOPE': ['profile', 'openid', 'email'],
+		'APP': {
+            'client_id': '2010267631',
+            'secret': 'aaf52b70d70ecdb894390f8dbce1e577',
+            'key': ''
+        }
     }
 }
 SOCIALACCOUNT_LOGIN_ON_GET = True
