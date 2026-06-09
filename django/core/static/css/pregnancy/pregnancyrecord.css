@@ -6,38 +6,70 @@
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: #f7f6f3;
-            color: #2e2f2d;
-            min-height: max(884px, 100dvh);
-            overflow-x: hidden;
-        }
+            ```css
+            .material-symbols-outlined {
+                        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+                        vertical-align: middle;
+                    }
 
-        h1,
-        h2,
-        h3,
-        .headline {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+                    body {
+                        font-family: 'Be Vietnam Pro', sans-serif;
+                        background-color: #f7f6f3;
+                        color: #2e2f2d;
+                        min-height: max(884px, 100dvh);
+                        overflow-x: hidden;
+                    }
 
-        .carousel-container::-webkit-scrollbar,
-        .no-scrollbar::-webkit-scrollbar,
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
+                    h1,
+                    h2,
+                    h3,
+                    .headline {
+                        font-family: 'Plus Jakarta Sans', sans-serif;
+                    }
 
-        .carousel-container,
-        .no-scrollbar,
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+                    .carousel-container::-webkit-scrollbar,
+                    .no-scrollbar::-webkit-scrollbar,
+                    .hide-scrollbar::-webkit-scrollbar {
+                        display: none;
+                    }
+
+                    .carousel-container,
+                    .no-scrollbar,
+                    .hide-scrollbar {
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                    }
     
-        /* Hide number spinner */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+                    /* Hide number spinner */
+                    input::-webkit-outer-spin-button,
+                    input::-webkit-inner-spin-button {
+                        -webkit-appearance: none;
+                        margin: 0;
+                    }
+                    input[type=number] {
+                        -moz-appearance: textfield;
+                    }
+
+
+            /* Calendar: remove gray circular backgrounds for day cells
+               Keeps selected-day (primary) styles intact. */
+            .grid.grid-cols-7 .aspect-\[1\/0\.9\],
+            .grid.grid-cols-7 a.aspect-\[1\/0\.9\],
+            .grid.grid-cols-7 div.aspect-\[1\/0\.9\] {
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            /* Ensure hover doesn't add gray background */
+            .grid.grid-cols-7 a.aspect-\[1\/0\.9\]:hover {
+                background: transparent !important;
+            }
+
+            /* Keep selected cell styling (bg-primary-container) overriding the above */
+            .grid.grid-cols-7 a.aspect-\[1\/0\.9\].bg-primary-container {
+                background: var(--tw-bg-primary-container, #E8DFF8) !important;
+            }
+
+            ``` 
 

@@ -60,7 +60,6 @@ const closeHelperModal = document.getElementById('close-helper-modal');
 const helperOptions = document.querySelectorAll('.helper-option');
 
 const currentHelperName = document.getElementById('current-helper-name');
-const currentHelperRole = document.getElementById('current-helper-role');
 const currentHelperIcon = document.getElementById('current-helper-icon');
 const formMemberId = document.getElementById('form-member-id');
 
@@ -101,10 +100,6 @@ if (helperBtn) {
 								nameSpan.classList.remove('text-primary');
 								nameSpan.classList.add('text-on-surface');
 
-								const roleSpan = opt.querySelector('.helper-role-span');
-								roleSpan.classList.remove('text-primary/70');
-								roleSpan.classList.add('text-on-surface-variant');
-
 								const checkIcon = opt.querySelector('.check-icon');
 								checkIcon.classList.remove('text-primary');
 								checkIcon.classList.add('text-transparent');
@@ -118,17 +113,12 @@ if (helperBtn) {
 						nameSpan.classList.remove('text-on-surface');
 						nameSpan.classList.add('text-primary');
 
-						const roleSpan = option.querySelector('.helper-role-span');
-						roleSpan.classList.remove('text-on-surface-variant');
-						roleSpan.classList.add('text-primary/70');
-
 						const checkIcon = option.querySelector('.check-icon');
 						checkIcon.classList.remove('text-transparent');
 						checkIcon.classList.add('text-primary');
 
 						// Update main button display
-						currentHelperName.textContent = option.dataset.name;
-						currentHelperRole.textContent = '(' + option.dataset.role + ')';
+						currentHelperName.textContent = option.dataset.name + ' (' + option.dataset.roleLabel + ')';
 						currentHelperIcon.textContent = option.dataset.icon;
 						formMemberId.value = option.dataset.id;
 
