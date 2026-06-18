@@ -96,7 +96,7 @@ def _build_selected_child_info(request, current_user):
         progress_percent = 0
         if menstruation_date:
             elapsed_days = max(0, (today - menstruation_date).days)
-            pregnancy_month_text = f'第 {elapsed_days // 30 + 1} 個月'
+            pregnancy_month_text = f'第 {int(elapsed_days / 30.4375) + 1} 個月'
             expected_date = case.expecteddate or (menstruation_date + timedelta(days=280))
             remaining_days = max(0, (expected_date - today).days)
             remaining_days_text = f'剩餘 {remaining_days} 天'
