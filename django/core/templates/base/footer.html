@@ -23,69 +23,76 @@
 
 <script>
     (() => {
-        const navLinks = Array.from(document.querySelectorAll('a[data-nav]'));
+    const navLinks = Array.from(document.querySelectorAll('a[data-nav]'));
 
-        if (!navLinks.length) {
-            return;
-        }
+    if (!navLinks.length) {
+        return;
+    }
 
-        const navMatchers = {
-            home: (location) => (
-                location.pathname === '/' ||
-                location.pathname.startsWith('/add_care_reminder') ||
-                location.pathname.startsWith('/set_care_status')
-            ),
-            record: (location) => (
-                location.pathname.startsWith('/pregnancyrecord/')||
-                location.pathname.startsWith('/pregnancyrecord/add/') ||
-                location.pathname.startsWith('/pregnancyrecord_new/')||
-                location.pathname.startsWith('/pregnancycase/')||
-                location.pathname.startsWith('/add_pregnancy_baby/')||
-                location.pathname.startsWith('/edit_pregnancy_case/')
-
-            ),
-            growth: (location) => (
-                location.pathname.startsWith('/babyinformation/')|
-                location.pathname.startsWith('/add_baby_information/') ||
-                location.pathname.startsWith('/add_baby_record/')||
-                location.pathname.startsWith('/babyrecord/<int:babyrecord_id>/edit/')||
-                location.pathname.startsWith('/babyrecord/<int:babyrecord_id>/delete/')||
-                location.pathname.startsWith('/edit_baby_information/')||
-                location.pathname.startsWith('/babygrowthmap/')
+    // 💡 對照 Django urls.py 的精準路徑配對器
+    const navMatchers = {
+        // 首頁功能
+        home: (location) => (
+            location.pathname === '/' ||
+            location.pathname.startsWith('/add_care_reminder/') ||
+            location.pathname.startsWith('/set_care_status/')
         ),
-            knowledge: (location) => location.pathname.startsWith('/qa/'),
-            profile: (location) => (
-                location.pathname.startsWith('/userprofile/')||
-                location.pathname.startsWith('/edit_userprofile/')||
-                location.pathname.startsWith('/edit_family_member/')||
-                location.pathname.startsWith('/join_family/')
+
+        // 孕期紀錄 & 胎數管理
+        record: (location) => (
+            location.pathname.startsWith('/pregnancyrecord/') ||
+            location.pathname.startsWith('/pregnancyrecord_new/') ||
+            location.pathname.startsWith('/pregnancycase/') ||
+            location.pathname.startsWith('/add_pregnancy_baby/') ||
+            location.pathname.startsWith('/edit_pregnancy_case/')
         ),
-        };
 
-        const setActiveLink = (activeLink) => {
-            navLinks.forEach((link) => {
-                const isActive = link === activeLink;
-                link.classList.toggle('footer-nav-active', isActive);
+        // 嬰幼兒主頁、基本資料、生長紀錄、圖表
+        growth: (location) => (
+            location.pathname.startsWith('/babyinformation/') ||
+            location.pathname.startsWith('/babygrowthmap/') ||
+            location.pathname.startsWith('/add_baby_information/') ||
+            location.pathname.startsWith('/edit_baby_information/') ||
+            location.pathname.startsWith('/babyrecord/') // 🔥 完美涵蓋 /babyrecord/add/, /edit/, /delete/
+        ),
 
-                if (isActive) {
-                    link.setAttribute('aria-current', 'page');
-                } else {
-                    link.removeAttribute('aria-current');
-                }
-            });
-        };
+        // 知識問答
+        knowledge: (location) => location.pathname.startsWith('/qa/'),
 
-        const currentLink = navLinks.find((link) => {
-            const matcher = navMatchers[link.dataset.nav];
-            return matcher ? matcher(window.location) : false;
-        });
+        // 個人與家庭資料
+        profile: (location) => (
+            location.pathname.startsWith('/userprofile/') ||
+            location.pathname.startsWith('/edit_userprofile/') ||
+            location.pathname.startsWith('/edit_family_member/') ||
+            location.pathname.startsWith('/join_family/')
+        ),
+    };
 
-        setActiveLink(currentLink || navLinks[0]);
-
+    const setActiveLink = (activeLink) => {
         navLinks.forEach((link) => {
-            link.addEventListener('click', () => {
-                setActiveLink(link);
-            });
+            const isActive = link === activeLink;
+            link.classList.toggle('footer-nav-active', isActive);
+
+            if (isActive) {
+                link.setAttribute('aria-current', 'page');
+            } else {
+                link.removeAttribute('aria-current');
+            }
         });
-    })();
+    };
+
+    const currentLink = navLinks.find((link) => {
+        const matcher = navMatchers[link.dataset.nav];
+        return matcher ? matcher(window.location) : false;
+    });
+
+    // 找不到配對時預設亮起第一個（首頁）
+    setActiveLink(currentLink || navLinks[0]);
+
+    navLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+            setActiveLink(link);
+        });
+    });
+})();
 </script>
