@@ -7,30 +7,7 @@
 {% block content %}
     <main class="pt-10 px-4 mx-auto max-w-md md:max-w-none w-full transition-all duration-500 ease-in-out md:px-8 lg:px-16 xl:px-32 2xl:px-64 pb-20 mb-10 md:mb-12 space-y-8">
         <!-- Header Text -->
-         {% if not baby_is_born %}
-        <!-- 未填出生日期提示 -->
-        <section class="rounded-2xl p-5 border {% if is_overdue %}bg-red-50 border-red-200{% else %}bg-primary/5 border-primary/20{% endif %}">
-            {% if is_overdue %}
-            <div class="flex items-center gap-2 mb-2">
-                <span class="material-symbols-outlined text-red-500">warning</span>
-                <p class="text-sm font-bold text-red-600">已超過預產期</p>
-            </div>
-            <p class="text-xs text-red-500 font-medium mb-4">請確認出生狀態，並填寫出生日期以繼續記錄成長。</p>
-            {% else %}
-            <div class="flex items-center gap-2 mb-2">
-                <span class="material-symbols-outlined text-primary">info</span>
-                <p class="text-sm font-bold text-primary">尚未填寫出生日期</p>
-            </div>
-            <p class="text-xs text-on-surface-variant font-medium mb-4">填寫出生日期後才能新增成長紀錄。</p>
-            {% endif %}
-            <a href="{% url 'edit_baby_information' %}"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full {% if is_overdue %}bg-red-500 text-white{% else %}bg-primary text-white{% endif %} text-sm font-bold transition-all hover:scale-105 active:scale-95">
-                <span class="material-symbols-outlined text-[16px]">edit_calendar</span>
-                填寫出生日期
-            </a>
-        </section>
-        {% endif %}
-                
+                      
         <section class="space-y-1">
             <h1 class="text-4xl font-extrabold text-primary tracking-tight">嬰幼兒紀錄</h1>
             <p class="text-on-surface-variant font-medium">陪伴嬰幼兒從出生到三歲的成長點滴</p>
@@ -112,25 +89,22 @@
                             {% for cell in week %}
                                 {% if cell.empty %}
                                     <div class="aspect-square"></div>
+                                {% elif cell.is_future or not baby_is_born %}
+                                    <div class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl text-on-surface/30 cursor-not-allowed">
+                                        <span class="text-sm">{{ cell.day }}</span>
+                                    </div>
                                 {% else %}
-                                    {% if cell.is_future %}
-                                        <div class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl
-                                                    text-on-surface/30 cursor-not-allowed">
-                                            <span class="text-sm">{{ cell.day }}</span>
+                                    <a href="?date={{ cell.date_iso }}"
+                                    class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl
+                                            hover:bg-surface-container-low cursor-pointer transition-colors
+                                            {% if cell.is_selected %}bg-primary-container text-on-primary-container{% endif %}">
+                                        <span class="text-sm">{{ cell.day }}</span>
+                                        {% if cell.has_record %}
+                                        <div class="mt-auto">
+                                            <div class="w-1.5 h-1.5 rounded-full {% if cell.is_selected %}bg-on-primary-container{% else %}bg-primary{% endif %}"></div>
                                         </div>
-                                    {% else %}
-                                        <a href="?date={{ cell.date_iso }}"
-                                        class="aspect-square flex flex-col items-center justify-start p-2 rounded-xl
-                                                hover:bg-surface-container-low cursor-pointer transition-colors
-                                                {% if cell.is_selected %}bg-primary-container text-on-primary-container{% endif %}">
-                                            <span class="text-sm">{{ cell.day }}</span>
-                                            {% if cell.has_record %}
-                                            <div class="mt-auto">
-                                                <div class="w-1.5 h-1.5 rounded-full {% if cell.is_selected %}bg-on-primary-container{% else %}bg-primary{% endif %}"></div>
-                                            </div>
-                                            {% endif %}
-                                        </a>
-                                    {% endif %}
+                                        {% endif %}
+                                    </a>
                                 {% endif %}
                             {% endfor %}
                         {% endfor %}
@@ -189,6 +163,30 @@
                         </div>
 
                         {% else %}
+                        {% if not baby_is_born %}
+                        <!-- 未出生：顯示填寫出生日期提示 -->
+                        <div class="flex flex-col items-center justify-center min-h-[220px] text-center gap-4 bg-surface-container-low/30 rounded-3xl p-6">
+                            <div class="w-12 h-12 rounded-full {% if is_overdue %}bg-red-100{% else %}bg-primary/10{% endif %} flex items-center justify-center">
+                                <span class="material-symbols-outlined {% if is_overdue %}text-red-500{% else %}text-primary{% endif %}">
+                                    {% if is_overdue %}event_busy{% else %}info{% endif %}
+                                </span>
+                            </div>
+                            <div>
+                                <h4 class="text-on-surface font-bold text-base">
+                                    {% if is_overdue %}已超過預產期{% else %}尚未填寫出生日期{% endif %}
+                                </h4>
+                                <p class="text-on-surface-variant text-xs mt-1">
+                                    {% if is_overdue %}請確認出生狀態，並填寫出生日期以繼續記錄成長。{% else %}填寫出生日期後才能新增成長紀錄。{% endif %}
+                                </p>
+                            </div>
+                            <a href="{% url 'edit_baby_information' %}"
+                            class="mt-1 {% if is_overdue %}bg-red-500{% else %}bg-primary{% endif %} text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md flex items-center gap-2 hover:scale-105 active:scale-95 transition-all">
+                                <span class="material-symbols-outlined text-sm">edit_calendar</span>
+                                填寫出生日期
+                            </a>
+                        </div>
+                        {% else %}
+                        <!-- 已出生但這天沒紀錄：原本的新增紀錄區塊 -->
                         <div class="flex flex-col items-center justify-center min-h-[220px] text-center gap-4 bg-surface-container-low/30 rounded-3xl p-6">
                             <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-outline">
                                 <span class="material-symbols-outlined text-2xl">child_care</span>
@@ -197,11 +195,13 @@
                                 <h4 class="text-on-surface font-bold text-base">這一天沒有紀錄</h4>
                                 <p class="text-on-surface-variant text-xs mt-1">為這天新增一筆成長紀錄吧！</p>
                             </div>
-                            <button onclick="navigateToAddRecord('{% url 'add_baby_record' %}?date={{ selected_date_iso }}', '{{ selected_date_iso }}')" class="mt-1 bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all" type="button">
+                            <button onclick="navigateToAddRecord('{% url 'add_baby_record' %}?date={{ selected_date_iso }}', '{{ selected_date_iso }}')"
+                                    class="mt-1 bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-md shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all" type="button">
                                 <span class="material-symbols-outlined text-sm">add</span>
                                 新增紀錄
                             </button>
                         </div>
+                        {% endif %}
                         {% endif %}
                     </div>
                 </div>

@@ -47,7 +47,7 @@ def get_gestation_parts(case, on_date=None):
         'days': days,
         'total_days': delta.days,
         'progress_percent': progress_percent,
-        'is_overdue': delta.days > 280,
+        'is_overdue': delta.days > 294,
     }
 
 
@@ -72,11 +72,14 @@ def get_pregnancy_status(case, on_date=None):
         if all(b.birthdaytime is not None for b in babies):
             return 'born'
 
-    # 尚未登記出生 → 以預產期（或 LMP+280）判斷是否超期
+    # 尚未登記出生 → 以預產期後兩週
     due = case.expecteddate or (
         get_lmp_date(case) + timedelta(days=280) if get_lmp_date(case) else None
     )
-    if due and on_date > due:
+    lmp = get_lmp_date(case)
+    if lmp and (on_date - lmp).days > 294:
+        return 'overdue'
+    elif due and not lmp and on_date > due + timedelta(days=14):
         return 'overdue'
     return 'pregnant'
 
@@ -118,6 +121,7 @@ def baby_age_text(birthdaytime, on_date=None):
 
 
 def partition_pregnancy_cases(cases, on_date=None):
+    
     """Split cases into ongoing pregnancies and born babies."""
     on_date = on_date or timezone.now().date()
     ongoing_cases = []
@@ -129,12 +133,14 @@ def partition_pregnancy_cases(cases, on_date=None):
             case.gestation_text = get_gestation_text(case, on_date)
             case.display_baby = get_case_display_baby(case)
             case.is_overdue = (status == 'overdue')
+            case.all_babies = list(case.babyinformation_set.all().order_by('baby_id'))
             ongoing_cases.append(case)
             continue
 
-        for baby in case.babyinformation_set.all():
+        for baby in case.babyinformation_set.all().order_by('baby_id'):
             if not baby.birthdaytime:
                 continue
+            baby._case_id = case.pregnancycase_id 
             baby.age_text = baby_age_text(baby.birthdaytime, on_date)
             baby.birthday_str = (
                 baby.birthdaytime.date()
@@ -349,6 +355,7 @@ def build_pregnancy_progress(case, on_date=None):
     display_baby = get_case_display_baby(case)
     baby_name = display_baby.name if display_baby else ''
 
+    #懷孕中對每個寶寶各建一筆 baby-level item
     if is_pregnancy_ongoing(case):
         parts = get_gestation_parts(case, on_date)
         if not parts:
@@ -443,18 +450,31 @@ def baby_switcher(request):
                 if gestation != "未知週數"
                 else "懷孕中"
             )
-            item = {
-                'is_baby': False,
-                'name': baby_name,
-                'desc': gestation_text,
-                'icon': 'pregnant_woman',
-                'case_id': case.pregnancycase_id,
-            }
-            item['url'] = build_switcher_target_url(request, item)
-            switcher_items.append(item)
+            babies = list(case.babyinformation_set.all().order_by('baby_id'))
+            if not babies:
+                item = {
+                    'is_baby': False,
+                    'name': baby_name,
+                    'desc': gestation_text,
+                    'icon': 'pregnant_woman',
+                    'case_id': case.pregnancycase_id,
+                }
+                item['url'] = build_switcher_target_url(request, item)
+                switcher_items.append(item)
+            else:
+                for baby in babies:
+                    item = {
+                        'is_baby': True,
+                        'name': baby.name,
+                        'desc': gestation_text,
+                        'icon': 'pregnant_woman',
+                        'baby_id': baby.baby_id,
+                        'case_id': case.pregnancycase_id,
+                    }
+                    item['url'] = build_switcher_target_url(request, item)
+                    switcher_items.append(item)
         else:
-            
-            for baby in case.babyinformation_set.all():
+            for baby in case.babyinformation_set.all().order_by('baby_id'):
                 if baby.birthdaytime:
                     item = {
                         'is_baby': True,
@@ -471,14 +491,25 @@ def baby_switcher(request):
     active_case_id = request.session.get('active_case_id')
 
     if '/pregnancyrecord' in request.path:
-        ongoing_items = [item for item in switcher_items if not item['is_baby']]
+        ongoing_case_ids = {
+            c.pregnancycase_id for c in cases
+            if is_pregnancy_ongoing(c)
+        }
+        ongoing_items = [
+            item for item in switcher_items
+            if item.get('case_id') in ongoing_case_ids
+        ]
         if ongoing_items:
             switcher_items = ongoing_items
-
 
     if '/babyinformation' in request.path or '/babyrecord' in request.path or '/babygrowthmap' in request.path:
         switcher_items = [item for item in switcher_items if item.get('is_baby')]
             
+
+    
+
+
+    
     active_item = None
     if active_baby_id:
         active_item = next(
@@ -535,21 +566,32 @@ def _parse_float(value):
 
 
 def pregnancy_case(request):
-    delete_id = request.GET.get('delete_id')
-    if delete_id:
-        case = get_object_or_404(PregnancyCase, pregnancycase_id=delete_id)
-        case.delete()
-        return redirect('pregnancy_case')
-
     user = get_current_user_profile(request)
     if not user:
         return redirect('login')
+    
+    delete_id = request.GET.get('delete_id')
+    if delete_id:
+        case = get_object_or_404(PregnancyCase, pregnancycase_id=delete_id)
+        if case.user_id == user.user_id:
+            case.delete()
+        return redirect('pregnancy_case')
 
     cases_own = list(PregnancyCase.objects.filter(user=user))
     shared = [m.pregnancycase for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase') if m.pregnancycase]
     cases_dict = {c.pregnancycase_id: c for c in cases_own + shared}
     cases_list = sorted(cases_dict.values(), key=lambda c: c.create_time)
     active_cases, born_babies = partition_pregnancy_cases(cases_list)
+
+
+     # 標記哪些 case 是自己建的（模板用來決定是否顯示編輯/刪除）
+    own_case_ids = {c.pregnancycase_id for c in cases_own}
+    for case in active_cases:
+        case.is_owner = case.pregnancycase_id in own_case_ids
+    for baby in born_babies:
+        baby.case_id_for_edit = baby._case_id    
+        baby.is_owner = baby.pregnancycase_id in own_case_ids
+
 
     return render(request, 'pregnancycase/pregnancycase.html', {
         'active_cases': active_cases,
@@ -566,39 +608,32 @@ def add_pregnancy_case(request):
         expecteddate_str = (request.POST.get('expecteddate') or '').strip()
         code = (request.POST.get('code') or '').strip()
 
-        # 兩個日期都空白才拒絕，允許只填其中一個
-        if not menstruation_str and not expecteddate_str:
+        # 最後月經日期為必填
+        if not menstruation_str:
             generated_code = _generate_unique_code()
             return render(request, 'pregnancycase/add_pregnancy_case.html', {
                 'generated_code': generated_code,
-                'error': '請填寫預產期或最後一次月經日期',
+                'error': '請填寫最後一次月經日期',
                 'form_data': request.POST,
             })
 
-        # 獨立 try/except 避免單一欄位格式錯誤導致整筆失敗
         try:
-            menstruation = datetime.strptime(menstruation_str, '%Y-%m-%d').date() if menstruation_str else None
+            menstruation = datetime.strptime(menstruation_str, '%Y-%m-%d').date()
         except ValueError:
-            menstruation = None
+            generated_code = _generate_unique_code()
+            return render(request, 'pregnancycase/add_pregnancy_case.html', {
+                'generated_code': generated_code,
+                'error': '月經日期格式不正確，請重新輸入',
+                'form_data': request.POST,
+            })
+
+        # 預產期：優先使用使用者填寫的值，否則自動以 Naegele's Rule 推算
         try:
             expecteddate = datetime.strptime(expecteddate_str, '%Y-%m-%d').date() if expecteddate_str else None
         except ValueError:
             expecteddate = None
-
-        # 二次確認：格式錯誤可能導致兩者都為 None
-        if not menstruation and not expecteddate:
-            generated_code = _generate_unique_code()
-            return render(request, 'pregnancycase/add_pregnancy_case.html', {
-                'generated_code': generated_code,
-                'error': '請填寫預產期或最後一次月經日期（日期格式不正確）',
-                'form_data': request.POST,
-            })
-
-        # 只填月經日期時，自動推算預產期以維持資料完整性
-        if menstruation and not expecteddate:
+        if not expecteddate:
             expecteddate = _calculate_expected_date(menstruation)
-        if expecteddate and not menstruation:
-            menstruation = expecteddate - timedelta(days=280)
 
         if not code or PregnancyCase.objects.filter(code=code).exists():
             code = _generate_unique_code()
@@ -673,8 +708,6 @@ def add_pregnancy_case(request):
     code = _generate_unique_code()
     return render(request, 'pregnancycase/add_pregnancy_case.html', {'generated_code': code})
 
-
-
 def edit_pregnancy_case(request):
     case_id = request.GET.get('id')
     if not case_id:
@@ -682,65 +715,66 @@ def edit_pregnancy_case(request):
 
     case = get_object_or_404(PregnancyCase, pregnancycase_id=case_id)
     current_user = get_current_user_profile(request)
-    # case.user_id 取整數 FK 值，避免與 UserProfile 物件比較永遠不等的 bug
     if not current_user or case.user_id != current_user.user_id:
         return redirect('login')
-    baby = case.babyinformation_set.first()
+
+    # 取全部寶寶（多胎支援）
+    babies = list(case.babyinformation_set.all().order_by('baby_id'))
 
     if request.method == 'POST':
         menstruation_str = (request.POST.get('menstruation') or '').strip()
         expecteddate_str = (request.POST.get('expecteddate') or '').strip()
 
-        # 同 add 邏輯：兩個日期都空白才拒絕
-        if not menstruation_str and not expecteddate_str:
+        # 最後月經日期為必填
+        if not menstruation_str:
             return render(request, 'pregnancycase/edit_pregnancy_case.html', {
                 'case': case,
+                'babies': babies,
                 'menstruation_str': case.menstruation.strftime('%Y-%m-%d') if case.menstruation else '',
                 'expecteddate_str': case.expecteddate.strftime('%Y-%m-%d') if case.expecteddate else '',
-                'baby_name': baby.name if baby else '',
-                'error': '請填寫預產期或最後一次月經日期',
+                'error': '請填寫最後一次月經日期',
             })
 
         try:
-            case.menstruation = datetime.strptime(menstruation_str, '%Y-%m-%d').date() if menstruation_str else None
+            case.menstruation = datetime.strptime(menstruation_str, '%Y-%m-%d').date()
         except ValueError:
-            case.menstruation = None
+            return render(request, 'pregnancycase/edit_pregnancy_case.html', {
+                'case': case,
+                'babies': babies,
+                'menstruation_str': menstruation_str,
+                'expecteddate_str': expecteddate_str,
+                'error': '月經日期格式不正確，請重新輸入',
+            })
+
+        # 預產期：優先使用使用者填寫的值，否則自動推算
         try:
             case.expecteddate = datetime.strptime(expecteddate_str, '%Y-%m-%d').date() if expecteddate_str else None
         except ValueError:
             case.expecteddate = None
-
-        if not case.menstruation and not case.expecteddate:
-            return render(request, 'pregnancycase/edit_pregnancy_case.html', {
-                'case': case,
-                'menstruation_str': menstruation_str,
-                'expecteddate_str': expecteddate_str,
-                'baby_name': baby.name if baby else '',
-                'error': '請填寫預產期或最後一次月經日期（日期格式不正確）',
-            })
-
-        if case.menstruation and not case.expecteddate:
+        if not case.expecteddate:
             case.expecteddate = _calculate_expected_date(case.menstruation)
-        if case.expecteddate and not case.menstruation:
-            case.menstruation = case.expecteddate - timedelta(days=280)
         case.save()
 
-        baby_name = request.POST.get('baby_name')
-        if baby_name:
-            if baby:
-                baby.name = baby_name
+        # 逐一更新每個寶寶名字（baby_name_1, baby_name_2, ...）
+        for i, baby in enumerate(babies, start=1):
+            new_name = (request.POST.get(f'baby_name_{i}') or '').strip()
+            if new_name:
+                baby.name = new_name
                 baby.save()
-            else:
-                BabyInformation.objects.create(pregnancycase=case, name=baby_name)
+
+        # 若 case 下還沒有任何寶寶，且有填 baby_name_1，則新建一筆
+        if not babies:
+            new_name = (request.POST.get('baby_name_1') or '').strip()
+            if new_name:
+                BabyInformation.objects.create(pregnancycase=case, name=new_name)
 
         return redirect('pregnancy_case')
 
-    # GET：傳入 overdue 狀態讓模板決定是否顯示提醒橫幅
     status = get_pregnancy_status(case)
     return render(request, 'pregnancycase/edit_pregnancy_case.html', {
         'case': case,
+        'babies': babies,
         'menstruation_str': case.menstruation.strftime('%Y-%m-%d') if case.menstruation else '',
         'expecteddate_str': case.expecteddate.strftime('%Y-%m-%d') if case.expecteddate else '',
-        'baby_name': baby.name if baby else '',
         'is_overdue': status == 'overdue',
     })

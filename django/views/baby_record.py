@@ -88,18 +88,19 @@ def add_baby_record(request):
         return redirect('login')
 
     active_baby = baby_utils.get_active_baby(request)
+   
     if active_baby is None:
+        today = datetime.date.today()
         return render(request, 'baby/add_babyrecord.html', {
-            'baby':           active_baby,
-            'baby_list':      baby_list,
-            'all_milestones': all_milestones,
-            'form_data':      {'date': record_date.isoformat()},
-            'milestones':     '',
-            'today_iso':      today_iso,
-            'selected_month_abbr': MONTH_ABBR[record_date.month],  
-            'selected_day':        record_date.day,
+            'baby':                None,
+            'baby_list':           _get_accessible_babies(user),
+            'all_milestones':      BabyGrowthMap.objects.none(),
+            'form_data':           {'date': today.isoformat()},
+            'milestones':          '',
+            'today_iso':           today.isoformat(),
+            'selected_month_abbr': MONTH_ABBR[today.month],
+            'selected_day':        today.day,
         })
-
     case = active_baby.pregnancycase
 
     # 權限：只有 caregiver 以上才能新增
@@ -114,14 +115,13 @@ def add_baby_record(request):
 
     if request.method == 'POST':
         date_str = request.POST.get('date')
+        
         if not date_str:
-            return render(request, 'baby/edit_babyrecord.html', {
-                'record':              record,
-                'baby':                baby,
-                'baby_list':           _get_accessible_babies(user),
-                'all_milestones':      _get_milestones_for_edit(baby, record),
-                'error':               '請填寫紀錄日期',
-                'form_data':           request.POST,
+            return render(request, 'baby/add_babyrecord.html', {
+                'baby':      active_baby,
+                'error':     '請填寫紀錄日期',
+                'form_data': request.POST,
+                'today_iso': today_iso,
             })
 
         # 後端二次驗證日期格式與未來日期
@@ -257,6 +257,7 @@ def edit_baby_record(request, babyrecord_id):
                 'error':               '請填寫紀錄日期',
                 'form_data':           request.POST,
                 'selected_milestones': request.POST.get('milestones', ''),
+                'today_iso':           datetime.date.today().isoformat(),
             })
 
         milestones_str = request.POST.get('milestones', '')
@@ -285,8 +286,9 @@ def edit_baby_record(request, babyrecord_id):
 
         return redirect(url_with_active_selection(request, reverse('babyinformation')))
 
-    # 最底部的 GET 回傳，改指向 edit_babyrecord.html
-    return render(request, 'baby/edit_babyrecord.html', {
+    # ── GET：準備表單資料 ──────────────────────────────────
+    return render(request, 'baby/add_babyrecord.html', {
+        'is_edit':             True,
         'record':              record,
         'baby':                baby,
         'baby_list':           _get_accessible_babies(user),
@@ -301,7 +303,8 @@ def edit_baby_record(request, babyrecord_id):
         },
         'selected_milestones': '|'.join(record.milestones),
         'selected_month_abbr': MONTH_ABBR[record.date.month],
-        'selected_day':        record.date.day,             
+        'selected_day':        record.date.day,
+        'today_iso':           datetime.date.today().isoformat(),
     })
 
 

@@ -43,15 +43,28 @@
                     <h2 class="font-headline font-bold text-lg">懷孕資訊</h2>
                 </div>
 
-                <div class="space-y-5">
-                    <!-- 寶寶昵稱 -->
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">寶寶昵稱 (選填)</label>
-                        <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">label</span>
-                            <input type="text" name="baby_name" value="{{ baby_name }}" placeholder="例如：大寶、二寶" class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
-                        </div>
+                {% for baby in babies %}
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">
+                        {% if babies|length > 1 %}寶寶 {{ forloop.counter }} 昵稱（選填）{% else %}寶寶昵稱（選填）{% endif %}
+                    </label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">label</span>
+                        <input type="text" name="baby_name_{{ forloop.counter }}" value="{{ baby.name }}"
+                            placeholder="例如：大寶、二寶"
+                            class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                     </div>
+                </div>
+                {% empty %}
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">寶寶昵稱（選填）</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">label</span>
+                        <input type="text" name="baby_name_1" placeholder="例如：大寶、二寶"
+                            class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
+                    </div>
+                </div>
+                {% endfor %}
 
                     <!-- 最後月經日期 -->
                     <div class="space-y-2">

@@ -35,28 +35,36 @@
                 </div>
                 <div class="space-y-5">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">最後月經日期（與預產期至少填一個）</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">
+                            最後月經日期 <span class="text-red-500">*</span>
+                        </label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">event</span>
                             <input type="date" name="menstruation" id="menstruation-input"
+                                required
+                                max="{% now 'Y-m-d' %}"
+                                value="{{ form_data.menstruation|default:'' }}"
                                 class="w-full bg-surface-container-low border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-medium" />
                         </div>
+                        <p class="text-xs text-on-surface-variant pl-1">必填，系統將依此自動計算預產期</p>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期（與最後月經日期至少填一個，選擇月經日後可自動推算）</label>
+                        <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">預產期（系統自動推算）</label>
                         <div class="relative">
-                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">calendar_today</span>
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/30">calendar_today</span>
                             <input type="date" name="expecteddate" id="expecteddate-input"
-                                class="w-full bg-primary/5 border border-primary/20 rounded-xl pl-12 pr-4 py-3.5 text-primary focus:ring-2 focus:ring-primary-container transition-all text-sm outline-none font-bold" />
+                                readonly
+                                class="w-full bg-surface-container-high/50 border-none rounded-xl pl-12 pr-4 py-3.5 text-on-surface-variant cursor-not-allowed transition-all text-sm outline-none font-medium" />
                         </div>
+                        <p class="text-xs text-on-surface-variant pl-1">依最後月經日期自動推算（Naegele's Rule），不需手動填寫</p>
                     </div>
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider pl-1">加入碼 (供其他家人綁定)</label>
                         <div class="relative flex items-center">
                             <span class="material-symbols-outlined absolute left-4 text-on-surface-variant/50">qr_code</span>
-                            <input type="text" name="code" value="{{ generated_code }}" readonly
+                            <input type="text" name="code" id="join-code-input" value="{{ generated_code }}" readonly
                                 class="w-full bg-surface-container-low/50 border-none rounded-xl pl-12 pr-12 py-3.5 text-on-surface text-sm outline-none font-bold tracking-widest" />
-                            <button type="button" class="absolute right-3 p-1.5 text-primary hover:bg-primary/10 rounded-full transition-colors cursor-pointer" onclick="alert('已複製加入碼！')">
+                            <button type="button" id="copy-code-btn" class="absolute right-3 p-1.5 text-primary hover:bg-primary/10 rounded-full transition-colors cursor-pointer" title="複製加入碼">
                                 <span class="material-symbols-outlined text-[18px]">content_copy</span>
                             </button>
                         </div>
@@ -119,13 +127,68 @@
 <script src="{% static 'js/pregnancy_due_date.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // ── 預產期自動推算 ──────────────────────────────────────────
-    if (window.PregnancyDueDate) {
-        PregnancyDueDate.bindPregnancyDatePair(
-            document.getElementById('pregnancy-case-form'),
-            document.getElementById('menstruation-input'),
-            document.getElementById('expecteddate-input')
-        );
+    // ── 最後月經日期 → 預產期自動推算（Naegele's Rule） ──────────────────────
+    const menstruationInput = document.getElementById('menstruation-input');
+    const expecteddateInput = document.getElementById('expecteddate-input');
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // 確保最後月經日期不能選未來日期
+    if (menstruationInput) menstruationInput.max = todayStr;
+
+    function calcEDD(lmpStr) {
+        if (!lmpStr) return '';
+        const lmp = new Date(lmpStr + 'T00:00:00');
+        if (isNaN(lmp.getTime())) return '';
+        const edd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
+        return edd.toISOString().split('T')[0];
+    }
+
+    function updateEDD() {
+        if (!expecteddateInput || !menstruationInput) return;
+        const edd = calcEDD(menstruationInput.value);
+        // removeAttribute + setAttribute 繞過瀏覽器對 readonly 的寫入防範
+        expecteddateInput.removeAttribute('readonly');
+        expecteddateInput.value = edd;
+        expecteddateInput.setAttribute('readonly', '');
+    }
+
+    if (menstruationInput) {
+        menstruationInput.addEventListener('change', updateEDD);
+        menstruationInput.addEventListener('input', updateEDD);
+        // 頁面載入時若已有胎數資料（錯誤返回後保留欄位內容）
+        if (menstruationInput.value) updateEDD();
+    }
+
+    // ── 複製加入碼 ────────────────────────────────────────────
+    const copyBtn       = document.getElementById('copy-code-btn');
+    const joinCodeInput = document.getElementById('join-code-input');
+    if (copyBtn && joinCodeInput) {
+        copyBtn.addEventListener('click', () => {
+            const code = joinCodeInput.value;
+            if (!code) return;
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => {
+                    copyBtn.querySelector('span').textContent = 'check';
+                    setTimeout(() => { copyBtn.querySelector('span').textContent = 'content_copy'; }, 2000);
+                }).catch(() => fallbackCopy(code));
+            } else {
+                fallbackCopy(code);
+            }
+        });
+    }
+    function fallbackCopy(text) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.focus(); el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        if (copyBtn) {
+            copyBtn.querySelector('span').textContent = 'check';
+            setTimeout(() => { copyBtn.querySelector('span').textContent = 'content_copy'; }, 2000);
+        }
     }
 
     // ── 多胎：動態渲染每位嬰幼兒的完整資訊卡片 ─────────────────

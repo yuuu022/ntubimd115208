@@ -153,29 +153,16 @@ def baby(request):
             get_lmp_date(case) + timedelta(days=280) if get_lmp_date(case) else None
         )
         if due:
-            is_overdue = datetime.date.today() > due + timedelta(days=14)
+            lmp = get_lmp_date(case)
+            if lmp:
+                is_overdue = (datetime.date.today() - lmp).days > 294
+            else:
+                is_overdue = datetime.date.today() > due + timedelta(days=14)
 
 
 
 
-    context = {'baby': active_baby, 'baby_is_born': bool(active_baby and active_baby.birthdaytime), 'records': records, 'chart_records': filled_records, 'baby_summary': summary, 'baby_form': baby_form, 'selected_date': selected_date, 'selected_day_record': selected_day_record, 'has_day_data': bool(selected_day_record), 'milestones_summary': _get_baby_milestones_summary(active_baby)}
+    context = { 'is_overdue': is_overdue, 'baby': active_baby, 'baby_is_born': bool(active_baby and active_baby.birthdaytime), 'records': records, 'chart_records': filled_records, 'baby_summary': summary, 'baby_form': baby_form, 'selected_date': selected_date, 'selected_day_record': selected_day_record, 'has_day_data': bool(selected_day_record), 'milestones_summary': _get_baby_milestones_summary(active_baby)}
     context.update(_get_calendar_data(records, selected_date))
     return render(request, 'baby/babyinformation.html', context)
 
-def baby_growthmap(request):
-    """成長地圖"""
-    baby = baby_utils.get_active_baby(request)
-    if not baby: return render(request, "baby/baby_growthmap.html", {"growth_timeline": [], "growth_owner_name": "寶寶"})
-    growth_maps, growth_timeline = BabyGrowthMap.objects.all().order_by('timecourse'), []
-    completed_ids = set(BabyStatus.objects.filter(babyrecord__baby=baby).values_list('babygrowthmap_id', flat=True))
-    m_set = set()
-    for rec in BabyRecord.objects.filter(baby=baby):
-        m, _ = baby_utils.split_note_and_milestones(rec); m_set.update(m)
-    for g_map in growth_maps:
-        is_completed = (g_map.babygrowthmap_id in completed_ids or g_map.growthrecord in m_set)
-        growth_timeline.append({
-            "map_id": g_map.babygrowthmap_id, 
-            "timecourse": g_map.timecourse, 
-            "growthrecord": g_map.growthrecord, 
-            "status": "completed" if is_completed else "pending"})
-    return render(request, "baby/baby_growthmap.html", {"growth_timeline": growth_timeline, "growth_owner_name": baby.name})
