@@ -3,8 +3,7 @@ import calendar
 from django.shortcuts import render
 from core.models import BabyRecord, BabyGrowthMap, BabyStatus
 from views import baby_utils
-from datetime import timedelta
-from views.pregnancycase import get_lmp_date
+from views.pregnancycase import  get_pregnancy_status
 
 
 
@@ -148,16 +147,7 @@ def baby(request):
     
     is_overdue = False
     if active_baby and not active_baby.birthdaytime and active_baby.pregnancycase:
-        case = active_baby.pregnancycase
-        due = case.expecteddate or (
-            get_lmp_date(case) + timedelta(days=280) if get_lmp_date(case) else None
-        )
-        if due:
-            lmp = get_lmp_date(case)
-            if lmp:
-                is_overdue = (datetime.date.today() - lmp).days > 294
-            else:
-                is_overdue = datetime.date.today() > due + timedelta(days=14)
+        is_overdue = get_pregnancy_status(active_baby.pregnancycase) == 'overdue'
 
 
 

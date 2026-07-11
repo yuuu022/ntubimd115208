@@ -32,6 +32,7 @@ urlpatterns = [
     #嬰幼兒基本資料
     path('add_baby_information/', baby_information.add_baby_information, name='add_baby_information'),
     path('edit_baby_information/', baby_information.edit_baby_information, name='edit_baby_information'),
+    path('delete_baby_information/', baby_information.delete_baby_information, name='delete_baby_information'),
 
     # 嬰幼兒生長紀錄
     path('babyrecord/add/', baby_record.add_baby_record, name='add_baby_record'),
