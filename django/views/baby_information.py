@@ -1,9 +1,9 @@
 import datetime
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from core.models import BabyInformation
 from views import baby_utils
-from views.pregnancycase import resolve_active_pregnancy_case
+from views.pregnancycase import resolve_active_pregnancy_case, validate_birth_datetime
 from views.session_utils import get_current_user_profile
 
 # ==================== 1. 新增功能 ====================
@@ -27,33 +27,14 @@ def add_baby_information(request):
                     'form_data': request.POST
                 })
 
-        # ── 嚴格的出生時間多重防線驗證 ─────────────────────────────
-        if b_time:
-            birth_date = b_time.date()
-            today = datetime.date.today()
-            lmp = case.menstruation
-            
-            if birth_date > today:
-                return render(request, 'baby/add_babyinformation.html', {
-                    'error': '亂填數據警告：出生時間不能是未來日期', 
-                    'case': case,
-                    'form_data': request.POST
-                })
-            
-            if lmp:
-                delta_days = (birth_date - lmp).days
-                if delta_days < 98:  # 14週
-                    return render(request, 'baby/add_babyinformation.html', {
-                        'error': '資料異常：出生日期不可早於懷孕中期(14週)，請檢查最後一次月經或出生日設定', 
-                        'case': case,
-                        'form_data': request.POST
-                    })
-                if delta_days > 301:  # 43週
-                    return render(request, 'baby/add_babyinformation.html', {
-                        'error': '資料異常：懷孕週數超過 43 週，不符合正常生理上限', 
-                        'case': case,
-                        'form_data': request.POST
-                    })
+        # ── 嚴格的出生時間多重防線驗證（共用 pregnancycase.validate_birth_datetime） ──
+        birth_error = validate_birth_datetime(case.menstruation, b_time)
+        if birth_error:
+            return render(request, 'baby/add_babyinformation.html', {
+                'error': birth_error,
+                'case': case,
+                'form_data': request.POST
+            })
         
         # 驗證通過，建立新資料
         new_baby = BabyInformation.objects.create(
@@ -72,6 +53,28 @@ def add_baby_information(request):
 
     return render(request, 'baby/add_babyinformation.html', {'case': case})
 
+def delete_baby_information(request):
+    """刪除單一寶寶，不影響同一 case 底下的其他寶寶／懷孕紀錄本身。"""
+    if request.method != 'POST':
+        return redirect('pregnancy_case')
+
+    user = get_current_user_profile(request)
+    if not user:
+        return redirect('login')
+
+    baby_id = request.POST.get('baby_id')
+    baby = get_object_or_404(BabyInformation, baby_id=baby_id)
+    case = baby.pregnancycase
+
+    if not case or case.user_id != user.user_id:
+        return redirect('pregnancy_case')
+
+    if request.session.get('active_baby_id') == baby.baby_id:
+        request.session.pop('active_baby_id', None)
+        request.session.modified = True
+
+    baby.delete()
+    return redirect('pregnancy_case')
 
 # ==================== 2. 編輯功能 ====================
 def edit_baby_information(request):
@@ -109,21 +112,11 @@ def edit_baby_information(request):
                     'birth_weeks_value': '',
                 })
 
-        # ── 出生時間合理性驗證（同步改為 14w ~ 43w 醫學防線） ─────────────────────────────
+        # ── 出生時間合理性驗證（共用 pregnancycase.validate_birth_datetime，14w~43w 醫學防線） ──
         if new_birthdaytime:
-            birth_date = new_birthdaytime.date()
-            today = datetime.date.today()
             lmp = active_baby.pregnancycase.menstruation if active_baby.pregnancycase else None
-            
-            if birth_date > today:
-                birth_error = '亂填數據警告：出生時間不能是未來日期'
-            elif lmp and (birth_date - lmp).days < 98:  # 14週
-                birth_error = '資料異常：出生日期不可早於懷孕中期(14週)，請檢查最後一次月經或出生日設定'
-            elif lmp and (birth_date - lmp).days > 301:  # 43週
-                birth_error = '資料異常：懷孕週數超過 43 週，不符合正常生理上限'
-            else:
-                birth_error = None
-            
+            birth_error = validate_birth_datetime(lmp, new_birthdaytime)
+
             if birth_error:
                 lmp_date_value = lmp.strftime('%Y-%m-%d') if lmp else ''
                 return render(request, 'baby/edit_babyinformation.html', {
@@ -169,3 +162,6 @@ def edit_baby_information(request):
         'lmp_date_value':    lmp_date_value,  
         'birth_weeks_value': birth_weeks_value, 
     })
+
+
+

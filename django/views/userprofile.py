@@ -48,47 +48,11 @@ def _latest_weight_for_selection(request, user):
 def _build_selected_child_info(request, current_user):
     sync_active_selection_from_request(request, current_user)
     today = timezone.now().date()
-    active_baby_id = request.session.get('active_baby_id')
     case = resolve_active_pregnancy_case(request, current_user)
 
-
-    if active_baby_id:
-        baby = resolve_active_baby(request, current_user, fallback=True)
-        if baby and baby.baby_id == active_baby_id:
-            birth_date = baby.birthdaytime.date() if baby.birthdaytime else None
-            age_text = '-'
-            age_percent = 0
-            if birth_date:
-                age_days = max(0, (today - birth_date).days)
-                age_weeks = age_days // 7
-                age_days_remainder = age_days % 7
-                age_text = f'第 {age_weeks} 週 {age_days_remainder} 天'
-                age_percent = min(100, int((age_days / 364) * 100))
-
-            latest_baby_weight = '-'
-            latest_baby_height = '-'
-            weight_rec = BabyRecord.objects.filter(baby=baby).exclude(weight__isnull=True).order_by('-date', '-babyrecord_id').first()
-            if weight_rec and weight_rec.weight is not None:
-                latest_baby_weight = _format_number(weight_rec.weight)
-            height_rec = BabyRecord.objects.filter(baby=baby).exclude(height__isnull=True).order_by('-date', '-babyrecord_id').first()
-            if height_rec and height_rec.height is not None:
-                latest_baby_height = _format_number(height_rec.height)
-
-            return {
-                'type': 'baby',
-                'name': getattr(case, 'order_name', case.code),
-                'icon': 'face',
-                'subtitle': baby.pregnancycase.code if baby.pregnancycase else '嬰兒資訊',
-                'age_text': age_text,
-                'age_percent': age_percent,
-                'birth_date': birth_date.strftime('%Y / %m / %d') if birth_date else '-',
-                'birth_height': _format_number(baby.baby_height),
-                'birth_weight': _format_number(baby.baby_weight),
-                'birth_head_circumference': _format_number(baby.babyheadcircumference),
-                'latest_weight': latest_baby_weight,
-                'latest_height': latest_baby_height,
-            }
-
+    # 修正：先判斷 case 層級狀態。只要這個 case 底下還有寶寶沒出生，
+    # 就跟首頁/切換器一致顯示「懷孕卡」，不能只看 session 裡
+    # active_baby_id 對應的那個寶寶自己是否出生。
     if case and is_pregnancy_ongoing(case):
         menstruation_date = get_lmp_date(case)
         pregnancy_month_text = '-'
@@ -114,10 +78,16 @@ def _build_selected_child_info(request, current_user):
             'expecteddate_text': case.expecteddate.strftime('%Y / %m / %d') if case.expecteddate else '-',
         }
 
-    baby = resolve_active_baby(request, current_user)
+    # case 已全員出生（或找不到 case），才顯示 baby 卡
+    baby = resolve_active_baby(request, current_user, fallback=True)
     if baby and baby.birthdaytime:
         birth_date = baby.birthdaytime.date()
         age_days = max(0, (today - birth_date).days)
+        age_weeks = age_days // 7
+        age_days_remainder = age_days % 7
+        age_text = f'第 {age_weeks} 週 {age_days_remainder} 天'
+        age_percent = min(100, int((age_days / 364) * 100))
+
         latest_baby_weight = '-'
         latest_baby_height = '-'
         weight_rec = BabyRecord.objects.filter(baby=baby).exclude(weight__isnull=True).order_by('-date', '-babyrecord_id').first()
@@ -132,8 +102,8 @@ def _build_selected_child_info(request, current_user):
             'name': baby.name,
             'icon': 'face',
             'subtitle': baby.pregnancycase.code if baby.pregnancycase else '嬰兒資訊',
-            'age_text': f'第 {age_days // 7} 週 {age_days % 7} 天',
-            'age_percent': min(100, int((age_days / 364) * 100)),
+            'age_text': age_text,
+            'age_percent': age_percent,
             'birth_date': birth_date.strftime('%Y / %m / %d'),
             'birth_height': _format_number(baby.baby_height),
             'birth_weight': _format_number(baby.baby_weight),

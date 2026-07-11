@@ -22,6 +22,34 @@ def get_lmp_date(case):
     return None
 
 
+# 出生時間合理性驗證（供 add_pregnancy_case / edit_pregnancy_case / baby_information 共用）
+def validate_birth_datetime(lmp_date, birth_dt, on_date=None):
+    """
+    驗證出生時間是否符合生理合理範圍：
+      - 不可為未來日期
+      - 不可早於 LMP 後 14 週（98 天）
+      - 不可晚於 LMP 後 43 週（301 天）
+    回傳 None 代表合法；否則回傳可直接顯示給使用者的錯誤訊息字串。
+    birth_dt 為 None（尚未出生）一律視為合法。
+    """
+    if birth_dt is None:
+        return None
+
+    on_date = on_date or timezone.now().date()
+    birth_date = birth_dt.date() if hasattr(birth_dt, 'date') else birth_dt
+
+    if birth_date > on_date:
+        return '出生日期檢查：出生時間不能是未來日期'
+
+    if lmp_date:
+        delta_days = (birth_date - lmp_date).days
+        if delta_days < 98:  # 14週
+            return '資料異常：出生日期不可早於懷孕中期(14週)，請檢查最後一次月經或出生日設定'
+        if delta_days > 301:  # 43週
+            return '資料異常：懷孕週數超過 43 週，不符合正常生理上限'
+    return None
+
+
 # 懷孕進度
 def get_gestation_parts(case, on_date=None):
     """以 LMP 為基準計算目前懷孕週數、天數與進度百分比。"""
@@ -72,14 +100,13 @@ def get_pregnancy_status(case, on_date=None):
         if all(b.birthdaytime is not None for b in babies):
             return 'born'
 
-    # 尚未登記出生 → 以預產期後兩週
-    due = case.expecteddate or (
-        get_lmp_date(case) + timedelta(days=280) if get_lmp_date(case) else None
-    )
-    lmp = get_lmp_date(case)
-    if lmp and (on_date - lmp).days > 294:
-        return 'overdue'
-    elif due and not lmp and on_date > due + timedelta(days=14):
+    # Bug 修正：overdue 以實際 expecteddate + 14 天為判斷基準，
+    # 而非固定用 lmp+294（若醫生手動設定與 lmp+280 不同的 expecteddate，兩者結果不同）
+    due = case.expecteddate
+    if not due:
+        lmp = get_lmp_date(case)
+        due = lmp + timedelta(days=280) if lmp else None
+    if due and on_date > due + timedelta(days=14):
         return 'overdue'
     return 'pregnant'
 
@@ -121,7 +148,6 @@ def baby_age_text(birthdaytime, on_date=None):
 
 
 def partition_pregnancy_cases(cases, on_date=None):
-    
     """Split cases into ongoing pregnancies and born babies."""
     on_date = on_date or timezone.now().date()
     ongoing_cases = []
@@ -133,7 +159,12 @@ def partition_pregnancy_cases(cases, on_date=None):
             case.gestation_text = get_gestation_text(case, on_date)
             case.display_baby = get_case_display_baby(case)
             case.is_overdue = (status == 'overdue')
-            case.all_babies = list(case.babyinformation_set.all().order_by('baby_id'))
+            # 修正：每個寶寶各自標記是否已出生，模板才能分開顯示
+            all_babies = list(case.babyinformation_set.all().order_by('baby_id'))
+            for b in all_babies:
+                if b.birthdaytime:
+                    b.age_text = baby_age_text(b.birthdaytime, on_date)
+            case.all_babies = all_babies
             ongoing_cases.append(case)
             continue
 
@@ -169,7 +200,7 @@ def sync_active_selection_from_request(request, user=None):
                 baby_id=int(baby_id_param),
             )
             baby_obj = baby_qs.first()
-            if baby_obj and baby_obj.pregnancycase_id and (not user or baby_obj.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby_obj.pregnancycase, user_id=user).exists()):
+            if baby_obj and baby_obj.pregnancycase_id and (not user or baby_obj.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase=baby_obj.pregnancycase, user=user).exists()):
                 request.session['active_baby_id'] = baby_obj.baby_id
                 request.session['active_case_id'] = baby_obj.pregnancycase_id
                 changed = True
@@ -181,7 +212,7 @@ def sync_active_selection_from_request(request, user=None):
             case_id = int(case_id_param)
             case_qs = PregnancyCase.objects.filter(pregnancycase_id=case_id)
             case_obj = case_qs.first()
-            if case_obj and (not user or case_obj.user == user or FamilyMember.objects.filter(pregnancycase_id=case_obj, user_id=user).exists()):
+            if case_obj and (not user or case_obj.user == user or FamilyMember.objects.filter(pregnancycase=case_obj, user=user).exists()):
                 request.session['active_case_id'] = case_id
                 request.session.pop('active_baby_id', None)
                 changed = True
@@ -203,13 +234,13 @@ def resolve_active_pregnancy_case(request, user):
 
     def _get_all_cases():
         own_cases = list(PregnancyCase.objects.filter(user=user))
-        shared = [m.pregnancycase for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase') if m.pregnancycase]
+        shared = [m.pregnancycase for m in FamilyMember.objects.filter(user=user).select_related('pregnancycase') if m.pregnancycase]
         cases_dict = {c.pregnancycase_id: c for c in own_cases + shared}
         return sorted(cases_dict.values(), key=lambda c: c.create_time)
 
     def _case_for_user_ext(case_id):
         case = PregnancyCase.objects.filter(pregnancycase_id=case_id).first()
-        if case and (case.user == user or FamilyMember.objects.filter(pregnancycase_id=case, user_id=user).exists()):
+        if case and (case.user == user or FamilyMember.objects.filter(pregnancycase=case, user=user).exists()):
             return case
         return None
 
@@ -230,7 +261,7 @@ def resolve_active_pregnancy_case(request, user):
             baby = BabyInformation.objects.select_related('pregnancycase').filter(
                 baby_id=int(baby_id_param),
             ).first()
-            if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby.pregnancycase, user_id=user).exists()):
+            if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase=baby.pregnancycase, user=user).exists()):
                 return baby.pregnancycase
         except (ValueError, TypeError):
             pass
@@ -270,7 +301,7 @@ def resolve_active_baby(request, user, *, fallback=True):
                 baby = BabyInformation.objects.select_related('pregnancycase').filter(
                     baby_id=int(raw),
                 ).first()
-                if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby.pregnancycase, user_id=user).exists()):
+                if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase=baby.pregnancycase, user=user).exists()):
                     request.session['active_baby_id'] = baby.baby_id
                     if baby.pregnancycase_id:
                         request.session['active_case_id'] = baby.pregnancycase_id
@@ -284,19 +315,15 @@ def resolve_active_baby(request, user, *, fallback=True):
         baby = BabyInformation.objects.select_related('pregnancycase').filter(
             baby_id=active_baby_id,
         ).first()
-        if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase_id=baby.pregnancycase, user_id=user).exists()):
+        if baby and baby.pregnancycase and (baby.pregnancycase.user == user or FamilyMember.objects.filter(pregnancycase=baby.pregnancycase, user=user).exists()):
             return baby
 
     if not fallback:
         return None
 
     case = resolve_active_pregnancy_case(request, user)
-    if case:
-        baby = BabyInformation.objects.select_related('pregnancycase').filter(
-            pregnancycase=case
-        ).order_by('baby_id').first()
-    else:
-        baby = None
+    baby = get_case_display_baby(case) if case else None
+
     if baby:
         request.session['active_baby_id'] = baby.baby_id
         if baby.pregnancycase_id:
@@ -432,7 +459,7 @@ def baby_switcher(request):
     sync_active_selection_from_request(request, user)
 
     cases_own = list(PregnancyCase.objects.filter(user=user))
-    shared = [m.pregnancycase for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase') if m.pregnancycase]
+    shared = [m.pregnancycase for m in FamilyMember.objects.filter(user=user).select_related('pregnancycase') if m.pregnancycase]
     cases_dict = {c.pregnancycase_id: c for c in cases_own + shared}
     cases = sorted(cases_dict.values(), key=lambda c: c.create_time)
 
@@ -463,14 +490,28 @@ def baby_switcher(request):
                 switcher_items.append(item)
             else:
                 for baby in babies:
-                    item = {
-                        'is_baby': True,
-                        'name': baby.name,
-                        'desc': gestation_text,
-                        'icon': 'pregnant_woman',
-                        'baby_id': baby.baby_id,
-                        'case_id': case.pregnancycase_id,
-                    }
+                    # 修正：case 整體還在懷孕中（有手足未出生），
+                    # 但個別寶寶自己可能已經出生 —— 這裡要各自判斷，
+                    # 不能整批套用 case 層級的 gestation_text，
+                    # 否則已出生的寶寶會被切換器誤標成「懷孕中」。
+                    if baby.birthdaytime:
+                        item = {
+                            'is_baby': True,
+                            'name': baby.name,
+                            'desc': baby_age_text(baby.birthdaytime, current_date),
+                            'icon': 'face',
+                            'baby_id': baby.baby_id,
+                            'case_id': case.pregnancycase_id,
+                        }
+                    else:
+                        item = {
+                            'is_baby': True,
+                            'name': baby.name,
+                            'desc': gestation_text,
+                            'icon': 'pregnant_woman',
+                            'baby_id': baby.baby_id,
+                            'case_id': case.pregnancycase_id,
+                        }
                     item['url'] = build_switcher_target_url(request, item)
                     switcher_items.append(item)
         else:
@@ -504,12 +545,7 @@ def baby_switcher(request):
 
     if '/babyinformation' in request.path or '/babyrecord' in request.path or '/babygrowthmap' in request.path:
         switcher_items = [item for item in switcher_items if item.get('is_baby')]
-            
 
-    
-
-
-    
     active_item = None
     if active_baby_id:
         active_item = next(
@@ -532,10 +568,7 @@ def baby_switcher(request):
         'active_selection_query': build_active_selection_query(request),
     }
 
-
 # --- Pregnancy case CRUD views ---
-
-
 def _calculate_expected_date(menstruation):
     """EDD from LMP: Naegele's rule (month −3, day +7, year +1), same as +280 days."""
     if not menstruation:
@@ -570,15 +603,17 @@ def pregnancy_case(request):
     if not user:
         return redirect('login')
     
-    delete_id = request.GET.get('delete_id')
-    if delete_id:
+    # 刪除胎數：僅接受 POST，避免 GET 連結（含瀏覽器預抓取）誤觸刪除。
+    # 前端範本需將刪除按鈕改成 <form method="post"> 提交 delete_id，而非 <a href="?delete_id=...">。
+    if request.method == 'POST' and request.POST.get('delete_id'):
+        delete_id = request.POST.get('delete_id')
         case = get_object_or_404(PregnancyCase, pregnancycase_id=delete_id)
         if case.user_id == user.user_id:
             case.delete()
         return redirect('pregnancy_case')
 
     cases_own = list(PregnancyCase.objects.filter(user=user))
-    shared = [m.pregnancycase for m in FamilyMember.objects.filter(user_id=user).select_related('pregnancycase') if m.pregnancycase]
+    shared = [m.pregnancycase for m in FamilyMember.objects.filter(user=user).select_related('pregnancycase') if m.pregnancycase]
     cases_dict = {c.pregnancycase_id: c for c in cases_own + shared}
     cases_list = sorted(cases_dict.values(), key=lambda c: c.create_time)
     active_cases, born_babies = partition_pregnancy_cases(cases_list)
@@ -638,22 +673,7 @@ def add_pregnancy_case(request):
         if not code or PregnancyCase.objects.filter(code=code).exists():
             code = _generate_unique_code()
 
-        case = PregnancyCase.objects.create(
-            user=user,
-            menstruation=menstruation,
-            expecteddate=expecteddate,
-            code=code,
-            create_time=timezone.now(),
-        )
 
-        # 解析出生時間（所有嬰幼兒共用同一出生時間）
-        birthdaytime_str = (request.POST.get('birthdaytime') or '').strip()
-        birthdaytime = None
-        if birthdaytime_str:
-            try:
-                birthdaytime = timezone.make_aware(datetime.strptime(birthdaytime_str, '%Y-%m-%dT%H:%M'))
-            except ValueError:
-                birthdaytime = None
 
         # 解析胎兒數：1 / 2 / 3+（三胞胎時讀取 triplet_count）
         baby_count_raw = request.POST.get('baby_count', '1')
@@ -668,8 +688,9 @@ def add_pregnancy_case(request):
             except (ValueError, TypeError):
                 baby_count = 1
 
-        # 批次建立多胎嬰幼兒資料，出生體徵資料套用至每一位
-        first_baby = None
+        # ── 先解析並驗證每一位嬰幼兒的出生時間，全部通過才寫入資料庫 ──────
+        # （避免像舊版一樣先建立 PregnancyCase，遇到驗證失敗又留下孤兒資料）
+        babies_payload = []
         for i in range(baby_count):
             num = i + 1
             birthdaytime_str = (
@@ -682,19 +703,45 @@ def add_pregnancy_case(request):
                 try:
                     birthdaytime = timezone.make_aware(datetime.strptime(birthdaytime_str, '%Y-%m-%dT%H:%M'))
                 except ValueError:
-                    birthdaytime = None
+                    generated_code = _generate_unique_code()
+                    return render(request, 'pregnancycase/add_pregnancy_case.html', {
+                        'generated_code': generated_code,
+                        'error': f'第 {num} 位嬰幼兒的出生時間格式不正確',
+                        'form_data': request.POST,
+                    })
+
+            birth_error = validate_birth_datetime(menstruation, birthdaytime)
+            if birth_error:
+                generated_code = _generate_unique_code()
+                return render(request, 'pregnancycase/add_pregnancy_case.html', {
+                    'generated_code': generated_code,
+                    'error': f'第 {num} 位嬰幼兒：{birth_error}',
+                    'form_data': request.POST,
+                })
+
             name = (request.POST.get(f'baby_name_{num}') or '').strip() or f'嬰幼兒 {num}'
-            baby = BabyInformation.objects.create(
-                pregnancycase=case,
-                name=name,
-                birthdaytime=birthdaytime,
-                # 出生體徵由使用者在後續「登記出生」頁面逐一填寫，此處僅儲存可選的初始值
-                baby_height=_parse_float(request.POST.get(f'baby_height_{num}') or request.POST.get('baby_height')),
-                baby_weight=_parse_float(request.POST.get(f'baby_weight_{num}') or request.POST.get('baby_weight')),
-                babyheadcircumference=_parse_float(request.POST.get(f'baby_head_{num}') or request.POST.get('baby_head')),
-                chestcircumference=_parse_float(request.POST.get(f'baby_chest_{num}') or request.POST.get('baby_chest')),
-                production_method=request.POST.get(f'production_method_{num}') or request.POST.get('production_method'),
-            )
+            babies_payload.append({
+                'name': name,
+                'birthdaytime': birthdaytime,
+                'baby_height': _parse_float(request.POST.get(f'baby_height_{num}') or request.POST.get('baby_height')),
+                'baby_weight': _parse_float(request.POST.get(f'baby_weight_{num}') or request.POST.get('baby_weight')),
+                'babyheadcircumference': _parse_float(request.POST.get(f'baby_head_{num}') or request.POST.get('baby_head')),
+                'chestcircumference': _parse_float(request.POST.get(f'baby_chest_{num}') or request.POST.get('baby_chest')),
+                'production_method': request.POST.get(f'production_method_{num}') or request.POST.get('production_method'),
+            })
+
+        # ── 驗證全數通過，才真正建立 PregnancyCase 與嬰幼兒資料 ──────────
+        case = PregnancyCase.objects.create(
+            user=user,
+            menstruation=menstruation,
+            expecteddate=expecteddate,
+            code=code,
+            create_time=timezone.now(),
+        )
+
+        first_baby = None
+        for payload in babies_payload:
+            baby = BabyInformation.objects.create(pregnancycase=case, **payload)
             if first_baby is None:
                 first_baby = baby
 
@@ -705,6 +752,9 @@ def add_pregnancy_case(request):
 
         return redirect('pregnancy_case')
 
+    user = get_current_user_profile(request)
+    if not user:
+        return redirect('login')
     code = _generate_unique_code()
     return render(request, 'pregnancycase/add_pregnancy_case.html', {'generated_code': code})
 
@@ -720,53 +770,122 @@ def edit_pregnancy_case(request):
 
     # 取全部寶寶（多胎支援）
     babies = list(case.babyinformation_set.all().order_by('baby_id'))
+    posted_data = request.POST if request.method == 'POST' else {}
+
+    def _build_baby_inputs():
+        rows = []
+        if babies:
+            for i, baby in enumerate(babies, start=1):
+                raw_name = (posted_data.get(f'baby_name_{i}') or '').strip()
+                raw_birthday = (posted_data.get(f'birthdaytime_{i}') or '').strip()
+                rows.append({
+                    'name': raw_name or baby.name,
+                    'birthdaytime': raw_birthday or (
+                        baby.birthdaytime.strftime('%Y-%m-%dT%H:%M') if baby.birthdaytime else ''
+                    ),
+                })
+        else:
+            rows.append({
+                'name': (posted_data.get('baby_name_1') or '').strip(),
+                'birthdaytime': (posted_data.get('birthdaytime_1') or '').strip(),
+            })
+        return rows
 
     if request.method == 'POST':
         menstruation_str = (request.POST.get('menstruation') or '').strip()
         expecteddate_str = (request.POST.get('expecteddate') or '').strip()
 
-        # 最後月經日期為必填
-        if not menstruation_str:
+        def _render_error(error_msg, menstruation_str_val, expecteddate_str_val):
             return render(request, 'pregnancycase/edit_pregnancy_case.html', {
                 'case': case,
                 'babies': babies,
-                'menstruation_str': case.menstruation.strftime('%Y-%m-%d') if case.menstruation else '',
-                'expecteddate_str': case.expecteddate.strftime('%Y-%m-%d') if case.expecteddate else '',
-                'error': '請填寫最後一次月經日期',
+                'baby_inputs': _build_baby_inputs(),
+                'form_data': request.POST,
+                'menstruation_str': menstruation_str_val,
+                'expecteddate_str': expecteddate_str_val,
+                'error': error_msg,
             })
 
+        # 最後月經日期為必填
+        if not menstruation_str:
+            return _render_error(
+                '請填寫最後一次月經日期',
+                case.menstruation.strftime('%Y-%m-%d') if case.menstruation else '',
+                case.expecteddate.strftime('%Y-%m-%d') if case.expecteddate else '',
+            )
+
         try:
-            case.menstruation = datetime.strptime(menstruation_str, '%Y-%m-%d').date()
+            new_menstruation = datetime.strptime(menstruation_str, '%Y-%m-%d').date()
         except ValueError:
-            return render(request, 'pregnancycase/edit_pregnancy_case.html', {
-                'case': case,
-                'babies': babies,
-                'menstruation_str': menstruation_str,
-                'expecteddate_str': expecteddate_str,
-                'error': '月經日期格式不正確，請重新輸入',
-            })
+            return _render_error('月經日期格式不正確，請重新輸入', menstruation_str, expecteddate_str)
 
         # 預產期：優先使用使用者填寫的值，否則自動推算
         try:
-            case.expecteddate = datetime.strptime(expecteddate_str, '%Y-%m-%d').date() if expecteddate_str else None
+            new_expecteddate = datetime.strptime(expecteddate_str, '%Y-%m-%d').date() if expecteddate_str else None
         except ValueError:
-            case.expecteddate = None
-        if not case.expecteddate:
-            case.expecteddate = _calculate_expected_date(case.menstruation)
-        case.save()
+            new_expecteddate = None
+        if not new_expecteddate:
+            new_expecteddate = _calculate_expected_date(new_menstruation)
 
-        # 逐一更新每個寶寶名字（baby_name_1, baby_name_2, ...）
+        # ── 逐一解析每位寶寶的姓名／出生時間，並用「新的 LMP」驗證合理性 ──────
+        # 這裡是關鍵修正：LMP 是推算出生週數的權威基準，若使用者調整了 LMP，
+        # 必須重新檢查所有既有（或本次修改）的出生時間是否仍落在 14w~43w 合理區間，
+        # 否則會產生「出生時間與新 LMP 矛盾」的髒資料且完全無提示。
+        baby_updates = []  # [(baby, new_name, new_birthdaytime), ...]
         for i, baby in enumerate(babies, start=1):
-            new_name = (request.POST.get(f'baby_name_{i}') or '').strip()
-            if new_name:
-                baby.name = new_name
-                baby.save()
+            new_name = (request.POST.get(f'baby_name_{i}') or '').strip() or baby.name
 
-        # 若 case 下還沒有任何寶寶，且有填 baby_name_1，則新建一筆
+            birthdaytime_str = (request.POST.get(f'birthdaytime_{i}') or '').strip()
+            if birthdaytime_str:
+                try:
+                    new_birthdaytime = timezone.make_aware(
+                        datetime.strptime(birthdaytime_str, '%Y-%m-%dT%H:%M')
+                    )
+                except ValueError:
+                    return _render_error(
+                        f'「{baby.name}」的出生時間格式不正確', menstruation_str, expecteddate_str
+                    )
+            else:
+                # 沒有送出新的出生時間 → 沿用原本的值，但仍要用新 LMP 重新驗證
+                new_birthdaytime = baby.birthdaytime
+
+            birth_error = validate_birth_datetime(new_menstruation, new_birthdaytime)
+            if birth_error:
+                return _render_error(f'「{baby.name}」：{birth_error}', menstruation_str, expecteddate_str)
+
+            baby_updates.append((baby, new_name, new_birthdaytime))
+
+        # 若 case 下還沒有任何寶寶，且有填 baby_name_1，一併驗證後再建立
+        new_baby_payload = None
         if not babies:
             new_name = (request.POST.get('baby_name_1') or '').strip()
             if new_name:
-                BabyInformation.objects.create(pregnancycase=case, name=new_name)
+                birthdaytime_str = (request.POST.get('birthdaytime_1') or '').strip()
+                new_birthdaytime = None
+                if birthdaytime_str:
+                    try:
+                        new_birthdaytime = timezone.make_aware(
+                            datetime.strptime(birthdaytime_str, '%Y-%m-%dT%H:%M')
+                        )
+                    except ValueError:
+                        return _render_error('出生時間格式不正確', menstruation_str, expecteddate_str)
+                birth_error = validate_birth_datetime(new_menstruation, new_birthdaytime)
+                if birth_error:
+                    return _render_error(birth_error, menstruation_str, expecteddate_str)
+                new_baby_payload = {'name': new_name, 'birthdaytime': new_birthdaytime}
+
+        # ── 驗證全數通過，才真正落地寫入 ──────────────────────────────
+        case.menstruation = new_menstruation
+        case.expecteddate = new_expecteddate
+        case.save()
+
+        for baby, new_name, new_birthdaytime in baby_updates:
+            baby.name = new_name
+            baby.birthdaytime = new_birthdaytime
+            baby.save()
+
+        if new_baby_payload:
+            BabyInformation.objects.create(pregnancycase=case, **new_baby_payload)
 
         return redirect('pregnancy_case')
 
@@ -774,7 +893,10 @@ def edit_pregnancy_case(request):
     return render(request, 'pregnancycase/edit_pregnancy_case.html', {
         'case': case,
         'babies': babies,
+        'baby_inputs': _build_baby_inputs(),
+        'form_data': request.POST if request.method == 'POST' else {},
         'menstruation_str': case.menstruation.strftime('%Y-%m-%d') if case.menstruation else '',
         'expecteddate_str': case.expecteddate.strftime('%Y-%m-%d') if case.expecteddate else '',
         'is_overdue': status == 'overdue',
     })
+
